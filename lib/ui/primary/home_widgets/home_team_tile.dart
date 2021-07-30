@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/tagteam.dart';
+import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
+import 'package:tagteamprod/server/team/team_api.dart';
 
 class MiniDashboardTile extends StatefulWidget {
   final TagTeam team;
@@ -24,41 +26,47 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () async {
-        // await context.read<TeamAuth>().setCurrentTeam(team);
-        // Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => TeamChannels(team: team)));
-      },
-      child: Container(
-        decoration: BoxDecoration(
-            border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200, width: .5),
-        )),
-        height: 80,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(
-              width: 8.0,
-            ),
-            Container(
-              height: 40,
-              width: 40,
-              child: SizedBox.expand(
-                child: Image.asset(
-                  'assets/images/TagTeamLogo.png',
-                  fit: BoxFit.cover,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      child: InkWell(
+        onTap: () async {
+          // await context.read<TeamAuth>().setCurrentTeam(team);
+          // Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => TeamChannels(team: team)));
+
+          await TeamApi().setActiveTeam(team.teamId ?? 0,
+              SnackbarErrorHandler(context, overrideErrorMessage: '${widget.team.name} is not avaiable.'));
+        },
+        child: Container(
+          decoration: BoxDecoration(
+              border: Border(
+            bottom: BorderSide(color: Colors.grey.shade200, width: .5),
+          )),
+          height: 80,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(
+                width: 8.0,
+              ),
+              Container(
+                height: 40,
+                width: 40,
+                child: SizedBox.expand(
+                  child: Image.asset(
+                    'assets/images/TagTeamLogo.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(
-              width: 8.0,
-            ),
-            Text(
-              team.name ?? 'Team Name',
-              style: TextStyle(color: Theme.of(context).accentColor, fontSize: 18.0, fontWeight: FontWeight.w600),
-            ),
-          ],
+              const SizedBox(
+                width: 8.0,
+              ),
+              Text(
+                team.name ?? 'Team Name',
+                style: TextStyle(color: Theme.of(context).accentColor, fontSize: 18.0, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
         ),
       ),
     );

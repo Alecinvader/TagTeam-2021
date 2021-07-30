@@ -25,6 +25,9 @@ class _AppState extends State<App> {
 
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
+  final Color primary = Color(0xFF172A3A);
+  final Color accent = Color(0xFF23C5C6);
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -47,6 +50,11 @@ class _AppState extends State<App> {
           }
 
           return MaterialApp(
+            theme: ThemeData(
+                primaryColor: primary,
+                scaffoldBackgroundColor: primary,
+                accentColor: accent,
+                textTheme: Typography.material2018().white),
             home: SignIn(),
             title: 'TagTeam',
             debugShowCheckedModeBanner: false,

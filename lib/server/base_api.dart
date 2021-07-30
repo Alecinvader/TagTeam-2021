@@ -127,10 +127,10 @@ class Api {
     // Throw any error that came from the server
     final map = jsonDecode(response.body);
 
-    String message = map['Message'];
+    String? message = map['message'];
 
     if (status >= 400 && status <= 599) {
-      throw "Error: $message";
+      throw "Error: ${message ?? 'Unknown error'}";
     } else {
       return responseParser(map);
     }

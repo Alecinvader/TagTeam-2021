@@ -20,14 +20,19 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
     future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
+    // future = Future.value([]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 0,
-        title: Text('Home'),
+        title: Padding(
+          padding: EdgeInsets.only(left: 8.0),
+          child: Text('Home'),
+        ),
       ),
       body: SimpleFutureBuilder(
         builder: (BuildContext context, List<TagTeam>? data) {

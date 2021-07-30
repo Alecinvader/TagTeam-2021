@@ -52,7 +52,7 @@ class _SignInState extends State<SignIn> {
                               },
                               initialValue: _email,
                               // decoration: borderStyle.copyWith(labelText: 'Email Address'),
-    
+
                               keyboardType: TextInputType.emailAddress,
                             ),
                             SizedBox(
@@ -85,7 +85,9 @@ class _SignInState extends State<SignIn> {
                                 onPressed: !_loading
                                     ? () async {
                                         await LoginServices().login(_email, _key, SnackbarErrorHandler(context));
-    
+
+                                        print('did this');
+
                                         await Navigator.push(
                                             context, MaterialPageRoute(builder: (context) => HomePage()));
                                       }

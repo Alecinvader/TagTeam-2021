@@ -18,7 +18,7 @@ class AuthServer implements SafeServer {
       ValueChanger<Map<String, dynamic>, Result> responseParser) async {
     try {
       // attempt to make the first request
-      addCredentials(headers);
+      await addCredentials(headers);
       final firstAttempt = await unsafeServer.get(url, headers, responseParser);
       return firstAttempt;
     } catch (error) {
@@ -39,7 +39,7 @@ class AuthServer implements SafeServer {
       ErrorHandler errorHandler, ValueChanger<Map<String, dynamic>, Result> responseParser) async {
     try {
       // attempt to make the first request
-      addCredentials(headers);
+      await addCredentials(headers);
       final firstAttempt = await unsafeServer.post(url, headers, body, responseParser);
       return firstAttempt;
     } catch (error) {
@@ -50,6 +50,7 @@ class AuthServer implements SafeServer {
       // }
       // if the error was something else, handle it
       errorHandler.onError(error);
+      print(error);
       print(error.toString());
       throw error;
     }
@@ -148,7 +149,7 @@ class AuthServer implements SafeServer {
       ErrorHandler errorHandler, ValueChanger<Map<String, dynamic>, Result> responseParser) async {
     try {
       // attempt to make the first request
-      addCredentials(headers);
+      await addCredentials(headers);
       final firstAtttempt = await unsafeServer.patch(url, headers, body, responseParser);
       return firstAtttempt;
     } catch (error) {
