@@ -26,6 +26,13 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
+          });
+        },
+      ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 0,
@@ -36,6 +43,12 @@ class _HomePageState extends State<HomePage> {
       ),
       body: SimpleFutureBuilder(
         builder: (BuildContext context, List<TagTeam>? data) {
+          if (data?.isEmpty ?? [].isEmpty) {
+            return Center(
+              child: Text('You are not a part of any teams.'),
+            );
+          }
+
           return SafeArea(
             child: Column(
               children: [

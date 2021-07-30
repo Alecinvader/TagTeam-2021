@@ -1,8 +1,12 @@
 import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:tagteamprod/server/auth_api.dart';
 import 'package:tagteamprod/server/errors/error_handler.dart';
+import 'package:tagteamprod/server/errors/error_type.dart';
+import 'package:tagteamprod/server/safe_server.dart';
+import 'package:tagteamprod/ui/login/sign_up.dart';
 
 class LoginServices {
   final AuthServer api = new AuthServer();
@@ -18,10 +22,11 @@ class LoginServices {
       await api.post('/user/signin', {}, {}, handler, (json) {
         return json;
       });
-    } catch (error) {
-      print(error);
-      print('did login error');
-      throw error;
+    } on FirebaseAuthException catch (authError) {
+      ScaffoldMessenger.of(handler.context!).showSnackBar(SnackBar(
+        content: Text(authError.message ?? 'Unkown error occured with FirebaseAuth'),
+      ));
+      throw authError;
     }
   }
 }

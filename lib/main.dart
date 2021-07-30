@@ -51,10 +51,16 @@ class _AppState extends State<App> {
 
           return MaterialApp(
             theme: ThemeData(
+                textSelectionTheme:
+                    TextSelectionThemeData(cursorColor: accent, selectionColor: accent, selectionHandleColor: accent),
+                inputDecorationTheme: InputDecorationTheme(
+                    focusColor: accent,
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                    labelStyle: TextStyle(color: Colors.white)),
                 primaryColor: primary,
                 scaffoldBackgroundColor: primary,
                 accentColor: accent,
-                textTheme: Typography.material2018().white),
+                primaryTextTheme: Typography.material2018().white),
             home: SignIn(),
             title: 'TagTeam',
             debugShowCheckedModeBanner: false,

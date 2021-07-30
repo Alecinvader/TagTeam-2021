@@ -5,6 +5,7 @@ import 'package:tagteamprod/config.dart';
 import 'package:tagteamprod/server/server_logger.dart';
 import 'package:http/http.dart' as http;
 import 'errors/error_handler.dart';
+import 'errors/error_type.dart';
 
 class Api {
   final ServerLogger serverLogger = new ServerLogger();
@@ -130,6 +131,10 @@ class Api {
     String? message = map['message'];
 
     if (status >= 400 && status <= 599) {
+      if (message is String) {
+        throw new ServerError.parse(map);
+      }
+
       throw "Error: ${message ?? 'Unknown error'}";
     } else {
       return responseParser(map);

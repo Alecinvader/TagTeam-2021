@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tagteamprod/server/errors/error_type.dart';
 import 'package:tagteamprod/server/safe_server.dart';
 
 import 'base_api.dart';
@@ -50,8 +51,7 @@ class AuthServer implements SafeServer {
       // }
       // if the error was something else, handle it
       errorHandler.onError(error);
-      print(error);
-      print(error.toString());
+
       throw error;
     }
   }
@@ -83,7 +83,7 @@ class AuthServer implements SafeServer {
     String? accessToken = await FirebaseAuth.instance.currentUser?.getIdToken() ?? '';
 
     if (accessToken.isEmpty) {
-      throw "Token does not exist";
+      throw ServerError('Access token does not exist');
     }
 
     headers[AuthHeaderKey] = 'Bearer $accessToken';
