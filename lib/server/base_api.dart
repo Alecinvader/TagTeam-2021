@@ -33,11 +33,15 @@ class Api {
   ) async {
     Uri serverUrl = Uri.parse(host + url);
     String requestBody = jsonEncode(body);
-    final response = await http.post(
+    final response = await http
+        .post(
       serverUrl,
       headers: headers,
       body: requestBody,
-    );
+    )
+        .timeout(Duration(seconds: 10), onTimeout: () {
+      throw "Connection timed out";
+    });
 
     return _common(serverUrl, response, responseParser, requestBody: requestBody);
   }

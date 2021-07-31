@@ -43,7 +43,7 @@ class _AppState extends State<App> {
           if (appMode == ApplicationMode.dev) {
             FirebaseFirestore.instance.settings = Settings(
                 persistenceEnabled: false,
-                host: Platform.isAndroid ? '10.0.2.2:8081' : 'localhost:8081',
+                host: Platform.isAndroid ? '10.0.2.2:8080' : 'localhost:8080',
                 sslEnabled: false);
 
             // FirebaseFunctions.instance.useFunctionsEmulator(origin: 'http://localhost:5001');
@@ -51,16 +51,17 @@ class _AppState extends State<App> {
 
           return MaterialApp(
             theme: ThemeData(
-                textSelectionTheme:
-                    TextSelectionThemeData(cursorColor: accent, selectionColor: accent, selectionHandleColor: accent),
-                inputDecorationTheme: InputDecorationTheme(
-                    focusColor: accent,
-                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                    labelStyle: TextStyle(color: Colors.white)),
-                primaryColor: primary,
-                scaffoldBackgroundColor: primary,
-                accentColor: accent,
-                primaryTextTheme: Typography.material2018().white),
+              textTheme: Typography.material2018().white,
+              textSelectionTheme:
+                  TextSelectionThemeData(cursorColor: accent, selectionColor: accent, selectionHandleColor: accent),
+              inputDecorationTheme: InputDecorationTheme(
+                  focusColor: accent,
+                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                  labelStyle: TextStyle(color: Colors.white)),
+              primaryColor: primary,
+              scaffoldBackgroundColor: primary,
+              accentColor: accent,
+            ),
             home: SignIn(),
             title: 'TagTeam',
             debugShowCheckedModeBanner: false,

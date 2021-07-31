@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/tagteam.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/team_api.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_message_list.dart';
 
 class MiniDashboardTile extends StatefulWidget {
   final TagTeam team;
@@ -19,7 +20,6 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     team = widget.team;
   }
@@ -30,11 +30,10 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: InkWell(
         onTap: () async {
-          // await context.read<TeamAuth>().setCurrentTeam(team);
-          // Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => TeamChannels(team: team)));
+          await TeamApi().setActiveTeam(
+              team.teamId ?? 0, SnackbarErrorHandler(context, overrideErrorMessage: '${team.name} is not available'));
 
-          await TeamApi().setActiveTeam(team.teamId ?? 0,
-              SnackbarErrorHandler(context, overrideErrorMessage: '${widget.team.name} is not avaiable.'));
+          await Navigator.push(context, MaterialPageRoute(builder: (context) => TeamMessageList(teamId: team.teamId!)));
         },
         child: Container(
           decoration: BoxDecoration(
