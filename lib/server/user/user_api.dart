@@ -1,7 +1,7 @@
-import 'package:tagteamprod/server/auth_api.dart';
-import 'package:tagteamprod/server/errors/error_handler.dart';
-import 'package:tagteamprod/server/responses/server_response.dart';
-import 'package:tagteamprod/server/user/user_request.dart';
+import '../auth_api.dart';
+import '../errors/error_handler.dart';
+import '../responses/server_response.dart';
+import 'user_request.dart';
 
 class UserApi {
   final AuthServer api = new AuthServer();

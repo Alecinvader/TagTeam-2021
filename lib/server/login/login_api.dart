@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tagteamprod/server/auth_api.dart';
-import 'package:tagteamprod/server/errors/error_handler.dart';
+import '../auth_api.dart';
+import '../errors/error_handler.dart';
 
 class LoginServices {
   final AuthServer api = new AuthServer();

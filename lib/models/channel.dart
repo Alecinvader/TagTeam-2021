@@ -1,4 +1,4 @@
-import 'package:tagteamprod/models/message.dart';
+import 'message.dart';
 
 enum ChannelType { message, announcment }
 

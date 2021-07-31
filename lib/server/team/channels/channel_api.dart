@@ -1,9 +1,9 @@
-import 'package:tagteamprod/models/channel.dart';
-import 'package:tagteamprod/models/message.dart';
-import 'package:tagteamprod/server/auth_api.dart';
-import 'package:tagteamprod/server/errors/error_handler.dart';
-import 'package:tagteamprod/server/parsing.dart';
-import 'package:tagteamprod/server/responses/server_response.dart';
+import '../../../models/channel.dart';
+import '../../../models/message.dart';
+import '../../auth_api.dart';
+import '../../errors/error_handler.dart';
+import '../../parsing.dart';
+import '../../responses/server_response.dart';
 
 class ChannelApi {
   final AuthServer api = AuthServer();

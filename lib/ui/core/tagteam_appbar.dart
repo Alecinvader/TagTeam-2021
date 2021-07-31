@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tagteamprod/ui/core/tagteam_constants.dart';
+import 'tagteam_constants.dart';
 
 class TagTeamAppBar extends StatefulWidget {
   final String title;

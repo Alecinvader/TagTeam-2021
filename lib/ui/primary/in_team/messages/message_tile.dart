@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tagteamprod/models/channel.dart';
+import '../../../../models/channel.dart';
+import 'message_page.dart';
 
 class MessagePageTile extends StatefulWidget {
   final Channel channel;
@@ -15,15 +16,12 @@ class _MessagePageTileState extends State<MessagePageTile> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        // setState(() {
-        //   newMessage = false;
-        // });
-        // await Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //         builder: (context) => MessagePage(
-        //               channel: widget.channel,
-        //             )));
+        await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SendMesssagePage(
+                      channel: widget.channel,
+                    )));
       },
       child: Container(
         height: 80,

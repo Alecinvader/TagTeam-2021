@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tagteamprod/server/errors/error_type.dart';
-import 'package:tagteamprod/server/safe_server.dart';
+import 'errors/error_type.dart';
+import 'safe_server.dart';
 
 import 'base_api.dart';
 import 'errors/error_handler.dart';

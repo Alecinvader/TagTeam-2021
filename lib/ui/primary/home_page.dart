@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tagteamprod/models/tagteam.dart';
-import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
-import 'package:tagteamprod/server/team/team_api.dart';
-import 'package:tagteamprod/ui/primary/home_widgets/home_team_tile.dart';
-import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
+import '../../models/tagteam.dart';
+import '../../server/errors/snackbar_error_handler.dart';
+import '../../server/team/team_api.dart';
+import 'home_widgets/home_team_tile.dart';
+import '../utility/core/better_future_builder.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

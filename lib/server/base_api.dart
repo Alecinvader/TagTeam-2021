@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:tagteamprod/config.dart';
-import 'package:tagteamprod/server/server_logger.dart';
+import '../config.dart';
+import 'server_logger.dart';
 import 'package:http/http.dart' as http;
 import 'errors/error_handler.dart';
 import 'errors/error_type.dart';

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
-import 'package:tagteamprod/server/login/login_api.dart';
-import 'package:tagteamprod/ui/login/sign_up.dart';
-import 'package:tagteamprod/ui/login/splash_page.dart';
-import 'package:tagteamprod/ui/primary/home_page.dart';
+import '../../server/errors/snackbar_error_handler.dart';
+import '../../server/login/login_api.dart';
+import 'sign_up.dart';
+import 'splash_page.dart';
+import '../primary/home_page.dart';
 
 import '../../config.dart';
 

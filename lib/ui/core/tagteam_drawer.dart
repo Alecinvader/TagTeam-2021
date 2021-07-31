@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tagteamprod/ui/login/sign_in.dart';
-import 'package:tagteamprod/ui/primary/home_page.dart';
+import '../login/sign_in.dart';
+import '../primary/home_page.dart';
 
 class MenuDrawer extends StatelessWidget {
   @override

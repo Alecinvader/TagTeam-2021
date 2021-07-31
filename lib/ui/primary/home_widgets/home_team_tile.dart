@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:tagteamprod/models/tagteam.dart';
-import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
-import 'package:tagteamprod/server/team/team_api.dart';
-import 'package:tagteamprod/ui/primary/in_team/team_message_list.dart';
+import '../../../models/tagteam.dart';
+import '../../../server/errors/snackbar_error_handler.dart';
+import '../../../server/team/team_api.dart';
+import '../in_team/team_message_list.dart';
 
 class MiniDashboardTile extends StatefulWidget {
   final TagTeam team;

@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:tagteamprod/models/channel.dart';
-import 'package:tagteamprod/models/message.dart';
-import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
-import 'package:tagteamprod/server/team/channels/channel_api.dart';
-import 'package:tagteamprod/ui/core/tagteam_appbar.dart';
-import 'package:tagteamprod/ui/core/tagteam_drawer.dart';
-import 'package:tagteamprod/ui/primary/in_team/messages/message_tile.dart';
+import '../../../models/channel.dart';
+import '../../../models/message.dart';
+import '../../../server/errors/snackbar_error_handler.dart';
+import '../../../server/team/channels/channel_api.dart';
+import '../../core/tagteam_appbar.dart';
+import '../../core/tagteam_drawer.dart';
+import 'messages/message_tile.dart';
 
 class TeamMessageList extends StatefulWidget {
   final int teamId;
@@ -49,12 +49,7 @@ class _TeamMessageListState extends State<TeamMessageList> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await ChannelApi().sendMessage(
-              110,
-              Message(message: 'Hello this is an epic test message!', messageType: MessageType.text),
-              SnackbarErrorHandler(context));
-        },
+        onPressed: () async {},
       ),
       drawer: MenuDrawer(),
       body: SafeArea(
