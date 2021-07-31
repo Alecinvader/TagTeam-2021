@@ -53,20 +53,19 @@ class _MessagePageTileState extends State<MessagePageTile> {
                     widget.channel.name ?? "Unknown",
                     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
-                  // widget.channel.mostRecentMessage.sender != null
-                  //     ? Text(
-                  //         widget.channel.mostRecentMessage.sender.displayName +
-                  //                 ': ' +
-                  //                 widget.channel.mostRecentMessage.textContent ??
-                  //             '',
-                  //         style: TextStyle(
-                  //           color: Colors.grey,
-                  //           fontSize: 14.0,
-                  //         ),
-                  //         maxLines: 2,
-                  //         overflow: TextOverflow.ellipsis,
-                  //       )
-                  //     : const SizedBox()
+                  widget.channel.mostRecentMessage?.senderDisplayName != null
+                      ? Text(
+                          widget.channel.mostRecentMessage!.senderDisplayName! +
+                              ': ' +
+                              widget.channel.mostRecentMessage!.message!,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14.0,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : const SizedBox()
                 ],
               ),
             ),

@@ -1,16 +1,9 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
-import 'package:tagteamprod/server/login/login_api.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/server/user/user_request.dart';
-import 'package:tagteamprod/ui/login/sign_in.dart';
-import 'package:tagteamprod/ui/login/splash_page.dart';
 import 'package:tagteamprod/ui/primary/home_page.dart';
-
-import '../../config.dart';
 
 class SignUp extends StatefulWidget {
   final bool accountSetup;

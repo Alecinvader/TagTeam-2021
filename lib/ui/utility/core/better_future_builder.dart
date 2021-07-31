@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 typedef ErrorBuilder = Widget Function(BuildContext context, Object? error);

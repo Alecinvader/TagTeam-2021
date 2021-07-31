@@ -1,11 +1,11 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/models/channel.dart';
 import 'package:tagteamprod/models/message.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
+import 'package:tagteamprod/ui/core/tagteam_appbar.dart';
+import 'package:tagteamprod/ui/core/tagteam_drawer.dart';
 import 'package:tagteamprod/ui/primary/in_team/messages/message_tile.dart';
 
 class TeamMessageList extends StatefulWidget {
@@ -22,14 +22,17 @@ class _TeamMessageListState extends State<TeamMessageList> {
   Stream<QuerySnapshot>? stream1;
   List<String> firebaseUniques = [];
 
+  List<Channel> channels = [];
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     channelFuture = fetchChannels().then((value) {
+      setState(() {
+        channels = value;
+      });
       if (firebaseUniques.isNotEmpty) {
-        print('did this');
         setState(() {
           stream1 = FirebaseFirestore.instance
               .collection('channels')
@@ -37,10 +40,9 @@ class _TeamMessageListState extends State<TeamMessageList> {
               .snapshots();
         });
       }
+
       return value;
     });
-
-    // Stream stream1 = FirebaseFirestore.instance.collection('channels').where('')
   }
 
   @override
@@ -48,51 +50,68 @@ class _TeamMessageListState extends State<TeamMessageList> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          print('was pressed');
           await ChannelApi().sendMessage(
-              105,
+              110,
               Message(message: 'Hello this is an epic test message!', messageType: MessageType.text),
               SnackbarErrorHandler(context));
         },
       ),
-      drawer: Drawer(),
-      appBar: AppBar(
-        title: Text('Messages'),
-        elevation: 0,
-      ),
+      drawer: MenuDrawer(),
       body: SafeArea(
         child: Container(
           child: Column(
             children: [
+              TagTeamAppBar(onTap: () {}, title: 'Messages'),
               StreamBuilder<QuerySnapshot>(
                   stream: stream1,
                   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                     if (snapshot.hasData) {
-                      var temp = snapshot.data!.docs;
+                      convertSnapshotIntoChannels(snapshot.data?.docs ?? []);
 
                       return Expanded(
                         child: ListView.builder(
                           itemBuilder: (context, index) {
-                            Map<String, dynamic> data = temp[index].data() as Map<String, dynamic>;
-
-                            Channel currentChannel = Channel.fromJson(data);
+                            Channel currentChannel = channels[index];
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16.0),
                               child: MessagePageTile(channel: currentChannel),
                             );
                           },
-                          itemCount: temp.length,
+                          itemCount: channels.length,
                         ),
                       );
-                    } else
-                      return Text('dont have data');
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
                   }),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void convertSnapshotIntoChannels(List<QueryDocumentSnapshot> list) {
+    List<Channel> tempChannels = List.generate(list.length, (index) {
+      return Channel.fromJson({...list[index].data() as Map<String, dynamic>, "firebaseID": list[index].id});
+    });
+
+    tempChannels.forEach((Channel element) {
+      Channel? matchingIdChannel = channels.firstWhere((element) => element.firebaseId == element.firebaseId);
+      element.id = matchingIdChannel.id;
+    });
+
+    tempChannels.sort((a, b) {
+      DateTime firstMessage = a.mostRecentMessage?.createdAt ?? DateTime(2000);
+      DateTime secondMessage = b.mostRecentMessage?.createdAt ?? DateTime(2000);
+
+      return secondMessage.compareTo(firstMessage);
+    });
+
+    channels = tempChannels;
   }
 
   Future<List<Channel>> fetchChannels() async {

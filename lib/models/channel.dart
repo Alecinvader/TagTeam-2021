@@ -1,3 +1,5 @@
+import 'package:tagteamprod/models/message.dart';
+
 enum ChannelType { message, announcment }
 
 class Channel {
@@ -7,6 +9,8 @@ class Channel {
   String? name;
   ChannelType? type;
   bool? public;
+
+  Message? mostRecentMessage;
 
   // TOOD: Parse channel Types
   toJson() {
@@ -22,5 +26,6 @@ class Channel {
     name = json['name'];
     type = ChannelType.message;
     public = json['public'] == 1 ? true : false;
+    mostRecentMessage = json['mostRecentMessage'] != null ? Message.fromJson(json['mostRecentMessage']) : null;
   }
 }

@@ -17,7 +17,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
     // future = Future.value([]);
