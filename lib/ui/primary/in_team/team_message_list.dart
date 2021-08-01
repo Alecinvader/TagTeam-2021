@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../../models/channel.dart';
@@ -24,13 +26,15 @@ class _TeamMessageListState extends State<TeamMessageList> {
 
   List<Channel> channels = [];
 
+  List<Channel> sqlDataChannels = [];
+
   @override
   void initState() {
     super.initState();
 
     channelFuture = fetchChannels().then((value) {
       setState(() {
-        channels = value;
+        sqlDataChannels = value;
       });
       if (firebaseUniques.isNotEmpty) {
         setState(() {
@@ -94,10 +98,15 @@ class _TeamMessageListState extends State<TeamMessageList> {
       return Channel.fromJson({...list[index].data() as Map<String, dynamic>, "firebaseID": list[index].id});
     });
 
-    tempChannels.forEach((Channel element) {
-      Channel? matchingIdChannel = channels.firstWhere((element) => element.firebaseId == element.firebaseId);
-      element.id = matchingIdChannel.id;
-    });
+    // Match up initial channel ID's with Firebase collection data
+    // Need to hard refresh in order to setup new incoming channels
+    for (int i = 0; i < sqlDataChannels.length; i++) {
+      tempChannels.forEach((element) {
+        if (element.firebaseId == sqlDataChannels[i].firebaseId) {
+          element.id = sqlDataChannels[i].id;
+        }
+      });
+    }
 
     tempChannels.sort((a, b) {
       DateTime firstMessage = a.mostRecentMessage?.createdAt ?? DateTime(2000);

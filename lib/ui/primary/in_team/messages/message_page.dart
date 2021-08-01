@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import '../../../../models/channel.dart';
 import '../../../../models/message.dart';
 import '../../../../server/errors/snackbar_error_handler.dart';
@@ -22,6 +25,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   late Channel channel;
 
   List<Message> messages = [];
+
+  String? _pendingMessage;
 
   @override
   void initState() {
@@ -65,23 +70,46 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                           itemCount: messages.length,
                           itemBuilder: (context, index) {
                             return MessageBubble(
-                                showsMessageDate: getIsMessageFirstOfDay(index), message: messages[index]);
+                                isInGroup: getIsInGroup(index),
+                                showsMessageDate: getIsMessageFirstOfDay(index),
+                                isFirstOfGroup: getIsMessageFirstInGroup(index),
+                                isLastOfGroup: getIsMessageLastInGroup(index),
+                                message: messages[index]);
                           })),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GestureDetector(
-                      onTap: () async {
-                        await ChannelApi().sendMessage(
-                            110,
-                            Message(
-                                message:
-                                    'Hello this is an epic test message! with some very long text that I am sending around to all my good friends and testing this blah blah blah.',
-                                messageType: MessageType.text),
-                            SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message'));
-                      },
-                      child: Container(
-                        height: 40,
-                        child: Center(child: Text('TextBox')),
+                    padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: kLightBackgroundColor,
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              onChanged: (String value) {
+                                _pendingMessage = value;
+                              },
+                              decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.only(left: 8.0, right: 8.0),
+                                  focusedBorder: InputBorder.none),
+                            ),
+                          ),
+                          TextButton(
+                              onPressed: () async {
+                                if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
+                                  await ChannelApi().sendMessage(
+                                      110,
+                                      widget.channel.teamId!,
+                                      Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
+                                      SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message'));
+                                }
+                              },
+                              child: Text(
+                                'Send',
+                                style: TextStyle(color: Theme.of(context).accentColor),
+                              ))
+                        ],
                       ),
                     ),
                   ),
@@ -116,9 +144,46 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     return false;
   }
 
-  // bool getIsMessageFirstInGroup(int index) {
+  bool getIsMessageFirstInGroup(int index) {
+    if (index == messages.length - 1) {
+      return true;
+    } else if (messages.length == 1) {
+      return true;
+    } else if (index == 0) {
+      return false;
+    } else if (messages[index].senderId == messages[index + 1].senderId &&
+        messages[index].senderId != messages[index - 1].senderId) {
+      return true;
+    }
 
-  // }
+    return false;
+  }
 
-  // bool getIsMessageLastInGroup(int index) {}
+  bool getIsInGroup(int index) {
+    if (messages.length == 1) {
+      return false;
+    } else if (index == 0 && messages[index + 1].senderId == messages[index].senderId) {
+      return true;
+    } else if (index == messages.length - 1 && messages[index - 1].senderId == messages[index].senderId) {
+      return true;
+    } else if (messages[index + 1].senderId == messages[index].senderId) {
+      return true;
+    } else if (messages[index - 1].senderId == messages[index].senderId) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool getIsMessageLastInGroup(int index) {
+    if (getIsInGroup(index) == false) {
+      return false;
+    } else if (index == 0) {
+      return true;
+    } else if (messages[index - 1].senderId != messages[index].senderId) {
+      return true;
+    }
+
+    return false;
+  }
 }

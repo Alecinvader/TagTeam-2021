@@ -9,13 +9,15 @@ class MessageBubble extends StatefulWidget {
   final bool showsMessageDate;
   final bool isFirstOfGroup;
   final bool isLastOfGroup;
+  final bool isInGroup;
 
   MessageBubble(
       {Key? key,
       required this.message,
       this.showsMessageDate = false,
       this.isFirstOfGroup = false,
-      this.isLastOfGroup = false})
+      this.isLastOfGroup = false,
+      this.isInGroup = false})
       : super(key: key);
 
   @override
@@ -26,12 +28,14 @@ class _MessageBubbleState extends State<MessageBubble> {
   bool showsMessageDate = false;
   bool isFirstOfGroup = false;
   bool isLastOfGroup = false;
+  bool isInGroup = false;
 
   @override
   Widget build(BuildContext context) {
     showsMessageDate = widget.showsMessageDate;
     isFirstOfGroup = widget.isFirstOfGroup;
     isLastOfGroup = widget.isLastOfGroup;
+    isInGroup = widget.isInGroup;
 
     return Column(
       children: [
@@ -48,6 +52,7 @@ class _MessageBubbleState extends State<MessageBubble> {
           padding: columnPadding,
           child: Column(
             children: [
+              isFirstOfGroup && !isMyMessage ? Text(widget.message.senderDisplayName!) : SizedBox.shrink(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -74,7 +79,10 @@ class _MessageBubbleState extends State<MessageBubble> {
   }
 
   bool get isMyMessage => FirebaseAuth.instance.currentUser?.uid == widget.message.senderId;
-  bool get isInGroup => isFirstOfGroup || isLastOfGroup;
+
+  Widget get avatarSpacer => SizedBox(
+        width: 44.0,
+      );
   Color get messageColor => isMyMessage ? Theme.of(context).accentColor : Colors.blue;
   Widget get userAvatar => isInGroup && isLastOfGroup || !isInGroup
       ? Padding(
@@ -84,10 +92,11 @@ class _MessageBubbleState extends State<MessageBubble> {
             radius: 18,
           ),
         )
-      : SizedBox.shrink();
+      : avatarSpacer;
 
-  EdgeInsets get columnPadding =>
-      isMyMessage ? EdgeInsets.only(left: 64.0, right: 16.0) : EdgeInsets.only(right: 64.0, left: 16.0);
+  EdgeInsets get columnPadding => isMyMessage
+      ? EdgeInsets.only(left: 64.0, right: 16.0, top: 6.0, bottom: 6.0)
+      : EdgeInsets.only(right: 64.0, left: 16.0);
 
   String formatTime(DateTime date, BuildContext context) {
     return TimeOfDay.fromDateTime(date).format(context);

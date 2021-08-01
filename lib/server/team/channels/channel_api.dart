@@ -14,8 +14,8 @@ class ChannelApi {
     });
   }
 
-  Future<ServerResponse> sendMessage(int channelId, Message message, ErrorHandler handler) async {
-    return await api.post('/channel/$channelId/message', {}, message.toJson(), handler, (map) {
+  Future<ServerResponse> sendMessage(int channelId, int teamId, Message message, ErrorHandler handler) async {
+    return await api.post('/channel/$teamId/$channelId/message', {}, message.toJson(), handler, (map) {
       return ServerResponse.fromJson(map);
     });
   }
