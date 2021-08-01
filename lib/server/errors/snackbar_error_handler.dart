@@ -11,20 +11,23 @@ class SnackbarErrorHandler extends ErrorHandler {
 
   @override
   void onError(error) {
-    ScaffoldMessenger.maybeOf(context!)!.showSnackBar(new SnackBar(
-      content: Row(
-        children: [
-          Icon(
-            Icons.error_outline,
-            color: Colors.white,
-          ),
-          const SizedBox(
-            width: 12.0,
-          ),
-          Flexible(child: Text(overrideErrorMessage ?? error.toString()))
-        ],
+    ScaffoldMessenger.maybeOf(context!)!.showSnackBar(
+      new SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Colors.white,
+            ),
+            const SizedBox(
+              width: 12.0,
+            ),
+            Flexible(child: Text(overrideErrorMessage ?? error.toString()))
+          ],
+        ),
+        behavior: SnackBarBehavior.floating,
       ),
-    ));
+    );
 
     if (onErrorHandler != null) onErrorHandler!();
   }

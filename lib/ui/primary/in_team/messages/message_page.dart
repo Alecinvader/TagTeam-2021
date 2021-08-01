@@ -24,6 +24,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   late Stream<QuerySnapshot> messageStream;
   late Channel channel;
 
+  final TextEditingController _textFieldController = new TextEditingController();
+
   List<Message> messages = [];
 
   String? _pendingMessage;
@@ -87,19 +89,25 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                         children: [
                           Expanded(
                             child: TextField(
+                              minLines: 1,
+                              maxLines: 6,
+                              controller: _textFieldController,
                               onChanged: (String value) {
                                 _pendingMessage = value;
                               },
                               decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 8.0, right: 8.0),
-                                  focusedBorder: InputBorder.none),
+                                  contentPadding: EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0, bottom: 6.0),
+                                  focusedBorder: InputBorder.none,
+                                  enabledBorder: InputBorder.none),
                             ),
                           ),
                           TextButton(
                               onPressed: () async {
                                 if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
+                                  _textFieldController.clear();
+
                                   await ChannelApi().sendMessage(
-                                      110,
+                                      widget.channel.id!,
                                       widget.channel.teamId!,
                                       Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
                                       SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message'));
@@ -153,17 +161,17 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
       return false;
     } else if (messages[index].senderId == messages[index + 1].senderId &&
         messages[index].senderId != messages[index - 1].senderId) {
-      return true;
+      return false;
     }
 
-    return false;
+    return true;
   }
 
   bool getIsInGroup(int index) {
     if (messages.length == 1) {
       return false;
-    } else if (index == 0 && messages[index + 1].senderId == messages[index].senderId) {
-      return true;
+    } else if (index == 0 && messages[index + 1].senderId != messages[index].senderId) {
+      return false;
     } else if (index == messages.length - 1 && messages[index - 1].senderId == messages[index].senderId) {
       return true;
     } else if (messages[index + 1].senderId == messages[index].senderId) {

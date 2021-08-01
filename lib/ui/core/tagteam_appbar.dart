@@ -24,6 +24,7 @@ class _CustomAppbarState extends State<TagTeamAppBar> {
           color: kLightBackgroundColor,
           elevation: 4.0,
           child: InkWell(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
             onTap: () {
               widget.onTap();
             },

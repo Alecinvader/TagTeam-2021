@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import '../../../../models/message.dart';
 import '../../../core/tagteam_circleavatar.dart';
 
@@ -52,7 +53,17 @@ class _MessageBubbleState extends State<MessageBubble> {
           padding: columnPadding,
           child: Column(
             children: [
-              isFirstOfGroup && !isMyMessage ? Text(widget.message.senderDisplayName!) : SizedBox.shrink(),
+              isFirstOfGroup && !isMyMessage || (!isMyMessage && !isInGroup)
+                  ? Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 64.0, left: 44.0, bottom: 2.0),
+                        child: Text(
+                          widget.message.senderDisplayName!,
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ))
+                  : SizedBox.shrink(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -83,7 +94,7 @@ class _MessageBubbleState extends State<MessageBubble> {
   Widget get avatarSpacer => SizedBox(
         width: 44.0,
       );
-  Color get messageColor => isMyMessage ? Theme.of(context).accentColor : Colors.blue;
+  Color get messageColor => isMyMessage ? Theme.of(context).accentColor : kLightBackgroundColor;
   Widget get userAvatar => isInGroup && isLastOfGroup || !isInGroup
       ? Padding(
           padding: isMyMessage ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
@@ -94,9 +105,33 @@ class _MessageBubbleState extends State<MessageBubble> {
         )
       : avatarSpacer;
 
-  EdgeInsets get columnPadding => isMyMessage
-      ? EdgeInsets.only(left: 64.0, right: 16.0, top: 6.0, bottom: 6.0)
-      : EdgeInsets.only(right: 64.0, left: 16.0);
+  EdgeInsets get columnPadding {
+    if (isMyMessage && isFirstOfGroup) {
+      return EdgeInsets.only(left: 64.0, right: 16.0, top: 6.0, bottom: 2.0);
+    } else if (isMyMessage && isLastOfGroup) {
+      return EdgeInsets.only(left: 64.0, right: 16.0, bottom: 6.0);
+    } else if (isMyMessage && isInGroup) {
+      return EdgeInsets.only(left: 64.0, right: 16.0, bottom: 2.0);
+    } else if (isMyMessage) {
+      return EdgeInsets.only(left: 64.0, right: 16.0, bottom: 6.0, top: 6.0);
+    }
+
+    if (!isMyMessage && isFirstOfGroup) {
+      return EdgeInsets.only(right: 64.0, left: 16.0, top: 6.0, bottom: 2.0);
+    } else if (!isMyMessage && isLastOfGroup) {
+      return EdgeInsets.only(right: 64.0, left: 16.0, bottom: 6.0);
+    } else if (!isMyMessage && isInGroup) {
+      return EdgeInsets.only(right: 64.0, left: 16.0, bottom: 2.0);
+    } else if (!isMyMessage) {
+      return EdgeInsets.only(right: 64.0, left: 16.0, bottom: 6.0, top: 6.0);
+    }
+
+    return EdgeInsets.all(16.0);
+
+    // isMyMessage
+    //   ? EdgeInsets.only(left: 64.0, right: 16.0, top: 6.0, bottom: 6.0)
+    //   : EdgeInsets.only(right: 64.0, left: 16.0);
+  }
 
   String formatTime(DateTime date, BuildContext context) {
     return TimeOfDay.fromDateTime(date).format(context);
