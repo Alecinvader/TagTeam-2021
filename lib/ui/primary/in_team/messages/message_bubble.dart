@@ -79,7 +79,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                       ),
                     ),
                   ),
-                  isMyMessage ? userAvatar : SizedBox.shrink(),
+                  // isMyMessage ? userAvatar : SizedBox.shrink(),
                 ],
               )
             ],

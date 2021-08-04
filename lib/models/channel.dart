@@ -12,6 +12,8 @@ class Channel {
 
   Message? mostRecentMessage;
 
+  Channel();
+
   // TOOD: Parse channel Types
   toJson() {
     return {

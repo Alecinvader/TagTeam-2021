@@ -51,6 +51,7 @@ class _AppState extends State<App> {
 
           return MaterialApp(
             theme: ThemeData(
+              unselectedWidgetColor: Colors.white60,
               textTheme: Typography.material2018().white,
               textSelectionTheme:
                   TextSelectionThemeData(cursorColor: accent, selectionColor: accent, selectionHandleColor: accent),

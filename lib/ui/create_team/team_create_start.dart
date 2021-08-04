@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/create_team/team_next_button.dart';
+import 'package:tagteamprod/ui/primary/channels/create_single_channel.dart';
 
 import 'team_create_channels.dart';
 
@@ -48,8 +49,7 @@ class _TeamBasicDetailsState extends State<TeamBasicDetails> {
                   alignment: Alignment.bottomRight,
                   child: CircleNextButton(
                     onPressed: () async {
-                      print('doing this');
-                      await Navigator.push(context, MaterialPageRoute(builder: (context) => TeamCreateChannels()));
+                      await Navigator.push(context, MaterialPageRoute(builder: (context) => CreateSingleChannel()));
                     },
                     enabled: teamName.isNotEmpty,
                   ),

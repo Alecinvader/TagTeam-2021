@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:tagteamprod/ui/primary/channels/create_single_channel.dart';
 import '../../../models/channel.dart';
 import '../../../models/message.dart';
 import '../../../server/errors/snackbar_error_handler.dart';
@@ -53,7 +54,14 @@ class _TeamMessageListState extends State<TeamMessageList> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {},
+        onPressed: () async {
+          await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => CreateSingleChannel(
+                        teamId: widget.teamId,
+                      )));
+        },
       ),
       drawer: MenuDrawer(),
       body: SafeArea(
@@ -68,16 +76,35 @@ class _TeamMessageListState extends State<TeamMessageList> {
                       convertSnapshotIntoChannels(snapshot.data?.docs ?? []);
 
                       return Expanded(
-                        child: ListView.builder(
-                          itemBuilder: (context, index) {
-                            Channel currentChannel = channels[index];
+                        child: RefreshIndicator(
+                          onRefresh: () async {
+                            await fetchChannels().then((value) {
+                              setState(() {
+                                sqlDataChannels = value;
+                              });
+                              if (firebaseUniques.isNotEmpty) {
+                                setState(() {
+                                  stream1 = FirebaseFirestore.instance
+                                      .collection('channels')
+                                      .where(FieldPath.documentId, whereIn: firebaseUniques)
+                                      .snapshots();
+                                });
+                              }
 
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: MessagePageTile(channel: currentChannel),
-                            );
+                              return value;
+                            });
                           },
-                          itemCount: channels.length,
+                          child: ListView.builder(
+                            itemBuilder: (context, index) {
+                              Channel currentChannel = channels[index];
+
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: MessagePageTile(channel: currentChannel),
+                              );
+                            },
+                            itemCount: channels.length,
+                          ),
                         ),
                       );
                     } else {
