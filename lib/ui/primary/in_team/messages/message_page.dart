@@ -45,8 +45,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        title: Text(channel.name!),
+        elevation: 0.0,
+        title: Text(widget.channel.name!),
       ),
       body: TextFieldToggler(
         child: StreamBuilder<QuerySnapshot>(
@@ -66,18 +66,18 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
               child: Column(
                 children: [
                   Expanded(
-                      child: ListView.builder(
-                          physics: AlwaysScrollableScrollPhysics(),
-                          reverse: true,
-                          itemCount: messages.length,
-                          itemBuilder: (context, index) {
-                            return MessageBubble(
-                                isInGroup: getIsInGroup(index),
-                                showsMessageDate: getIsMessageFirstOfDay(index),
-                                isFirstOfGroup: getIsMessageFirstInGroup(index),
-                                isLastOfGroup: getIsMessageLastInGroup(index),
-                                message: messages[index]);
-                          })),
+                    child: CustomScrollView(reverse: true, slivers: [
+                      SliverList(
+                          delegate: SliverChildBuilderDelegate((context, index) {
+                        return MessageBubble(
+                            isInGroup: getIsInGroup(index),
+                            showsMessageDate: getIsMessageFirstOfDay(index),
+                            isFirstOfGroup: getIsMessageFirstInGroup(index),
+                            isLastOfGroup: getIsMessageLastInGroup(index),
+                            message: messages[index]);
+                      }, childCount: messages.length)),
+                    ]),
+                  ),
                   Padding(
                     padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
                     child: Container(
@@ -162,9 +162,12 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     } else if (messages[index].senderId == messages[index + 1].senderId &&
         messages[index].senderId != messages[index - 1].senderId) {
       return false;
+    } else if (messages[index].senderId == messages[index - 1].senderId &&
+        messages[index].senderId != messages[index + 1].senderId) {
+      return true;
     }
 
-    return true;
+    return false;
   }
 
   bool getIsInGroup(int index) {

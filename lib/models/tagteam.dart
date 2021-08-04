@@ -12,4 +12,11 @@ class TagTeam {
     ownerId = json['ownerID'];
     inviteCode = json['inviteCode'];
   }
+
+  toJson() {
+    return {
+      'name': name,
+      'imageLink': imageLink,
+    };
+  }
 }

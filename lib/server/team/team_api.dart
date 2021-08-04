@@ -1,3 +1,5 @@
+import 'package:tagteamprod/models/create_team_request.dart';
+
 import '../../models/tagteam.dart';
 import '../auth_api.dart';
 import '../errors/error_handler.dart';
@@ -14,6 +16,12 @@ class TeamApi {
         '/team/all', {}, handler, (map) => {temp = parseJsonList(map['teams'], (json) => TagTeam.fromJson(json))});
 
     return temp;
+  }
+
+  Future<ServerResponse> createTeam(CreateTeamRequest request, ErrorHandler handler) async {
+    return await api.post('/team/create', {}, request.toJson(), handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
   }
 
   Future<ServerResponse> setActiveTeam(int id, ErrorHandler handler) async {

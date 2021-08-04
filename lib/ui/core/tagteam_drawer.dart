@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagteamprod/ui/create_team/team_create_start.dart';
 import '../login/sign_in.dart';
 import '../primary/home_page.dart';
 
@@ -54,7 +55,7 @@ class MenuDrawer extends StatelessWidget {
                       ),
                       ListTile(
                         onTap: () {
-                          Navigator.pushNamed(context, 'basic-team');
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => TeamBasicDetails()));
                         },
                         leading: Icon(
                           Icons.add_circle_outline_outlined,

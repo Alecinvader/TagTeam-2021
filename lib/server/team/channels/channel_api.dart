@@ -19,4 +19,11 @@ class ChannelApi {
       return ServerResponse.fromJson(map);
     });
   }
+
+  Future<ServerResponse> createChannels(List<Channel> channels, int teamId, ErrorHandler handler) async {
+    return await api.post('/channel/$teamId', {},
+        {'channels': List.generate(channels.length, (index) => channels[index].toJson())}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
 }

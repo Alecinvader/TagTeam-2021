@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagteamprod/ui/core/tagteam_drawer.dart';
 import '../../models/tagteam.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/team/team_api.dart';
@@ -32,8 +33,9 @@ class _HomePageState extends State<HomePage> {
           });
         },
       ),
+      drawer: MenuDrawer(),
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        // automaticallyImplyLeading: false,
         elevation: 0,
         title: Padding(
           padding: EdgeInsets.only(left: 8.0),

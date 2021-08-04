@@ -16,6 +16,8 @@ class Channel {
   toJson() {
     return {
       "name": name,
+      "type": "MessageType.message",
+      "teamID": teamId,
     };
   }
 
