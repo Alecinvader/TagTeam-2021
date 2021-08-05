@@ -1,3 +1,5 @@
+import 'package:tagteamprod/models/user.dart';
+
 import 'message.dart';
 
 enum ChannelType { message, announcment }
@@ -12,6 +14,8 @@ class Channel {
 
   Message? mostRecentMessage;
 
+  List<User> users = [];
+
   Channel();
 
   // TOOD: Parse channel Types
@@ -20,6 +24,8 @@ class Channel {
       "name": name,
       "type": "MessageType.message",
       "teamID": teamId,
+      "users": List.generate(users.length, (index) => users[index].uid),
+      "public": public == true ? 1 : 0
     };
   }
 

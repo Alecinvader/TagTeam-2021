@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/models/channel.dart';
 import 'package:tagteamprod/models/message.dart';
+import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
+import 'package:tagteamprod/server/responses/server_response.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
+import 'package:tagteamprod/ui/primary/channels/channel_select_users.dart';
 
 class CreateSingleChannel extends StatefulWidget {
   final int? teamId;
@@ -17,7 +22,16 @@ class CreateSingleChannel extends StatefulWidget {
 class _CreateSingleChannelState extends State<CreateSingleChannel> {
   ChannelType selectedMessageType = ChannelType.message;
 
-  Channel channel = new Channel();
+  late Channel channel;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    channel = new Channel();
+    channel.public = true;
+    channel.name = '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +131,8 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.chat_bubble,
+                            Icons.campaign_outlined,
+                            size: 30,
                             color: Colors.grey.shade400,
                           ),
                         ],
@@ -149,10 +164,11 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
                         ),
                       ),
                       Switch.adaptive(
-                          value: channel.public ?? false,
+                          value: !channel.public!,
                           onChanged: (value) {
+                            print(value);
                             setState(() {
-                              channel.public = value;
+                              channel.public = !channel.public!;
                             });
                           })
                     ],
@@ -163,22 +179,9 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: TextButton(
-                      onPressed: () async {
-                        channel.type = selectedMessageType;
-                        channel.teamId = widget.teamId;
-                        if (widget.teamId != null) {
-                          await ChannelApi().createChannels([channel], widget.teamId!, SnackbarErrorHandler(context));
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('Channel will be created shortly'),
-                            behavior: SnackBarBehavior.floating,
-                          ));
-                          Navigator.pop(context);
-                        } else {
-                          Navigator.pop(context, channel);
-                        }
-                      },
+                      onPressed: selectUsersForChannel,
                       child: Text(
-                        'CREATE',
+                        !checkIfCanAddUsers && channel.name!.isNotEmpty ? 'CREATE' : 'NEXT',
                         style: TextStyle(color: Theme.of(context).accentColor),
                       )),
                 ),
@@ -188,5 +191,41 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
         ),
       ),
     );
+  }
+
+  bool get checkIfCanAddUsers {
+    if (channel.public == null)
+      return false;
+    else if (channel.public == true)
+      return false;
+    else if (widget.teamId != null) return true;
+    return false;
+  }
+
+  Future selectUsersForChannel() async {
+    List<User>? selectedUsers = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ChannelAddUsers(
+                  teamId: widget.teamId!,
+                  channel: channel,
+                )));
+
+    inspect(selectedUsers);
+  }
+
+  Future createChannel() async {
+    channel.type = selectedMessageType;
+    channel.teamId = widget.teamId;
+    if (widget.teamId != null) {
+      await ChannelApi().createChannels([channel], widget.teamId!, SnackbarErrorHandler(context));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Channel will be created shortly'),
+        behavior: SnackBarBehavior.floating,
+      ));
+      Navigator.pop(context);
+    } else {
+      Navigator.pop(context, channel);
+    }
   }
 }
