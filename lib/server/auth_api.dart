@@ -130,7 +130,8 @@ class AuthServer implements SafeServer {
       ErrorHandler errorHandler, ValueChanger<Map<String, dynamic>, Result> responseParser) async {
     try {
       // attempt to make the first request
-      addCredentials(headers);
+      // print(addCredentials(headers));
+      await addCredentials(headers);
       final firstAttempt = await unsafeServer.delete(url, headers, body, responseParser);
       return firstAttempt;
     } catch (error) {

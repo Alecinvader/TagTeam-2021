@@ -51,6 +51,7 @@ class _AppState extends State<App> {
 
           return MaterialApp(
             theme: ThemeData(
+              iconTheme: IconThemeData(color: Colors.white),
               unselectedWidgetColor: Colors.white60,
               textTheme: Typography.material2018().white,
               textSelectionTheme:

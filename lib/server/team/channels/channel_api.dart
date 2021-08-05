@@ -1,3 +1,5 @@
+import 'package:tagteamprod/models/user.dart';
+
 import '../../../models/channel.dart';
 import '../../../models/message.dart';
 import '../../auth_api.dart';
@@ -23,6 +25,24 @@ class ChannelApi {
   Future<ServerResponse> createChannels(List<Channel> channels, int teamId, ErrorHandler handler) async {
     return await api.post('/channel/$teamId', {},
         {'channels': List.generate(channels.length, (index) => channels[index].toJson())}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
+
+  Future<List<User>> getChannelUsers(int channelId, ErrorHandler handler) async {
+    return await api.get('/channel/$channelId/users', {}, handler, (map) {
+      return parseJsonList(map['users'], (json) => User.fromJson(json));
+    });
+  }
+
+  Future<ServerResponse> removeUserFromChannel(String userId, int channelId, ErrorHandler handler) async {
+    return await api.delete('/channel/removeuser/$channelId/$userId', {}, {}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
+
+  Future<ServerResponse> addUserToChannel(String userId, int channelId, ErrorHandler handler) async {
+    return await api.post('/channel/adduser/$channelId/$userId', {}, {}, handler, (map) {
       return ServerResponse.fromJson(map);
     });
   }

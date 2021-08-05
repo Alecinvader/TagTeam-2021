@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
+import 'package:tagteamprod/ui/primary/channels/channel_settings_page.dart';
 import '../../../../models/channel.dart';
 import '../../../../models/message.dart';
 import '../../../../server/errors/snackbar_error_handler.dart';
@@ -45,6 +46,19 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () async {
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ChannelSettingsPage(
+                              channelId: channel.id!,
+                            )));
+              },
+              icon: Icon(Icons.settings))
+        ],
         elevation: 0.0,
         title: Text(widget.channel.name!),
       ),
