@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tagteamprod/config.dart';
+import 'package:tagteamprod/main.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
@@ -33,21 +35,9 @@ class _MessageBubbleState extends State<MessageBubble> {
   bool isLastOfGroup = false;
   bool isInGroup = false;
 
-  String? imageRefDownloadLink;
-  bool failedToLoadImage = false;
-
   @override
   void initState() {
     super.initState();
-    int timesToAttempt = 0;
-    int timesAttempted = 0;
-    if (widget.message.imagePath != null) {
-      // StorageUtility().getImageURL(widget.message.imagePath, SnackbarErrorHandler(context)).then((value) {
-      //   setState(() {
-      //     imageRefDownloadLink = value;
-      //   });
-      // });
-    }
   }
 
   @override
@@ -94,7 +84,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                             padding: EdgeInsets.all(8.0),
                             decoration: BoxDecoration(color: messageColor, borderRadius: BorderRadius.circular(4.0)),
                             child: Text(
-                              widget.message.message ?? 'bruh',
+                              widget.message.message ?? '*****************************',
                               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0),
                             ),
                           ),
@@ -107,9 +97,11 @@ class _MessageBubbleState extends State<MessageBubble> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8.0),
                             child: Image.network(
-                              'http://10.0.0.2:9199/download/storage/v1/b/tagteam-3c6cb.appspot.com/o/channels%2F8YL5g2PH6VXtxlAFfx7g%2Fimage_picker2984324108794531058.jpg?generation=1628222240855&alt=media',
+                              EnvConfig.applicationMode == ApplicationMode.dev
+                                  ? widget.message.imagePath!.replaceRange(7, 16, '10.0.2.2')
+                                  : widget.message.imagePath!,
                               errorBuilder: (context, object, trace) {
-                                print(trace);
+                                if (widget.message.imagePath!.contains('channel')) return SizedBox();
 
                                 return Center(child: Text('Failed to load image'));
                               },

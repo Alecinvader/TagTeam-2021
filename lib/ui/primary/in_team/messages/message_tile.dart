@@ -53,8 +53,9 @@ class _MessagePageTileState extends State<MessagePageTile> {
                   ),
                   widget.channel.mostRecentMessage?.senderDisplayName != null
                       ? Text(
-                          widget.channel.mostRecentMessage!.senderDisplayName! + ': ' + 'das',
-                          // widget.channel?.mostRecentMessage?.message ,
+                          widget.channel.mostRecentMessage!.senderDisplayName! +
+                              ': ' +
+                              widget.channel.mostRecentMessage!.message!,
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 14.0,
