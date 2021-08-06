@@ -36,76 +36,79 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
       ),
       body: SafeArea(
         child: Container(
-          child: SimpleFutureBuilder(
-            builder: (context, List<User>? data) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16.0, bottom: 8.0, top: 8.0),
-                    child: Text(
-                      'Users',
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(color: kLightBackgroundColor),
-                    child: ListTile(
-                      title: Text('Users'),
-                      leading: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.group_outlined,
-                            size: 30,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(
-                          Icons.arrow_forward_ios,
-                          color: Colors.white70,
-                          size: 15,
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                      child: ListView.builder(
-                    itemBuilder: (context, index) {
-                      User currentUser = data![index];
-
-                      return Container(
-                        decoration: BoxDecoration(color: kLightBackgroundColor),
-                        child: ListTile(
-                          title: Text(currentUser.displayName ?? 'Unknown'),
-                          leading: TagTeamCircleAvatar(
-                            radius: 20,
-                            url: currentUser.profilePicture ?? '',
-                          ),
-                          trailing: IconButton(
-                              onPressed: () async {
-                                await ChannelApi().removeUserFromChannel(
-                                    currentUser.uid!, widget.channelId, SnackbarErrorHandler(context));
-                              },
-                              icon: Icon(
-                                Icons.more_vert,
-                                color: Colors.white,
-                              )),
-                        ),
-                      );
-                    },
-                    itemCount: data!.length,
-                  )),
-                ],
-              );
-            },
-            future: channelUsersFuture,
-          ),
-        ),
+            child: Column(
+          children: [],
+        )),
       ),
     );
   }
 }
+
+// SimpleFutureBuilder(
+// builder: (context, List<User>? data) {
+// return Column(
+//   crossAxisAlignment: CrossAxisAlignment.start,
+//   children: [
+//     Padding(
+//       padding: const EdgeInsets.only(left: 16.0, bottom: 8.0, top: 8.0),
+//       child: Text(
+//         'Users',
+//         style: TextStyle(fontWeight: FontWeight.w500),
+//       ),
+//     ),
+//     Container(
+//       decoration: BoxDecoration(color: kLightBackgroundColor),
+//       child: ListTile(
+//         title: Text('Users'),
+//         leading: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Icon(
+//               Icons.group_outlined,
+//               size: 30,
+//               color: Colors.white,
+//             ),
+//           ],
+//         ),
+//         trailing: IconButton(
+//           icon: Icon(
+//             Icons.arrow_forward_ios,
+//             color: Colors.white70,
+//             size: 15,
+//           ),
+//           onPressed: () {},
+//         ),
+//       ),
+//     ),
+//     Expanded(
+//         child: ListView.builder(
+//       itemBuilder: (context, index) {
+//         User currentUser = data![index];
+
+//         return Container(
+//           decoration: BoxDecoration(color: kLightBackgroundColor),
+//           child: ListTile(
+//             title: Text(currentUser.displayName ?? 'Unknown'),
+//             leading: TagTeamCircleAvatar(
+//               radius: 20,
+//               url: currentUser.profilePicture ?? '',
+//             ),
+//             trailing: IconButton(
+//                 onPressed: () async {
+//                   await ChannelApi().removeUserFromChannel(
+//                       currentUser.uid!, widget.channelId, SnackbarErrorHandler(context));
+//                 },
+//                 icon: Icon(
+//                   Icons.more_vert,
+//                   color: Colors.white,
+//                 )),
+//           ),
+//         );
+//       },
+//       itemCount: data!.length,
+//     )),
+//   ],
+// );
+//   },
+//   future: channelUsersFuture,
+// ),

@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/ui/primary/channels/create_single_channel.dart';
 import '../../../models/channel.dart';
 import '../../../models/message.dart';
@@ -53,16 +55,21 @@ class _TeamMessageListState extends State<TeamMessageList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => CreateSingleChannel(
-                        teamId: widget.teamId,
-                      )));
-        },
-      ),
+      floatingActionButton: Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+        if (data.authType == TeamAuthType.owner || data.authType == TeamAuthType.manager) {
+          return FloatingActionButton(
+            onPressed: () async {
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CreateSingleChannel(
+                            teamId: widget.teamId,
+                          )));
+            },
+          );
+        }
+        return SizedBox();
+      }),
       drawer: MenuDrawer(),
       body: SafeArea(
         child: Container(

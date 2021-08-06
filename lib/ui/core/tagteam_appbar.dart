@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_info.dart';
 import 'tagteam_constants.dart';
 
 class TagTeamAppBar extends StatefulWidget {
@@ -50,12 +51,7 @@ class _CustomAppbarState extends State<TagTeamAppBar> {
                   child: GestureDetector(
                     onTap: () {
                       // final teamId = Provider.of<TeamAuth>(context, listen: false).team.id;
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => TeamOverview(
-                      //               teamId: teamId,
-                      //             )));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => TeamInfo()));
                     },
                     child: Align(
                       alignment: Alignment.centerRight,

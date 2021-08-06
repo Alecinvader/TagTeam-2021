@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
+import 'package:tagteamprod/server/responses/server_response.dart';
 import '../../../models/tagteam.dart';
 import '../../../server/errors/snackbar_error_handler.dart';
 import '../../../server/team/team_api.dart';
@@ -30,8 +32,10 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: InkWell(
         onTap: () async {
-          await TeamApi().setActiveTeam(
+          final ServerResponse role = await TeamApi().setActiveTeam(
               team.teamId ?? 0, SnackbarErrorHandler(context, overrideErrorMessage: '${team.name} is not available'));
+
+          Provider.of<TeamAuthNotifier>(context, listen: false).setActiveTeam(team, role.message!);
 
           await Navigator.push(context, MaterialPageRoute(builder: (context) => TeamMessageList(teamId: team.teamId!)));
         },

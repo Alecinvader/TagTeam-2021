@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 
 // Import the firebase_core plugin
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'package:tagteamprod/config.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/ui/login/sign_in.dart';
 
 void main() {
@@ -52,24 +54,27 @@ class _AppState extends State<App> {
             // FirebaseFunctions.instance.useFunctionsEmulator(origin: 'http://localhost:5001');
           }
 
-          return MaterialApp(
-            theme: ThemeData(
-              iconTheme: IconThemeData(color: Colors.white),
-              unselectedWidgetColor: Colors.white60,
-              textTheme: Typography.material2018().white,
-              textSelectionTheme:
-                  TextSelectionThemeData(cursorColor: accent, selectionColor: accent, selectionHandleColor: accent),
-              inputDecorationTheme: InputDecorationTheme(
-                  focusColor: accent,
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                  labelStyle: TextStyle(color: Colors.white)),
-              primaryColor: primary,
-              scaffoldBackgroundColor: primary,
-              accentColor: accent,
+          return ChangeNotifierProvider(
+            create: (BuildContext context) => TeamAuthNotifier(),
+            child: MaterialApp(
+              theme: ThemeData(
+                iconTheme: IconThemeData(color: Colors.white),
+                unselectedWidgetColor: Colors.white60,
+                textTheme: Typography.material2018().white,
+                textSelectionTheme:
+                    TextSelectionThemeData(cursorColor: accent, selectionColor: accent, selectionHandleColor: accent),
+                inputDecorationTheme: InputDecorationTheme(
+                    focusColor: accent,
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                    labelStyle: TextStyle(color: Colors.white)),
+                primaryColor: primary,
+                scaffoldBackgroundColor: primary,
+                accentColor: accent,
+              ),
+              home: SignIn(),
+              title: 'TagTeam',
+              debugShowCheckedModeBanner: false,
             ),
-            home: SignIn(),
-            title: 'TagTeam',
-            debugShowCheckedModeBanner: false,
           );
         }
 
