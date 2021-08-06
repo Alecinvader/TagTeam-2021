@@ -31,11 +31,23 @@ class Message {
         senderDisplayName: json['senderDisplayName'],
         senderPhoto: json['senderPhoto'],
         message: json['message'],
+        imagePath: json['imagePath'],
         createdAt: DateTime.tryParse(json['createdAt']),
-        channelId: json['channelID']);
+        channelId: json['channelID'],
+        messageType: parseMessageType(json['messageType']));
   }
 
   toJson() {
     return {"message": message, "imagePath": imagePath, "messageType": messageType.toString()};
+  }
+
+  static MessageType parseMessageType(String? typeString) {
+    if (typeString == "MessageType.text") {
+      return MessageType.text;
+    } else if (typeString == "MessageType.image") {
+      return MessageType.image;
+    }
+
+    return MessageType.text;
   }
 }

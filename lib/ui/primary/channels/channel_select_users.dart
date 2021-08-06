@@ -54,6 +54,9 @@ class _ChannelAddUsersState extends State<ChannelAddUsers> {
                 Navigator.push(
                     context, MaterialPageRoute(builder: (context) => TeamMessageList(teamId: widget.teamId)));
               }));
+
+          Navigator.pop(context);
+          Navigator.pop(context);
         },
       ),
       body: SafeArea(
@@ -97,6 +100,8 @@ class _ChannelAddUsersState extends State<ChannelAddUsers> {
               ),
               SimpleFutureBuilder(
                 builder: (context, List<User>? data) {
+                  // TODO: refactor this into its own function
+
                   data!.sort((a, b) {
                     if (selectedUserMap[a] != null && selectedUserMap[b] != null) {
                       if (selectedUserMap[b] == true && selectedUserMap[a] == false) {
@@ -124,6 +129,7 @@ class _ChannelAddUsersState extends State<ChannelAddUsers> {
                             User currentUser = data![index];
 
                             return ListTile(
+                              // TODO: REfactor onTap and onChanged, they are the same thing
                               onTap: () {
                                 if (selectedUserMap.containsKey(currentUser)) {
                                   setState(() {

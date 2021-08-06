@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 // Import the firebase_core plugin
@@ -45,6 +46,8 @@ class _AppState extends State<App> {
                 persistenceEnabled: false,
                 host: Platform.isAndroid ? '10.0.2.2:8080' : 'localhost:8080',
                 sslEnabled: false);
+
+            FirebaseStorage.instance.useStorageEmulator('10.0.2.2', 9199);
 
             // FirebaseFunctions.instance.useFunctionsEmulator(origin: 'http://localhost:5001');
           }

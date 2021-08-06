@@ -179,7 +179,7 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: TextButton(
-                      onPressed: selectUsersForChannel,
+                      onPressed: checkIfCanAddUsers ? selectUsersForChannel : createChannel,
                       child: Text(
                         !checkIfCanAddUsers && channel.name!.isNotEmpty ? 'CREATE' : 'NEXT',
                         style: TextStyle(color: Theme.of(context).accentColor),
@@ -203,6 +203,8 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
   }
 
   Future selectUsersForChannel() async {
+    channel.type = selectedMessageType;
+    channel.teamId = widget.teamId;
     List<User>? selectedUsers = await Navigator.push(
         context,
         MaterialPageRoute(
@@ -210,8 +212,6 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
                   teamId: widget.teamId!,
                   channel: channel,
                 )));
-
-    inspect(selectedUsers);
   }
 
   Future createChannel() async {

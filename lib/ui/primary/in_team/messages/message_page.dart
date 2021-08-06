@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/channels/channel_settings_page.dart';
 import '../../../../models/channel.dart';
@@ -11,6 +12,7 @@ import '../../../../server/team/channels/channel_api.dart';
 import 'message_bubble.dart';
 import '../../../utility/core/text_field_toggler.dart';
 import '../../../utility/core/helper.dart';
+import 'message_image_confirmation.dart';
 
 class SendMesssagePage extends StatefulWidget {
   final Channel channel;
@@ -115,6 +117,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                                   enabledBorder: InputBorder.none),
                             ),
                           ),
+                          IconButton(onPressed: selectAndSendImage, icon: Icon(Icons.image_outlined)),
                           TextButton(
                               onPressed: () async {
                                 if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
@@ -142,6 +145,41 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
         ),
       ),
     );
+  }
+
+  Future selectAndSendImage() async {
+    final String imagePath = await StorageUtility().getImagePath(SnackbarErrorHandler(context));
+
+    if (imagePath.isNotEmpty) {
+      await showDialog(
+          context: context,
+          builder: (context) => ImageDialogConfirmation(
+              imagePath: imagePath,
+              onChoice: (bool value) async {
+                if (value) {
+                  if (imagePath.isNotEmpty) {
+                    //   imageRefAfterUpload =
+                    //       imageRefAfterUpload.split('.').first + '' + '.' + imageRefAfterUpload.split('.')[1];
+
+                    // print(imageRefAfterUpload);
+                    String updatedPath = imagePath.split('/').last;
+
+                    print(updatedPath);
+
+                    await ChannelApi().sendMessage(
+                        widget.channel.id!,
+                        widget.channel.teamId!,
+                        Message(
+                            imagePath: 'channels/${widget.channel.firebaseId}/$updatedPath',
+                            messageType: MessageType.image),
+                        SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message'));
+
+                    String imageRefAfterUpload = await StorageUtility()
+                        .uploadFile(imagePath, 'channels/${widget.channel.firebaseId}', SnackbarErrorHandler(context));
+                  }
+                }
+              }));
+    }
   }
 
   void convertSnapshotsIntoMessages(List<QueryDocumentSnapshot> list) {

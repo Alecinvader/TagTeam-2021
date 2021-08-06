@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
+import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import '../../../../models/message.dart';
 import '../../../core/tagteam_circleavatar.dart';
@@ -30,6 +32,23 @@ class _MessageBubbleState extends State<MessageBubble> {
   bool isFirstOfGroup = false;
   bool isLastOfGroup = false;
   bool isInGroup = false;
+
+  String? imageRefDownloadLink;
+  bool failedToLoadImage = false;
+
+  @override
+  void initState() {
+    super.initState();
+    int timesToAttempt = 0;
+    int timesAttempted = 0;
+    if (widget.message.imagePath != null) {
+      // StorageUtility().getImageURL(widget.message.imagePath, SnackbarErrorHandler(context)).then((value) {
+      //   setState(() {
+      //     imageRefDownloadLink = value;
+      //   });
+      // });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,16 +88,46 @@ class _MessageBubbleState extends State<MessageBubble> {
                 mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
                 children: [
                   !isMyMessage ? userAvatar : SizedBox.shrink(),
-                  Flexible(
-                    child: Container(
-                      padding: EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(color: messageColor, borderRadius: BorderRadius.circular(4.0)),
-                      child: Text(
-                        widget.message.message!,
-                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0),
-                      ),
-                    ),
-                  ),
+                  !isImage
+                      ? Flexible(
+                          child: Container(
+                            padding: EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(color: messageColor, borderRadius: BorderRadius.circular(4.0)),
+                            child: Text(
+                              widget.message.message ?? 'bruh',
+                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          decoration:
+                              BoxDecoration(borderRadius: BorderRadius.circular(8.0), color: kLightBackgroundColor),
+                          height: 250,
+                          width: 200,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
+                              'http://10.0.0.2:9199/download/storage/v1/b/tagteam-3c6cb.appspot.com/o/channels%2F8YL5g2PH6VXtxlAFfx7g%2Fimage_picker2984324108794531058.jpg?generation=1628222240855&alt=media',
+                              errorBuilder: (context, object, trace) {
+                                print(trace);
+
+                                return Center(child: Text('Failed to load image'));
+                              },
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: progress.expectedTotalBytes != null
+                                        ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                );
+                              },
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
                   // isMyMessage ? userAvatar : SizedBox.shrink(),
                 ],
               )
@@ -88,6 +137,8 @@ class _MessageBubbleState extends State<MessageBubble> {
       ],
     );
   }
+
+  bool get isImage => widget.message.imagePath != null;
 
   bool get isMyMessage => FirebaseAuth.instance.currentUser?.uid == widget.message.senderId;
 
