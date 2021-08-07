@@ -18,13 +18,13 @@ class Channel {
 
   Channel();
 
-  // TOOD: Parse channel Types
+  // TODO: Parse channel Types
   toJson() {
     return {
       "name": name,
-      "type": "MessageType.message",
       "teamID": teamId,
-      "users": List.generate(users.length, (index) => users[index].uid),
+      "type": type.toString(),
+      // "users": List.generate(users.length, (index) => users[index].uid),
       "public": public == true ? 1 : 0
     };
   }
@@ -34,8 +34,17 @@ class Channel {
     teamId = json['teamID'];
     firebaseId = json['firebaseID'];
     name = json['name'];
-    type = ChannelType.message;
+    type = parseChannelType(json['type']);
     public = json['public'] == 1 ? true : false;
     mostRecentMessage = json['mostRecentMessage'] != null ? Message.fromJson(json['mostRecentMessage']) : null;
+  }
+
+  parseChannelType(String value) {
+    if (value == 'ChannelType.message') {
+      return ChannelType.message;
+    } else if (value == 'ChannelType.announcment') {
+      return ChannelType.announcment;
+    } else
+      return ChannelType.message;
   }
 }

@@ -26,13 +26,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
-          });
-        },
-      ),
       drawer: MenuDrawer(),
       appBar: AppBar(
         // automaticallyImplyLeading: false,
@@ -54,11 +47,18 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: [
                 Flexible(
-                    child: ListView.builder(
-                  itemBuilder: (context, index) {
-                    return MiniDashboardTile(team: data![index]);
+                    child: RefreshIndicator(
+                  onRefresh: () async {
+                    setState(() {
+                      future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
+                    });
                   },
-                  itemCount: data?.length ?? 0,
+                  child: ListView.builder(
+                    itemBuilder: (context, index) {
+                      return MiniDashboardTile(team: data![index]);
+                    },
+                    itemCount: data?.length ?? 0,
+                  ),
                 ))
               ],
             ),

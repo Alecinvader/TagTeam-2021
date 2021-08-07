@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/channels/channel_settings_page.dart';
@@ -94,50 +96,56 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                       }, childCount: messages.length)),
                     ]),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: kLightBackgroundColor,
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              minLines: 1,
-                              maxLines: 6,
-                              controller: _textFieldController,
-                              onChanged: (String value) {
-                                _pendingMessage = value;
-                              },
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0, bottom: 6.0),
-                                  focusedBorder: InputBorder.none,
-                                  enabledBorder: InputBorder.none),
-                            ),
-                          ),
-                          IconButton(onPressed: selectAndSendImage, icon: Icon(Icons.image_outlined)),
-                          TextButton(
-                              onPressed: () async {
-                                if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
-                                  _textFieldController.clear();
+                  Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+                    if (data.authType == TeamAuthType.user) {
+                      return SizedBox();
+                    }
 
-                                  await ChannelApi().sendMessage(
-                                      widget.channel.id!,
-                                      widget.channel.teamId!,
-                                      Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
-                                      SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message'));
-                                }
-                              },
-                              child: Text(
-                                'Send',
-                                style: TextStyle(color: Theme.of(context).accentColor),
-                              ))
-                        ],
+                    return Padding(
+                      padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: kLightBackgroundColor,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                minLines: 1,
+                                maxLines: 6,
+                                controller: _textFieldController,
+                                onChanged: (String value) {
+                                  _pendingMessage = value;
+                                },
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0, bottom: 6.0),
+                                    focusedBorder: InputBorder.none,
+                                    enabledBorder: InputBorder.none),
+                              ),
+                            ),
+                            IconButton(onPressed: selectAndSendImage, icon: Icon(Icons.image_outlined)),
+                            TextButton(
+                                onPressed: () async {
+                                  if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
+                                    _textFieldController.clear();
+
+                                    await ChannelApi().sendMessage(
+                                        widget.channel.id!,
+                                        widget.channel.teamId!,
+                                        Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
+                                        SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message'));
+                                  }
+                                },
+                                child: Text(
+                                  'Send',
+                                  style: TextStyle(color: Theme.of(context).accentColor),
+                                ))
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ],
               ),
             );

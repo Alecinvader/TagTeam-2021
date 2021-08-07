@@ -88,15 +88,11 @@ class _TeamMessageListState extends State<TeamMessageList> {
                             await fetchChannels().then((value) {
                               setState(() {
                                 sqlDataChannels = value;
+                                stream1 = FirebaseFirestore.instance
+                                    .collection('channels')
+                                    .where(FieldPath.documentId, whereIn: firebaseUniques)
+                                    .snapshots();
                               });
-                              if (firebaseUniques.isNotEmpty) {
-                                setState(() {
-                                  stream1 = FirebaseFirestore.instance
-                                      .collection('channels')
-                                      .where(FieldPath.documentId, whereIn: firebaseUniques)
-                                      .snapshots();
-                                });
-                              }
 
                               return value;
                             });

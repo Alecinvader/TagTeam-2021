@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/models/tagteam.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 
@@ -19,13 +21,22 @@ class _TeamInfoState extends State<TeamInfo> {
         title: Text('Team Info'),
       ),
       backgroundColor: kLightBackgroundColor,
-      body: SafeArea(
-        child: Container(
-          child: Column(
-            children: [],
+      body: Consumer<TeamAuthNotifier>(builder: (context, teamData, _) {
+        return SafeArea(
+          child: Container(
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                  child: ListTile(
+                    title: Text(teamData.currentTeam?.inviteCode ?? 'No code'),
+                  ),
+                )
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

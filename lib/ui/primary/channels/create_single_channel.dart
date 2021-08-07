@@ -142,44 +142,44 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
               SizedBox(
                 height: 36.0,
               ),
-              Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.lock,
-                                color: Colors.grey.shade400,
-                              ),
-                              SizedBox(
-                                width: 32.0,
-                              ),
-                              Text('Invite Only')
-                            ],
-                          ),
-                        ),
-                      ),
-                      Switch.adaptive(
-                          value: !channel.public!,
-                          onChanged: (value) {
-                            print(value);
-                            setState(() {
-                              channel.public = !channel.public!;
-                            });
-                          })
-                    ],
-                  )),
+              // Container(
+              //     padding: EdgeInsets.symmetric(horizontal: 16.0),
+              //     decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              //     child: Row(
+              //       children: [
+              //         Expanded(
+              //           child: Container(
+              //             child: Row(
+              //               children: [
+              //                 Icon(
+              //                   Icons.lock,
+              //                   color: Colors.grey.shade400,
+              //                 ),
+              //                 SizedBox(
+              //                   width: 32.0,
+              //                 ),
+              //                 Text('Invite Only')
+              //               ],
+              //             ),
+              //           ),
+              //         ),
+              //         Switch.adaptive(
+              //             value: !channel.public!,
+              //             onChanged: (value) {
+              //               print(value);
+              //               setState(() {
+              //                 channel.public = !channel.public!;
+              //               });
+              //             })
+              //       ],
+              //     )),
               Expanded(
                   child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: TextButton(
-                      onPressed: checkIfCanAddUsers ? selectUsersForChannel : createChannel,
+                      onPressed: createChannel,
                       child: Text(
                         !checkIfCanAddUsers && channel.name!.isNotEmpty ? 'CREATE' : 'NEXT',
                         style: TextStyle(color: Theme.of(context).accentColor),
@@ -223,6 +223,8 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
         content: Text('Channel will be created shortly'),
         behavior: SnackBarBehavior.floating,
       ));
+      Navigator.pop(context);
+    } else if (channel.name == null || channel.name!.isEmpty) {
       Navigator.pop(context);
     } else {
       Navigator.pop(context, channel);

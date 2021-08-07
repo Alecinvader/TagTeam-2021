@@ -5,6 +5,8 @@ class TagTeam {
   String? ownerId;
   String? inviteCode;
 
+  TagTeam();
+
   TagTeam.fromJson(Map json) {
     teamId = json['teamID'];
     name = json['name'];
