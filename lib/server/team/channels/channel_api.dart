@@ -46,4 +46,18 @@ class ChannelApi {
       return ServerResponse.fromJson(map);
     });
   }
+
+  Future<ServerResponse> toggleNotifications(int channelId, ErrorHandler handler) async {
+    return await api.get('/channel/$channelId/togglenotifcations', {}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
+
+  Future<bool> checkNotificationSettings(int channelId, ErrorHandler handler) async {
+    return await api.get('/channel/$channelId/notifications', {}, handler, (map) {
+      int value = map['enabled'];
+      if (value == 1) return true;
+      return false;
+    });
+  }
 }

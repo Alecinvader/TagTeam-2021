@@ -58,6 +58,7 @@ class _TeamMessageListState extends State<TeamMessageList> {
       floatingActionButton: Consumer<TeamAuthNotifier>(builder: (context, data, _) {
         if (data.authType == TeamAuthType.owner || data.authType == TeamAuthType.manager) {
           return FloatingActionButton(
+            child: Icon(Icons.add),
             onPressed: () async {
               await Navigator.push(
                   context,

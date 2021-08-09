@@ -98,7 +98,10 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                   ),
                   Consumer<TeamAuthNotifier>(builder: (context, data, _) {
                     if (data.authType == TeamAuthType.user) {
-                      return SizedBox();
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: SizedBox(),
+                      );
                     }
 
                     return Padding(

@@ -11,4 +11,9 @@ class UserApi {
       return ServerResponse.fromJson(map);
     });
   }
+
+  Future<ServerResponse> updateFCMToken(String token, String userId, ErrorHandler handler) async {
+    return await api.patch(
+        '/user/$userId/update/token', {}, {'token': token}, handler, (map) => ServerResponse.fromJson(map));
+  }
 }

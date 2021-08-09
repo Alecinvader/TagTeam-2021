@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/ui/create_team/team_create_start.dart';
+import 'package:tagteamprod/ui/primary/search_team.dart';
 import '../login/sign_in.dart';
 import '../primary/home_page.dart';
 
@@ -65,11 +66,11 @@ class MenuDrawer extends StatelessWidget {
                       ),
                       ListTile(
                         onTap: () {
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //       builder: (context) => JoinTeamPage(),
-                          //     ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchForTeam(),
+                              ));
                         },
                         leading: Icon(
                           Icons.people_outline,

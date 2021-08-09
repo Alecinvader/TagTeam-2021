@@ -4,10 +4,9 @@ import 'tagteam_constants.dart';
 class TagTeamCircleAvatar extends StatefulWidget {
   final String url;
   final double radius;
-  final String onErrorReplacement;
+  final Widget? onErrorReplacement;
 
-  TagTeamCircleAvatar({Key? key, required this.url, this.radius = 25.0, this.onErrorReplacement = ""})
-      : super(key: key);
+  TagTeamCircleAvatar({Key? key, required this.url, this.radius = 25.0, this.onErrorReplacement}) : super(key: key);
 
   @override
   _TagTeamCircleAvatarState createState() => _TagTeamCircleAvatarState();
@@ -28,10 +27,12 @@ class _TagTeamCircleAvatarState extends State<TagTeamCircleAvatar> {
         child: Image.network(
           widget.url,
           errorBuilder: (context, object, trace) {
-            return Icon(
-              Icons.person_outline,
-              color: Colors.white,
-            );
+            return widget.onErrorReplacement != null
+                ? widget.onErrorReplacement!
+                : Icon(
+                    Icons.person_outline,
+                    color: Colors.white,
+                  );
           },
           loadingBuilder: (context, child, progress) {
             if (progress == null) return child;
@@ -44,7 +45,7 @@ class _TagTeamCircleAvatarState extends State<TagTeamCircleAvatar> {
               ),
             );
           },
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
         ),
       ),
     );

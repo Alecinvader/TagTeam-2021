@@ -36,4 +36,28 @@ class TeamApi {
       return parseJsonList(map['users'], (json) => User.fromJson(json));
     });
   }
+
+  Future<TagTeam> searchByInviteCode(String inviteCode, ErrorHandler handler) async {
+    return await api.get('/team/search/$inviteCode', {}, handler, (map) {
+      return TagTeam.fromJson(map['team']);
+    });
+  }
+
+  Future<ServerResponse> requestToJoinTeam(int teamId, ErrorHandler handler) async {
+    return await api.get('/team/requestjoin/$teamId', {}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
+
+  Future<List<User>> allJoinRequests(int teamId, ErrorHandler handler) async {
+    return await api.get('/team/alljoinrequests/$teamId', {}, handler, (map) {
+      return parseJsonList(map['users'], (json) => User.fromJson(json));
+    });
+  }
+
+  Future<ServerResponse> acceptJoinRequest(int teamId, String userId, ErrorHandler handler) async {
+    return await api.get('/team/requestaccept/$userId/$teamId', {}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
 }
