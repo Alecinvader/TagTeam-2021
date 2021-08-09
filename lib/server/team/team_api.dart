@@ -60,4 +60,14 @@ class TeamApi {
       return ServerResponse.fromJson(map);
     });
   }
+
+  Future<ServerResponse> deleteJoinRequest(int teamId, String uid, ErrorHandler handler) async {
+    return await api.delete(('/team/deleterequest/$teamId/$uid'), {}, {}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
+
+  Future<ServerResponse> removeUserFromTeam(int teamId, String uid, ErrorHandler handler) async {
+    return await api.delete('/team/removeuser/$teamId/$uid', {}, {}, handler, (map) => ServerResponse.fromJson(map));
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
@@ -19,6 +20,8 @@ class _MessagePageTileState extends State<MessagePageTile> {
     return InkWell(
       onTap: () async {
         await ChannelApi().setChannelActive(widget.channel.id!, widget.channel.teamId!, SnackbarErrorHandler(context));
+
+        await FirebaseAuth.instance.currentUser!.getIdToken(true);
 
         await Navigator.push(
             context,

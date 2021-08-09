@@ -7,6 +7,8 @@ import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/team_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_active_users.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_requests.dart';
 import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
 
 class TeamInfo extends StatefulWidget {
@@ -71,6 +73,12 @@ class _TeamInfoState extends State<TeamInfo> {
                       Container(
                         decoration: BoxDecoration(color: Theme.of(context).primaryColor),
                         child: ListTile(
+                          onTap: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => TeamRequests(teamId: teamData.currentTeam!.teamId!)));
+                          },
                           leading: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -93,6 +101,12 @@ class _TeamInfoState extends State<TeamInfo> {
                       Container(
                         decoration: BoxDecoration(color: Theme.of(context).primaryColor),
                         child: ListTile(
+                          onTap: () async {
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => TeamActiveUsers(teamId: teamData.currentTeam!.teamId!)));
+                          },
                           leading: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,

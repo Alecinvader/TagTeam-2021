@@ -30,28 +30,55 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kLightBackgroundColor,
       appBar: AppBar(
         centerTitle: true,
         title: Text('Settings'),
         elevation: 0,
-        actions: [TextButton(onPressed: () {}, child: Text('Save'))],
       ),
       body: SafeArea(
         child: Container(
             child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text('Messages'),
+            ),
             SimpleFutureBuilder<void>(
               builder: (BuildContext context, data) {
-                return ListTile(
-                  title: Text('Notifications'),
-                  trailing: Checkbox(
-                    onChanged: (bool? value) async {
+                return Container(
+                  decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                  child: ListTile(
+                    onTap: () async {
                       setState(() {
                         notifSettings = !notifSettings;
                       });
-                      await ChannelApi().toggleNotifications(widget.channelId, SnackbarErrorHandler(context));
+                      await ChannelApi().toggleNotifications(
+                          widget.channelId,
+                          SnackbarErrorHandler(context, onErrorHandler: () {
+                            setState(() {
+                              notifSettings = !notifSettings;
+                            });
+                          }));
                     },
-                    value: notifSettings,
+                    subtitle: Text('Enable/Disable'),
+                    title: Text('Notifications'),
+                    trailing: Checkbox(
+                      onChanged: (bool? value) async {
+                        setState(() {
+                          notifSettings = !notifSettings;
+                        });
+                        await ChannelApi().toggleNotifications(
+                            widget.channelId,
+                            SnackbarErrorHandler(context, onErrorHandler: () {
+                              setState(() {
+                                notifSettings = !notifSettings;
+                              });
+                            }));
+                      },
+                      value: notifSettings,
+                    ),
                   ),
                 );
               },

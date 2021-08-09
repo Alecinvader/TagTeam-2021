@@ -240,6 +240,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
       return false;
     } else if (index == messages.length - 1 && messages[index - 1].senderId == messages[index].senderId) {
       return true;
+    } else if (index == messages.length - 1) {
+      return false;
     } else if (messages[index + 1].senderId == messages[index].senderId) {
       return true;
     } else if (messages[index - 1].senderId == messages[index].senderId) {

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -34,6 +35,8 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
         onTap: () async {
           final ServerResponse role = await TeamApi().setActiveTeam(
               team.teamId ?? 0, SnackbarErrorHandler(context, overrideErrorMessage: '${team.name} is not available'));
+
+          await FirebaseAuth.instance.currentUser!.getIdToken(true);
 
           Provider.of<TeamAuthNotifier>(context, listen: false).setActiveTeam(team, role.message!);
 
