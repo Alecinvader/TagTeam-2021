@@ -23,11 +23,10 @@ class AuthServer implements SafeServer {
       final firstAttempt = await unsafeServer.get(url, headers, responseParser);
       return firstAttempt;
     } catch (error) {
-      // if authentication error, retry with new credentials
-      // if (error is XenonError && error.message == ServerErrorStatus.noauth) {
-      //   final authHeaders = await updateCredentials(headers, errorHandler);
-      //   return safeServer.get(url, authHeaders, errorHandler, responseParser);
-      // }
+      if (error is ServerError && error.message == 'relog') {
+        errorHandler.showReLoginDialog();
+        throw error;
+      }
 
       // if the error was something else, handle it
       errorHandler.onError(error);
@@ -44,11 +43,10 @@ class AuthServer implements SafeServer {
       final firstAttempt = await unsafeServer.post(url, headers, body, responseParser);
       return firstAttempt;
     } catch (error) {
-      // if authentication error, retry with new credentials
-      // if (error is XenonError && error.message == ServerErrorStatus.noauth) {
-      //   final authHeaders = await updateCredentials(headers, errorHandler);
-      //   return safeServer.post(url, authHeaders, body, errorHandler, responseParser);
-      // }
+      if (error is ServerError && error.message == 'relog') {
+        errorHandler.showReLoginDialog();
+        throw error;
+      }
       // if the error was something else, handle it
       errorHandler.onError(error);
 
@@ -135,11 +133,10 @@ class AuthServer implements SafeServer {
       final firstAttempt = await unsafeServer.delete(url, headers, body, responseParser);
       return firstAttempt;
     } catch (error) {
-      // if authentication error, retry with new credentials
-      // if (error is XenonError && error.message == ServerErrorStatus.noauth) {
-      //   final authHeaders = await updateCredentials(headers, errorHandler);
-      //   return safeServer.delete(url, authHeaders, body, errorHandler, responseParser);
-      // }
+      if (error is ServerError && error.message == 'relog') {
+        errorHandler.showReLoginDialog();
+        throw error;
+      }
       // if the error was something else, handle it
       errorHandler.onError(error);
       throw error;
@@ -156,10 +153,10 @@ class AuthServer implements SafeServer {
       return firstAtttempt;
     } catch (error) {
       // if authentication error, retry with new credentials
-      // if (error is XenonError && error.message == ServerErrorStatus.noauth) {
-      //   final authHeaders = await updateCredentials(headers, errorHandler);
-      //   return safeServer.patch(url, authHeaders, body, errorHandler, responseParser);
-      // }
+      if (error is ServerError && error.message == 'relog') {
+        errorHandler.showReLoginDialog();
+        throw error;
+      }
       // if the error was something else, handle it
       errorHandler.onError(error);
       throw error;

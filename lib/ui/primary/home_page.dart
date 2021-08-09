@@ -25,6 +25,10 @@ class _HomePageState extends State<HomePage> {
     future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
     // future = Future.value([]);
     setupMessaging(context);
+
+    FirebaseAuth.instance.authStateChanges().listen((firebaseUser) {
+      print('listened');
+    });
   }
 
   @override

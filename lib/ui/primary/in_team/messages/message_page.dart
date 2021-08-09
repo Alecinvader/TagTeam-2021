@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
@@ -39,6 +40,10 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   void initState() {
     super.initState();
     channel = widget.channel;
+    ChannelApi()
+        .setChannelActive(widget.channel.id!, widget.channel.teamId!, SnackbarErrorHandler(context))
+        .then((value) => FirebaseAuth.instance.currentUser!.getIdToken(true));
+
     messageStream = FirebaseFirestore.instance
         .doc('channels/${channel.firebaseId}')
         .collection('messages')

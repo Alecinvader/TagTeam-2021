@@ -58,7 +58,7 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
               Container(
                   decoration: BoxDecoration(color: Theme.of(context).primaryColor),
                   child: TextFormField(
-                    onFieldSubmitted: (String value) {
+                    onChanged: (String value) {
                       setState(() {
                         channel.name = value;
                       });
@@ -179,10 +179,10 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: TextButton(
-                      onPressed: createChannel,
+                      onPressed: channel.name!.isNotEmpty ? createChannel : null,
                       child: Text(
-                        !checkIfCanAddUsers && channel.name!.isNotEmpty ? 'CREATE' : 'NEXT',
-                        style: TextStyle(color: Theme.of(context).accentColor),
+                        'CREATE',
+                        style: TextStyle(color: channel.name!.isNotEmpty ? Theme.of(context).accentColor : Colors.grey),
                       )),
                 ),
               ))

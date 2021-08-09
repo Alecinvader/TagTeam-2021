@@ -19,10 +19,6 @@ class _MessagePageTileState extends State<MessagePageTile> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
-        await ChannelApi().setChannelActive(widget.channel.id!, widget.channel.teamId!, SnackbarErrorHandler(context));
-
-        await FirebaseAuth.instance.currentUser!.getIdToken(true);
-
         await Navigator.push(
             context,
             MaterialPageRoute(

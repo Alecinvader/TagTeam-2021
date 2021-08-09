@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagteamprod/ui/login/sign_in.dart';
 
 typedef ValueHandler<T> = Function(T value);
 typedef ValueChanger<From, To> = To Function(From map);
@@ -33,19 +34,15 @@ abstract class ErrorHandler {
 
   void onError(error);
 
-  // Future<void> showReLoginDialog() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> showReLoginDialog() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  //   if (prefs.containsKey('userKey')) {
-  //     await prefs.remove('userKey');
-  //     await prefs.remove('username');
-  //   }
+    // if (prefs.containsKey('userKey')) {
+    //   await prefs.remove('userKey');
+    //   await prefs.remove('username');
+    // }
 
-  //   await Navigator.of(context!).pushAndRemoveUntil(
-  //       MaterialPageRoute(
-  //           builder: (context) => LoginPage(
-  //                 showSplashPage: false,
-  //               )),
-  //       (Route<dynamic> route) => false);
-  // }
+    await Navigator.of(context!)
+        .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => SignIn()), (Route<dynamic> route) => false);
+  }
 }

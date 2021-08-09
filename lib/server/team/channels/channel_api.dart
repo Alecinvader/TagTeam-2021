@@ -59,6 +59,11 @@ class ChannelApi {
     });
   }
 
+  Future<ServerResponse> removeChannel(int channelId, ErrorHandler handler) async {
+    return await api.delete(
+        '/channel/removechannel/$channelId', {}, {}, handler, (map) => ServerResponse.fromJson(map));
+  }
+
   Future<bool> checkNotificationSettings(int channelId, ErrorHandler handler) async {
     return await api.get('/channel/$channelId/notifications', {}, handler, (map) {
       int value = map['enabled'];

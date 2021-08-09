@@ -6,6 +6,7 @@ import 'package:tagteamprod/main.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
+import 'package:tagteamprod/ui/primary/message_image_viewer.dart';
 import '../../../../models/message.dart';
 import '../../../core/tagteam_circleavatar.dart';
 
@@ -84,39 +85,56 @@ class _MessageBubbleState extends State<MessageBubble> {
                             padding: EdgeInsets.all(8.0),
                             decoration: BoxDecoration(color: messageColor, borderRadius: BorderRadius.circular(4.0)),
                             child: Text(
-                              widget.message.message ?? '*****************************',
+                              widget.message.message ?? 'Missing Message',
                               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0),
                             ),
                           ),
                         )
-                      : Container(
-                          decoration:
-                              BoxDecoration(borderRadius: BorderRadius.circular(8.0), color: kLightBackgroundColor),
-                          height: 250,
-                          width: 200,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image.network(
-                              EnvConfig.applicationMode == ApplicationMode.dev
-                                  ? widget.message.imagePath!.replaceRange(7, 16, '10.0.2.2')
-                                  : widget.message.imagePath!,
-                              errorBuilder: (context, object, trace) {
-                                if (widget.message.imagePath!.contains('channel')) return SizedBox();
+                      : GestureDetector(
+                          onTap: () async {
+                            if (widget.message.imagePath!.contains('channel'))
+                              await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ImageViewer(
+                                            primaryImage: EnvConfig.applicationMode == ApplicationMode.dev
+                                                ? widget.message.imagePath!.replaceRange(7, 16, '10.0.2.2')
+                                                : widget.message.imagePath!,
+                                          )));
+                          },
+                          child: Container(
+                            decoration:
+                                BoxDecoration(borderRadius: BorderRadius.circular(8.0), color: kLightBackgroundColor),
+                            height: 250,
+                            width: 200,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8.0),
+                              child: Hero(
+                                tag:
+                                    'messageimage${EnvConfig.applicationMode == ApplicationMode.dev ? widget.message.imagePath!.replaceRange(7, 16, '10.0.2.2') : widget.message.imagePath!}',
+                                child: Image.network(
+                                  EnvConfig.applicationMode == ApplicationMode.dev
+                                      ? widget.message.imagePath!.replaceRange(7, 16, '10.0.2.2')
+                                      : widget.message.imagePath!,
+                                  errorBuilder: (context, object, trace) {
+                                    if (widget.message.imagePath!.contains('channel')) return SizedBox();
 
-                                return Center(child: Text('Failed to load image'));
-                              },
-                              loadingBuilder: (context, child, progress) {
-                                if (progress == null) return child;
+                                    return Center(child: Text('Failed to load image'));
+                                  },
+                                  loadingBuilder: (context, child, progress) {
+                                    if (progress == null) return child;
 
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: progress.expectedTotalBytes != null
-                                        ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                                        : null,
-                                  ),
-                                );
-                              },
-                              fit: BoxFit.cover,
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: progress.expectedTotalBytes != null
+                                            ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    );
+                                  },
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                           ),
                         ),

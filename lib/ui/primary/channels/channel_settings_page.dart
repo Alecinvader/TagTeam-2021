@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
-import 'package:tagteamprod/ui/core/tagteam_circleavatar.dart';
+
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
 
@@ -64,7 +64,7 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
                     },
                     subtitle: Text('Enable/Disable'),
                     title: Text('Notifications'),
-                    trailing: Checkbox(
+                    trailing: Switch.adaptive(
                       onChanged: (bool? value) async {
                         setState(() {
                           notifSettings = !notifSettings;
@@ -83,6 +83,33 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
                 );
               },
               future: channelFuture,
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            GestureDetector(
+              onTap: () async {
+                await ChannelApi().removeChannel(widget.channelId, SnackbarErrorHandler(context));
+
+                var count = 0;
+                Navigator.popUntil(context, (route) {
+                  return count++ == 2;
+                });
+              },
+              child: Container(
+                height: 60,
+                decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'DELETE CHANNEL',
+                      style: TextStyle(fontSize: 16.0, color: Colors.red, fontWeight: FontWeight.w600),
+                    )
+                  ],
+                ),
+              ),
             ),
           ],
         )),
