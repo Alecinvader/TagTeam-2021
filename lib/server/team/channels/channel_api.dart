@@ -10,6 +10,12 @@ import '../../responses/server_response.dart';
 class ChannelApi {
   final AuthServer api = AuthServer();
 
+  Future<ServerResponse> setChannelActive(int channelId, int teamId, ErrorHandler handler) async {
+    return await api.get('/channel/setactive/$teamId/$channelId', {}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
+
   Future<List<Channel>> getChannelsForTeam(int teamId, ErrorHandler handler) async {
     return await api.get('/channel/allchannels/$teamId', {}, handler, (map) {
       return parseJsonList(map['channels'], (json) => Channel.fromJson(json));
@@ -48,7 +54,7 @@ class ChannelApi {
   }
 
   Future<ServerResponse> toggleNotifications(int channelId, ErrorHandler handler) async {
-    return await api.get('/channel/$channelId/togglenotifcations', {}, handler, (map) {
+    return await api.get('/channel/$channelId/togglenotifications', {}, handler, (map) {
       return ServerResponse.fromJson(map);
     });
   }

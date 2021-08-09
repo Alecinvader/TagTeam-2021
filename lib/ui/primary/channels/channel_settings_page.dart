@@ -16,13 +16,15 @@ class ChannelSettingsPage extends StatefulWidget {
 }
 
 class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
-  late Future<List<User>> channelUsersFuture;
+  late Future<void> channelFuture;
+
+  bool notifSettings = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    channelUsersFuture = ChannelApi().getChannelUsers(widget.channelId, SnackbarErrorHandler(context));
+    channelFuture = getChannelSettings();
   }
 
   @override
@@ -37,10 +39,36 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
       body: SafeArea(
         child: Container(
             child: Column(
-          children: [],
+          children: [
+            SimpleFutureBuilder<void>(
+              builder: (BuildContext context, data) {
+                return ListTile(
+                  title: Text('Notifications'),
+                  trailing: Checkbox(
+                    onChanged: (bool? value) async {
+                      setState(() {
+                        notifSettings = !notifSettings;
+                      });
+                      await ChannelApi().toggleNotifications(widget.channelId, SnackbarErrorHandler(context));
+                    },
+                    value: notifSettings,
+                  ),
+                );
+              },
+              future: channelFuture,
+            ),
+          ],
         )),
       ),
     );
+  }
+
+  Future<void> getChannelSettings() async {
+    bool notifications = await ChannelApi().checkNotificationSettings(widget.channelId, SnackbarErrorHandler(context));
+
+    setState(() {
+      notifSettings = notifications;
+    });
   }
 }
 

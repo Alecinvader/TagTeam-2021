@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
+import 'package:tagteamprod/server/team/channels/channel_api.dart';
 import '../../../../models/channel.dart';
 import 'message_page.dart';
 
@@ -16,6 +18,8 @@ class _MessagePageTileState extends State<MessagePageTile> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () async {
+        await ChannelApi().setChannelActive(widget.channel.id!, widget.channel.teamId!, SnackbarErrorHandler(context));
+
         await Navigator.push(
             context,
             MaterialPageRoute(

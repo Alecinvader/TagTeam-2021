@@ -45,7 +45,7 @@ class _TagTeamCircleAvatarState extends State<TagTeamCircleAvatar> {
               ),
             );
           },
-          fit: BoxFit.contain,
+          fit: BoxFit.cover,
         ),
       ),
     );
