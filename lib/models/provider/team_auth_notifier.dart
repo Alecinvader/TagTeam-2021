@@ -8,6 +8,8 @@ class TeamAuthNotifier extends ChangeNotifier {
   TagTeam? currentTeam;
   TeamAuthType? authType;
 
+  bool get isAdmin => authType == TeamAuthType.manager || authType == TeamAuthType.owner;
+
   void setActiveTeam(TagTeam team, String role) {
     currentTeam = team;
     authType = parseAuthType(role);

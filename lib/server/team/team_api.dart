@@ -70,4 +70,9 @@ class TeamApi {
   Future<ServerResponse> removeUserFromTeam(int teamId, String uid, ErrorHandler handler) async {
     return await api.delete('/team/removeuser/$teamId/$uid', {}, {}, handler, (map) => ServerResponse.fromJson(map));
   }
+
+  Future<ServerResponse> updateImageLink(int teamId, String link, ErrorHandler handler) async {
+    return await api.patch(
+        '/team/updateimage/$teamId', {}, {"imageLink": link}, handler, (map) => ServerResponse.fromJson(map));
+  }
 }

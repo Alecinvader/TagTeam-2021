@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
+import 'package:tagteamprod/ui/core/tagteam_circleavatar.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_info.dart';
 import 'tagteam_constants.dart';
 
@@ -48,42 +51,32 @@ class _CustomAppbarState extends State<TagTeamAppBar> {
                   ),
                 ),
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      // final teamId = Provider.of<TeamAuth>(context, listen: false).team.id;
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => TeamInfo()));
-                    },
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Hero(
-                          tag: 'appbar-icon',
-                          child: Padding(
+                  child: Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+                    return GestureDetector(
+                      onTap: () {
+                        // final teamId = Provider.of<TeamAuth>(context, listen: false).team.id;
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => TeamInfo()));
+                      },
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Hero(
+                            tag: 'appbar-icon',
+                            child: Padding(
                               padding: EdgeInsets.only(right: 16.0, left: 16.0),
-                              child: CircleAvatar(
-                                backgroundColor: Theme.of(context).accentColor,
-                                radius: 15.0,
-                                child: Icon(
-                                  Icons.settings,
-                                  color: Colors.white,
-                                ),
-                              )
-                              // : CircleAvatar(
-                              //     backgroundColor: Theme.of(context).accentColor,
-                              //     radius: 15.0,
-                              //     backgroundImage: Image.network(
-                              //       data.team.imagePath,
-                              //       fit: BoxFit.fill,
-                              //       errorBuilder: (context, object, stacktrace) {
-                              //         return Icon(
-                              //           Icons.settings,
-                              //           color: Colors.white,
-                              //         );
-                              //       },
-                              //     ).image)
-
-                              )),
-                    ),
-                  ),
+                              child: TagTeamCircleAvatar(
+                                radius: 15,
+                                onErrorReplacement: CircleAvatar(
+                                    backgroundColor: Theme.of(context).accentColor,
+                                    child: Icon(
+                                      Icons.settings,
+                                      color: Colors.white,
+                                    )),
+                                url: data.currentTeam!.imageLink ?? '',
+                              ),
+                            )),
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),

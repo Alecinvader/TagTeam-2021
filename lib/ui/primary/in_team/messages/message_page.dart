@@ -41,7 +41,12 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     super.initState();
     channel = widget.channel;
     ChannelApi()
-        .setChannelActive(widget.channel.id!, widget.channel.teamId!, SnackbarErrorHandler(context))
+        .setChannelActive(
+            widget.channel.id!,
+            widget.channel.teamId!,
+            SnackbarErrorHandler(context, onErrorHandler: () {
+              Navigator.pop(context);
+            }))
         .then((value) => FirebaseAuth.instance.currentUser!.getIdToken(true));
 
     messageStream = FirebaseFirestore.instance

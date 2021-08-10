@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' as fUser;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/team_api.dart';
@@ -36,36 +38,51 @@ class _TeamActiveUsersState extends State<TeamActiveUsers> {
             child: SimpleFutureBuilder<List<User>>(
                 future: teamUsersFuture,
                 builder: (context, data) {
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                            itemCount: data!.length,
-                            itemBuilder: (context, index) {
-                              User currentUser = data[index];
+                  return Consumer<TeamAuthNotifier>(builder: (context, teamData, _) {
+                    bool isAdmin = teamData.isAdmin;
 
-                              return ListTile(
-                                title: Text(currentUser.displayName!),
-                                leading: TagTeamCircleAvatar(
-                                  url: currentUser.profilePicture ?? '',
-                                  radius: 20,
-                                ),
-                                trailing: currentUser.uid! != fUser.FirebaseAuth.instance.currentUser!.uid
-                                    ? TextButton(
-                                        onPressed: () async {
-                                          await TeamApi().removeUserFromTeam(
-                                              widget.teamId, currentUser.uid!, SnackbarErrorHandler(context));
-                                        },
-                                        child: Text(
-                                          'Remove',
-                                          style: TextStyle(color: Colors.red),
-                                        ))
-                                    : Text('You'),
-                              );
-                            }),
-                      )
-                    ],
-                  );
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                              itemCount: data!.length,
+                              itemBuilder: (context, index) {
+                                User currentUser = data[index];
+
+                                return ListTile(
+                                  title: Text(currentUser.displayName!),
+                                  leading: TagTeamCircleAvatar(
+                                    url: currentUser.profilePicture ?? '',
+                                    radius: 20,
+                                  ),
+                                  trailing: currentUser.uid! != fUser.FirebaseAuth.instance.currentUser!.uid && isAdmin
+                                      ? TextButton(
+                                          onPressed: () async {
+                                            late User tempUser;
+                                            setState(() {
+                                              tempUser = data.removeAt(index);
+                                            });
+
+                                            await TeamApi().removeUserFromTeam(
+                                                widget.teamId,
+                                                currentUser.uid!,
+                                                SnackbarErrorHandler(context, onErrorHandler: () {
+                                                  setState(() {
+                                                    data.insert(index, tempUser);
+                                                  });
+                                                }));
+                                          },
+                                          child: Text(
+                                            'Remove',
+                                            style: TextStyle(color: Colors.red),
+                                          ))
+                                      : SizedBox(),
+                                );
+                              }),
+                        )
+                      ],
+                    );
+                  });
                 })),
       ),
     );
