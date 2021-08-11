@@ -183,9 +183,18 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                     //       imageRefAfterUpload.split('.').first + '' + '.' + imageRefAfterUpload.split('.')[1];
 
                     // print(imageRefAfterUpload);
-                    String updatedPath = imagePath.split('/').last;
+
+                    
+
+                    String endOfMessage = imagePath.split('/').last;
+
+
+
+                    String updatedPath =  endOfMessage.split('.')[0] + '_400x400' + '.' + endOfMessage.split('.')[1];
+
 
                     print(updatedPath);
+                    
 
                     await ChannelApi().sendMessage(
                         widget.channel.id!,

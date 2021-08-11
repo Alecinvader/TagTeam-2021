@@ -1,5 +1,5 @@
 name: tagteamprod
-description: A new Flutter project.
+description: Destroy GroupMe
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -23,6 +23,12 @@ dependencies:
   path: ^1.8.0
   http: ^0.13.3
   image_picker: ^0.8.3
+  flutter_linkify: ^5.0.2
+  url_launcher: ^6.0.9
+  image_gallery_saver: ^1.6.9
+  share_plus: ^2.1.4
+
+  # gallery_saver: ^2.1.3
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2

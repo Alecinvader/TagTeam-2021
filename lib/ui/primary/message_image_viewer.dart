@@ -13,9 +13,16 @@ class _ImageViewerState extends State<ImageViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
+        backgroundColor: Colors.black,
         elevation: 0,
-        title: Text('Image'),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.close)),
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.download_outlined))],
       ),
       body: SafeArea(
           child: Column(

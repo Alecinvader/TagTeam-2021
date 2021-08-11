@@ -21,6 +21,8 @@ class MiniDashboardTile extends StatefulWidget {
 class _MiniDashboardTileState extends State<MiniDashboardTile> {
   late TagTeam team;
 
+  bool failedToLoadImage = false;
+
   @override
   void initState() {
     super.initState();
@@ -44,9 +46,16 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
         },
         child: Container(
           decoration: BoxDecoration(
+              image: team.imageLink != null && !failedToLoadImage
+                  ? DecorationImage(
+                      onError: (object, trace) {},
+                      image: NetworkImage(team.imageLink!),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(Colors.black54, BlendMode.srcOver))
+                  : null,
               border: Border(
-            bottom: BorderSide(color: Colors.grey.shade200, width: .5),
-          )),
+                bottom: BorderSide(color: Colors.grey.shade200, width: .5),
+              )),
           height: 80,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
