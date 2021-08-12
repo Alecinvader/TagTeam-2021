@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.tagteamprod">
    <application
-        android:label="tagteamprod"
+        android:label="TagTeam"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
         <activity
