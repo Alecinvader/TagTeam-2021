@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/message_image_viewer.dart';
+import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../models/message.dart';
 import '../../../core/tagteam_circleavatar.dart';
@@ -24,6 +27,7 @@ class MessageBubble extends StatefulWidget {
   final bool isFirstOfGroup;
   final bool isLastOfGroup;
   final bool isInGroup;
+  final String channelId;
 
   MessageBubble(
       {Key? key,
@@ -31,7 +35,8 @@ class MessageBubble extends StatefulWidget {
       this.showsMessageDate = false,
       this.isFirstOfGroup = false,
       this.isLastOfGroup = false,
-      this.isInGroup = false})
+      this.isInGroup = false,
+      required this.channelId})
       : super(key: key);
 
   @override
@@ -44,16 +49,22 @@ class _MessageBubbleState extends State<MessageBubble> {
   bool isLastOfGroup = false;
   bool isInGroup = false;
 
+  Future<void>? imageHandlerFuture;
+
+  String? imagePath;
+
   @override
   void initState() {
     super.initState();
+
+    imagePath = widget.message.imageDownloadLink;
+    if (widget.message.imagePath != null && widget.message.imageFinalized == true && imagePath == null) {
+      imageHandlerFuture ??= getAndUpdateDownladLink();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-
-    isImage ? print(widget.message.imagePath) : print('');
-
     showsMessageDate = widget.showsMessageDate;
     isFirstOfGroup = widget.isFirstOfGroup;
     isLastOfGroup = widget.isLastOfGroup;
@@ -80,10 +91,10 @@ class _MessageBubbleState extends State<MessageBubble> {
                       child: Center(
                         child: GestureDetector(
                           onTap: () async {
-                            // Share.share(widget.message.message!);
-                            // Navigator.pop(context);
+                            Share.share(widget.message.message!);
+                            Navigator.pop(context);
 
-                            await _save();
+                            // await _save();
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(24.0),
@@ -146,14 +157,14 @@ class _MessageBubbleState extends State<MessageBubble> {
                       child: Center(
                         child: GestureDetector(
                           onTap: () async {
-                            // Navigator.pop(context);
+                            Navigator.pop(context);
 
-                            // await FirebaseFirestore.instance
-                            //     .collection('channels')
-                            //     .doc('jdKAN5h7FRKE3VF5l76w')
-                            //     .collection('messages')
-                            //     .doc('DhroA2kQLck7AgYNny6t')
-                            //     .delete();
+                            await FirebaseFirestore.instance
+                                .collection('channels')
+                                .doc(widget.channelId)
+                                .collection('messages')
+                                .doc(widget.message.messageId)
+                                .delete();
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(24.0),
@@ -215,48 +226,52 @@ class _MessageBubbleState extends State<MessageBubble> {
                           )
                         : GestureDetector(
                             onTap: () async {
-                              if (widget.message.imagePath!.contains('channel'))
-                                await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ImageViewer(
-                                              primaryImage:
-                                                  widget.message.imagePath!,
-                                            )));
+                              // if (imagePath!.contains('channel'))
+                              //   await Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(
+                              //           builder: (context) => ImageViewer(
+                              //                 key: Key(widget.message.messageId!),
+                              //                 primaryImage: imagePath!,
+                              //               )));
                             },
-                            child: Container(
-                              decoration:
-                                  BoxDecoration(borderRadius: BorderRadius.circular(8.0), color: kLightBackgroundColor),
-                              height: 250,
-                              width: 200,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Hero(
-                                  tag:
-                                      'messageimage${widget.message.imagePath}',
-                                  child: Image.network(
-                                    widget.message.imagePath!,
-                                    errorBuilder: (context, object, trace) {
-                                      if (widget.message.imagePath!.contains('channel')) return SizedBox();
+                            child: SimpleFutureBuilder<void>(
+                                future: imageHandlerFuture ?? Future.value(),
+                                builder: (context, data) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8.0), color: kLightBackgroundColor),
+                                    height: 250,
+                                    width: 200,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      child: Hero(
+                                        tag: 'messageimage${widget.message.messageId}',
+                                        child: Image.network(
+                                          imagePath ?? '',
+                                          errorBuilder: (context, object, trace) {
+                                            // if (imagePath == null && widget.message.imageFinalized == null)
+                                            //   return SizedBox();
 
-                                      return Center(child: Text('Failed to load image'));
-                                    },
-                                    loadingBuilder: (context, child, progress) {
-                                      if (progress == null) return child;
+                                            return Center(child: Text('Failed to load image'));
+                                          },
+                                          loadingBuilder: (context, child, progress) {
+                                            if (progress == null) return child;
 
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: progress.expectedTotalBytes != null
-                                              ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                                              : null,
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value: progress.expectedTotalBytes != null
+                                                    ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            );
+                                          },
+                                          fit: BoxFit.cover,
                                         ),
-                                      );
-                                    },
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
+                                      ),
+                                    ),
+                                  );
+                                }),
                           ),
                     // isMyMessage ? userAvatar : SizedBox.shrink(),
                   ],
@@ -269,10 +284,31 @@ class _MessageBubbleState extends State<MessageBubble> {
     );
   }
 
+  Future getAndUpdateDownladLink() async {
+    try {
+      final String? link = await StorageUtility()
+          .getImageURL(widget.message.imagePath, SnackbarErrorHandler(context, showSnackBar: false));
+
+      print('did this');
+      setState(() {
+        imagePath = link;
+      });
+
+      // await FirebaseFirestore.instance
+      //     .collection('channels')
+      //     .doc(widget.channelId)
+      //     .collection('messages')
+      //     .doc(widget.message.messageId)
+      //     .update({"imageDownloadLink": link});
+    } catch (error) {
+      throw error;
+    }
+  }
+
   _save() async {
     var response = await http.readBytes(Uri.parse(
         'https://ss0.baidu.com/94o3dSag_xI4khGko9WTAnF6hhy/image/h%3D300/sign=a62e824376d98d1069d40a31113eb807/838ba61ea8d3fd1fc9c7b6853a4e251f94ca5f46.jpg'));
-    final result = await ImageGallerySaver.saveImage(response, quality: 100, name: "savingimage");
+    final result = await ImageGallerySaver.saveImage(response, quality: 80, name: "savingimage");
     print(result);
   }
 

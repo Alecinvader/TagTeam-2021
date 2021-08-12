@@ -77,9 +77,13 @@ class _TeamBasicDetailsState extends State<TeamBasicDetails> {
 
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text('Team will be created shortly'),
+                        behavior: SnackBarBehavior.floating,
                       ));
 
-                      Navigator.pop(context);
+                      int count = 0;
+                      Navigator.popUntil(context, (route) {
+                        return count++ == 2;
+                      });
                     },
                     enabled: teamName.isNotEmpty && !isLoading,
                   ),

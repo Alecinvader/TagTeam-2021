@@ -200,7 +200,7 @@ class _TeamInfoState extends State<TeamInfo> {
       if (downloadUrl != null) {
         await TeamApi().updateImageLink(teamId, downloadUrl, SnackbarErrorHandler(context));
       }
-      Provider.of<TeamAuthNotifier>(context, listen: false).currentTeam!.imageLink = updateImagePath;
+      Provider.of<TeamAuthNotifier>(context, listen: false).updateImage(downloadUrl!);
       setState(() {
         updateImagePath = imagePath;
       });

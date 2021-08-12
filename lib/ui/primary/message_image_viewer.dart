@@ -34,7 +34,7 @@ class _ImageViewerState extends State<ImageViewer> {
               minScale: 0.5,
               maxScale: 2,
               child: Hero(
-                tag: 'messageimage${widget.primaryImage}',
+                tag: 'messageimage${widget.key.toString()}',
                 child: Image.network(
                   widget.primaryImage,
                   loadingBuilder: (context, child, progress) {

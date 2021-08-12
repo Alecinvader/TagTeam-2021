@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
@@ -62,7 +64,6 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
                             });
                           }));
                     },
-                    subtitle: Text('Enable/Disable'),
                     title: Text('Notifications'),
                     trailing: Switch.adaptive(
                       onChanged: (bool? value) async {
@@ -87,30 +88,34 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
             SizedBox(
               height: 40,
             ),
-            GestureDetector(
-              onTap: () async {
-                await ChannelApi().removeChannel(widget.channelId, SnackbarErrorHandler(context));
+            Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+              return data.isAdmin
+                  ? GestureDetector(
+                      onTap: () async {
+                        await ChannelApi().removeChannel(widget.channelId, SnackbarErrorHandler(context));
 
-                var count = 0;
-                Navigator.popUntil(context, (route) {
-                  return count++ == 2;
-                });
-              },
-              child: Container(
-                height: 60,
-                decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'DELETE CHANNEL',
-                      style: TextStyle(fontSize: 16.0, color: Colors.red, fontWeight: FontWeight.w600),
+                        var count = 0;
+                        Navigator.popUntil(context, (route) {
+                          return count++ == 2;
+                        });
+                      },
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'DELETE CHANNEL',
+                              style: TextStyle(fontSize: 16.0, color: Colors.red, fontWeight: FontWeight.w600),
+                            )
+                          ],
+                        ),
+                      ),
                     )
-                  ],
-                ),
-              ),
-            ),
+                  : SizedBox();
+            }),
           ],
         )),
       ),

@@ -23,6 +23,11 @@ class TeamAuthNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateImage(String imageLink) {
+    currentTeam?.imageLink = imageLink;
+    notifyListeners();
+  }
+
   parseAuthType(String value) {
     switch (value) {
       case 'owner':

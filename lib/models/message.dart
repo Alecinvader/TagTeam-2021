@@ -8,22 +8,28 @@ class Message {
   String? senderDisplayName;
   String? senderPhoto;
 
+  bool? imageFinalized;
+
   MessageType? messageType;
   String? imagePath;
-
+  String? imageDownloadLink;
   String? message;
+  String? messageId;
   DateTime? createdAt;
   int? channelId;
 
   Message(
       {this.messageType,
+      this.imageFinalized,
       this.message,
       this.imagePath,
       this.channelId,
       this.senderDisplayName,
       this.senderId,
       this.senderPhoto,
-      this.createdAt});
+      this.createdAt,
+      this.messageId,
+      this.imageDownloadLink});
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
@@ -34,7 +40,10 @@ class Message {
         imagePath: json['imagePath'],
         createdAt: DateTime.tryParse(json['createdAt']),
         channelId: json['channelID'],
-        messageType: parseMessageType(json['messageType']));
+        messageType: parseMessageType(json['messageType']),
+        imageFinalized: json['imageFinalized'],
+        imageDownloadLink: json['imageDownloadLink'],
+        messageId: json['messageID']);
   }
 
   toJson() {

@@ -98,6 +98,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                       SliverList(
                           delegate: SliverChildBuilderDelegate((context, index) {
                         return MessageBubble(
+                            channelId: widget.channel.firebaseId!,
                             isInGroup: getIsInGroup(index),
                             showsMessageDate: getIsMessageFirstOfDay(index),
                             isFirstOfGroup: getIsMessageFirstInGroup(index),
@@ -184,17 +185,11 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
 
                     // print(imageRefAfterUpload);
 
-                    
-
                     String endOfMessage = imagePath.split('/').last;
 
-
-
-                    String updatedPath =  endOfMessage.split('.')[0] + '_400x400' + '.' + endOfMessage.split('.')[1];
-
+                    String updatedPath = endOfMessage.split('.')[0] + '_400x400' + '.' + endOfMessage.split('.')[1];
 
                     print(updatedPath);
-                    
 
                     await ChannelApi().sendMessage(
                         widget.channel.id!,
@@ -215,10 +210,13 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   void convertSnapshotsIntoMessages(List<QueryDocumentSnapshot> list) {
     List<Message> tempMessages = [];
 
-    tempMessages = List.generate(list.length, (index) => Message.fromJson(list[index].data() as Map<String, dynamic>));
+    tempMessages = List.generate(list.length,
+        (index) => Message.fromJson({...list[index].data() as Map<String, dynamic>, "messageID": list[index].id}));
     tempMessages = List<Message>.of(tempMessages.reversed);
 
     messages = tempMessages;
+
+    inspect(messages);
   }
 
   bool getIsMessageFirstOfDay(int index) {
