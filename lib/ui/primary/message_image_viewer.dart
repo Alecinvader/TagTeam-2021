@@ -18,9 +18,8 @@ class _ImageViewerState extends State<ImageViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
             onPressed: () {
@@ -44,34 +43,39 @@ class _ImageViewerState extends State<ImageViewer> {
               : SizedBox()
         ],
       ),
+      backgroundColor: Colors.black,
       body: SafeArea(
-          child: Column(
+          child: Stack(
         children: [
-          Expanded(
-            child: InteractiveViewer(
-              panEnabled: false, // Set it to false
-              boundaryMargin: EdgeInsets.all(50),
-              minScale: 0.5,
-              maxScale: 2,
-              child: Hero(
-                tag: 'messageimage${widget.messageId}',
-                child: Image.network(
-                  widget.primaryImage,
-                  loadingBuilder: (context, child, progress) {
-                    if (progress == null) return child;
+          Column(
+            children: [
+              Expanded(
+                child: InteractiveViewer(
+                  panEnabled: false, // Set it to false
+                  boundaryMargin: EdgeInsets.all(50),
+                  minScale: 0.5,
+                  maxScale: 2,
+                  child: Hero(
+                    tag: 'messageimage${widget.messageId}',
+                    child: Image.network(
+                      widget.primaryImage,
+                      loadingBuilder: (context, child, progress) {
+                        if (progress == null) return child;
 
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: progress.expectedTotalBytes != null
-                            ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
-                  fit: BoxFit.contain,
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: progress.expectedTotalBytes != null
+                                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ],
       )),

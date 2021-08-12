@@ -38,7 +38,7 @@ class Message {
         senderPhoto: json['senderPhoto'],
         message: json['message'],
         imagePath: json['imagePath'],
-        createdAt: DateTime.tryParse(json['createdAt']),
+        createdAt: DateTime.tryParse(json['createdAt'])?.toLocal() ?? null,
         channelId: json['channelID'],
         messageType: parseMessageType(json['messageType']),
         imageFinalized: json['imageFinalized'],

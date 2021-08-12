@@ -1,27 +1,20 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:tagteamprod/config.dart';
-import 'package:tagteamprod/main.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
-import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
-import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/message_image_viewer.dart';
-import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../../../models/message.dart';
 import '../../../core/tagteam_circleavatar.dart';
-
-import 'package:http/http.dart' as http;
 
 class MessageBubble extends StatelessWidget {
   final Message message;
@@ -155,7 +148,7 @@ class MessageBubble extends StatelessWidget {
               ? Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12.0),
                   child: Text(
-                    DateFormat('MM-dd-yy').format(message.createdAt!),
+                    DateFormat('MM/dd/yy').format(message.createdAt!),
                     style: TextStyle(color: Colors.white70),
                   ),
                 )
@@ -176,9 +169,18 @@ class MessageBubble extends StatelessWidget {
                         ))
                     : SizedBox.shrink(),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
                   children: [
+                    isMyMessage
+                        ? Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Text(
+                              DateFormat.jm().format(message.createdAt!),
+                              style: TextStyle(color: Colors.white54, fontSize: 11.0),
+                            ),
+                          )
+                        : SizedBox.shrink(),
                     !isMyMessage ? userAvatar : SizedBox.shrink(),
                     !isImage
                         ? Flexible(
@@ -188,6 +190,7 @@ class MessageBubble extends StatelessWidget {
                               child: Linkify(
                                 onOpen: _onOpen,
                                 text: message.message ?? 'Missing Message',
+                                linkStyle: TextStyle(color: isMyMessage ? Colors.white : Colors.blue),
                                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0),
                               ),
                             ),
@@ -233,7 +236,15 @@ class MessageBubble extends StatelessWidget {
                               ),
                             ),
                           ),
-                    // isMyMessage ? userAvatar : SizedBox.shrink(),
+                    !isMyMessage
+                        ? Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Text(
+                              DateFormat.jm().format(message.createdAt!),
+                              style: TextStyle(color: Colors.white54, fontSize: 11.0),
+                            ),
+                          )
+                        : SizedBox.shrink(),
                   ],
                 )
               ],
@@ -291,13 +302,13 @@ class MessageBubble extends StatelessWidget {
     }
 
     if (!isMyMessage && isFirstOfGroup) {
-      return EdgeInsets.only(right: 64.0, left: 16.0, top: 6.0, bottom: 2.0);
+      return EdgeInsets.only(right: 48.0, left: 16.0, top: 6.0, bottom: 2.0);
     } else if (!isMyMessage && isLastOfGroup) {
-      return EdgeInsets.only(right: 64.0, left: 16.0, bottom: 6.0);
+      return EdgeInsets.only(right: 48.0, left: 16.0, bottom: 6.0);
     } else if (!isMyMessage && isInGroup) {
-      return EdgeInsets.only(right: 64.0, left: 16.0, bottom: 2.0);
+      return EdgeInsets.only(right: 48.0, left: 16.0, bottom: 2.0);
     } else if (!isMyMessage) {
-      return EdgeInsets.only(right: 64.0, left: 16.0, bottom: 6.0, top: 6.0);
+      return EdgeInsets.only(right: 48.0, left: 16.0, bottom: 6.0, top: 6.0);
     }
 
     return EdgeInsets.all(16.0);
