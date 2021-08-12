@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:http/http.dart' as http;
 
 class ImageViewer extends StatefulWidget {
   final String primaryImage;
@@ -11,6 +13,8 @@ class ImageViewer extends StatefulWidget {
 }
 
 class _ImageViewerState extends State<ImageViewer> {
+  bool imageSaved = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +27,22 @@ class _ImageViewerState extends State<ImageViewer> {
               Navigator.pop(context);
             },
             icon: Icon(Icons.close)),
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.download_outlined))],
+        actions: [
+          !imageSaved
+              ? IconButton(
+                  onPressed: () async {
+                    setState(() {
+                      imageSaved = true;
+                    });
+                    await _save(context);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Image saved'),
+                      behavior: SnackBarBehavior.floating,
+                    ));
+                  },
+                  icon: Icon(Icons.download_outlined))
+              : SizedBox()
+        ],
       ),
       body: SafeArea(
           child: Column(
@@ -57,5 +76,17 @@ class _ImageViewerState extends State<ImageViewer> {
         ],
       )),
     );
+  }
+
+  _save(BuildContext context) async {
+    try {
+      var response = await http.readBytes(Uri.parse(widget.primaryImage));
+      final result = await ImageGallerySaver.saveImage(response, quality: 80);
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
+      setState(() {
+        imageSaved = false;
+      });
+    }
   }
 }

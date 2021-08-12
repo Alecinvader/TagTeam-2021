@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
 import '../../../../models/channel.dart';
@@ -15,10 +16,35 @@ class MessagePageTile extends StatefulWidget {
 }
 
 class _MessagePageTileState extends State<MessagePageTile> {
+  bool isNewMessage = false;
+
+  SharedPreferences? _preferences;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    SharedPreferences.getInstance().then((value) {
+      setState(() {
+        _preferences = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    checkIfMessageIsUnread(widget.channel).then((value) {
+      isNewMessage = value;
+
+      print(isNewMessage);
+    });
+
     return InkWell(
       onTap: () async {
+        setState(() {
+          isNewMessage = false;
+        });
+
         await Navigator.push(
             context,
             MaterialPageRoute(
@@ -52,7 +78,10 @@ class _MessagePageTileState extends State<MessagePageTile> {
                 children: [
                   Text(
                     widget.channel.name ?? "Unknown",
-                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                        color: isNewMessage ? Colors.white : Colors.white70),
                   ),
                   widget.channel.mostRecentMessage?.senderDisplayName != null
                       ? Text(
@@ -73,22 +102,49 @@ class _MessagePageTileState extends State<MessagePageTile> {
             const SizedBox(
               width: 8.0,
             ),
-            // newMessage != null && newMessage != false
-            //     ? Align(
-            //         child: Container(
-            //           height: 15,
-            //           width: 45,
-            //           decoration: BoxDecoration(
-            //             shape: BoxShape.circle,
-            //             color: Theme.of(context).accentColor,
-            //             // borderRadius: BorderRadius.all(Radius.circular(5.0)),
-            //           ),
-            //         ),
-            //       )
-            //     : const SizedBox()
+            isNewMessage != false
+                ? Align(
+                    child: Container(
+                      height: 15,
+                      width: 45,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Theme.of(context).accentColor,
+                        // borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      ),
+                    ),
+                  )
+                : const SizedBox()
           ],
         ),
       ),
     );
+  }
+
+  Future<bool> checkIfMessageIsUnread(Channel channel) async {
+    if (_preferences == null) {
+      return false;
+    }
+
+    bool containsKey = _preferences!.containsKey('${channel.id}');
+
+    if (!containsKey) {
+      if (channel.mostRecentMessage == null) {
+        return false;
+      } else if (channel.mostRecentMessage!.senderId != FirebaseAuth.instance.currentUser!.uid) return true;
+    }
+
+    DateTime? time = DateTime.tryParse(_preferences!.getString('${channel.id}') ?? '');
+
+    if (time == null) {
+      return true;
+    } else if (channel.mostRecentMessage == null) {
+      return false;
+    } else if (channel.mostRecentMessage!.senderId != FirebaseAuth.instance.currentUser!.uid &&
+        channel.mostRecentMessage!.createdAt!.isAfter(time)) {
+      return true;
+    }
+
+    return false;
   }
 }

@@ -49,14 +49,14 @@ class MessageBubble extends StatelessWidget {
             context: context,
             elevation: 0,
             backgroundColor: Colors.transparent,
-            builder: (context) {
+            builder: (context2) {
               return Wrap(
                 alignment: WrapAlignment.center,
                 children: [
                   GestureDetector(
                     onTap: () async {
                       Share.share(message.message!);
-                      Navigator.pop(context);
+                      Navigator.pop(context2);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -80,6 +80,7 @@ class MessageBubble extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () async {
+                      Navigator.pop(context2);
                       if (message.imagePath == null) {
                         Clipboard.setData(ClipboardData(text: message.message));
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Message copied')));
@@ -88,7 +89,6 @@ class MessageBubble extends StatelessWidget {
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to photos')));
                       }
-                      Navigator.pop(context);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -114,7 +114,7 @@ class MessageBubble extends StatelessWidget {
                     return data.isAdmin
                         ? GestureDetector(
                             onTap: () async {
-                              Navigator.pop(context);
+                              Navigator.pop(context2);
 
                               await FirebaseFirestore.instance
                                   .collection('channels')

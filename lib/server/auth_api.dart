@@ -85,7 +85,9 @@ class AuthServer implements SafeServer {
     }
 
     headers[AuthHeaderKey] = 'Bearer $accessToken';
-    headers['Content-Type'] = 'application/json; charset=UTF-8';
+    headers['Content-Type'] = 'application/json';
+    headers['Charset'] = 'utf-8';
+
     return headers;
   }
 

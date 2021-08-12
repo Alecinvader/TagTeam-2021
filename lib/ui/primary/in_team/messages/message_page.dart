@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
@@ -36,9 +38,18 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
 
   String? _pendingMessage;
 
+  SharedPreferences? _preferences;
+
   @override
   void initState() {
     super.initState();
+
+    SharedPreferences.getInstance().then((SharedPreferences prefs) async {
+      setState(() {
+        _preferences = prefs;
+      });
+    });
+
     channel = widget.channel;
     ChannelApi()
         .setChannelActive(
@@ -58,113 +69,122 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () async {
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ChannelSettingsPage(
-                              channelId: channel.id!,
-                            )));
-              },
-              icon: Icon(Icons.settings))
-        ],
-        elevation: 0.0,
-        title: Text(widget.channel.name!),
-      ),
-      body: TextFieldToggler(
-        child: StreamBuilder<QuerySnapshot>(
-          stream: messageStream,
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.hasData) {
-              convertSnapshotsIntoMessages(snapshot.data?.docs ?? []);
-            }
+    return WillPopScope(
+      onWillPop: () async {
+        if (_preferences != null) {
+          await _preferences!.setString('${channel.id}', DateTime.now().toIso8601String());
+        }
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          actions: [
+            IconButton(
+                onPressed: () async {
+                  await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChannelSettingsPage(
+                                channelId: channel.id!,
+                              )));
+                },
+                icon: Icon(Icons.settings))
+          ],
+          elevation: 0.0,
+          title: Text(widget.channel.name!),
+        ),
+        body: TextFieldToggler(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: messageStream,
+            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.hasData) {
+                convertSnapshotsIntoMessages(snapshot.data?.docs ?? []);
+              }
 
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('Could not subscribe to messages'),
-              );
-            }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Could not subscribe to messages'),
+                );
+              }
 
-            return SafeArea(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: CustomScrollView(reverse: true, slivers: [
-                      SliverList(
-                          delegate: SliverChildBuilderDelegate((context, index) {
-                        return MessageBubble(
-                            key: Key('$index'),
-                            channelId: widget.channel.firebaseId!,
-                            isInGroup: getIsInGroup(index),
-                            showsMessageDate: getIsMessageFirstOfDay(index),
-                            isFirstOfGroup: getIsMessageFirstInGroup(index),
-                            isLastOfGroup: getIsMessageLastInGroup(index),
-                            message: messages[index]);
-                      }, childCount: messages.length)),
-                    ]),
-                  ),
-                  Consumer<TeamAuthNotifier>(builder: (context, data, _) {
-                    if (data.authType == TeamAuthType.user && channel.type == ChannelType.announcment) {
+              return SafeArea(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: CustomScrollView(reverse: true, slivers: [
+                        SliverList(
+                            delegate: SliverChildBuilderDelegate((context, index) {
+                          return MessageBubble(
+                              key: Key('$index'),
+                              channelId: widget.channel.firebaseId!,
+                              isInGroup: getIsInGroup(index),
+                              showsMessageDate: getIsMessageFirstOfDay(index),
+                              isFirstOfGroup: getIsMessageFirstInGroup(index),
+                              isLastOfGroup: getIsMessageLastInGroup(index),
+                              message: messages[index]);
+                        }, childCount: messages.length)),
+                      ]),
+                    ),
+                    Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+                      if (data.authType == TeamAuthType.user && channel.type == ChannelType.announcment) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 16.0),
+                          child: SizedBox(),
+                        );
+                      }
+
                       return Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: SizedBox(),
-                      );
-                    }
-
-                    return Padding(
-                      padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: kLightBackgroundColor,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                minLines: 1,
-                                maxLines: 6,
-                                controller: _textFieldController,
-                                onChanged: (String value) {
-                                  _pendingMessage = value;
-                                },
-                                decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0, bottom: 6.0),
-                                    focusedBorder: InputBorder.none,
-                                    enabledBorder: InputBorder.none),
+                        padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: kLightBackgroundColor,
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  minLines: 1,
+                                  maxLines: 6,
+                                  controller: _textFieldController,
+                                  onChanged: (String value) {
+                                    _pendingMessage = value;
+                                  },
+                                  decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0, bottom: 6.0),
+                                      focusedBorder: InputBorder.none,
+                                      enabledBorder: InputBorder.none),
+                                ),
                               ),
-                            ),
-                            IconButton(onPressed: selectAndSendImage, icon: Icon(Icons.image_outlined)),
-                            TextButton(
-                                onPressed: () async {
-                                  if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
-                                    _textFieldController.clear();
+                              IconButton(onPressed: selectAndSendImage, icon: Icon(Icons.image_outlined)),
+                              TextButton(
+                                  onPressed: () async {
+                                    if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
+                                      _textFieldController.clear();
 
-                                    await ChannelApi().sendMessage(
-                                        widget.channel.id!,
-                                        widget.channel.teamId!,
-                                        Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
-                                        SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message'));
-                                  }
-                                },
-                                child: Text(
-                                  'Send',
-                                  style: TextStyle(color: Theme.of(context).accentColor),
-                                ))
-                          ],
+                                      await ChannelApi().sendMessage(
+                                          widget.channel.id!,
+                                          widget.channel.teamId!,
+                                          Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
+                                          SnackbarErrorHandler(context,
+                                              overrideErrorMessage: 'Failed to send message'));
+                                    }
+                                  },
+                                  child: Text(
+                                    'Send',
+                                    style: TextStyle(color: Theme.of(context).accentColor),
+                                  ))
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            );
-          },
+                      );
+                    }),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
