@@ -98,6 +98,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                       SliverList(
                           delegate: SliverChildBuilderDelegate((context, index) {
                         return MessageBubble(
+                            key: Key('$index'),
                             channelId: widget.channel.firebaseId!,
                             isInGroup: getIsInGroup(index),
                             showsMessageDate: getIsMessageFirstOfDay(index),
@@ -180,27 +181,19 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
               onChoice: (bool value) async {
                 if (value) {
                   if (imagePath.isNotEmpty) {
-                    //   imageRefAfterUpload =
-                    //       imageRefAfterUpload.split('.').first + '' + '.' + imageRefAfterUpload.split('.')[1];
-
-                    // print(imageRefAfterUpload);
-
                     String endOfMessage = imagePath.split('/').last;
 
-                    String updatedPath = endOfMessage.split('.')[0] + '_400x400' + '.' + endOfMessage.split('.')[1];
+                    String imageRefAfterUpload = await StorageUtility()
+                        .uploadFile(imagePath, 'channels/${widget.channel.firebaseId}', SnackbarErrorHandler(context));
 
-                    print(updatedPath);
+                    String? downloadLink =
+                        await StorageUtility().getImageURL(imageRefAfterUpload, SnackbarErrorHandler(context));
 
                     await ChannelApi().sendMessage(
                         widget.channel.id!,
                         widget.channel.teamId!,
-                        Message(
-                            imagePath: 'channels/${widget.channel.firebaseId}/$updatedPath',
-                            messageType: MessageType.image),
+                        Message(imagePath: downloadLink, messageType: MessageType.image),
                         SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message'));
-
-                    String imageRefAfterUpload = await StorageUtility()
-                        .uploadFile(imagePath, 'channels/${widget.channel.firebaseId}', SnackbarErrorHandler(context));
                   }
                 }
               }));
@@ -215,8 +208,6 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     tempMessages = List<Message>.of(tempMessages.reversed);
 
     messages = tempMessages;
-
-    inspect(messages);
   }
 
   bool getIsMessageFirstOfDay(int index) {

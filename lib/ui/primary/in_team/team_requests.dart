@@ -42,7 +42,7 @@ class _TeamRequestsState extends State<TeamRequests> {
                     User currentUser = data![index];
 
                     return Container(
-                      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white54, width: .5))),
+                      // decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white54, width: .5))),
                       child: ListTile(
                         leading: TagTeamCircleAvatar(
                           radius: 20,
@@ -69,22 +69,26 @@ class _TeamRequestsState extends State<TeamRequests> {
                                 child: Text('Accept', style: TextStyle(color: Theme.of(context).accentColor))),
                           ],
                         ),
-                        trailing: IconButton(
-                            onPressed: () async {
-                              User? tempUser;
-                              setState(() {
-                                tempUser = data.removeAt(index);
-                              });
-                              await TeamApi().deleteJoinRequest(
-                                  widget.teamId,
-                                  tempUser!.uid ?? '',
-                                  SnackbarErrorHandler(context, onErrorHandler: () {
-                                    setState(() {
-                                      data.insert(index, tempUser!);
-                                    });
-                                  }));
-                            },
-                            icon: Icon(Icons.clear)),
+                        trailing: SizedBox(
+                          width: 40,
+                          child: IconButton(
+                              color: Colors.white,
+                              onPressed: () async {
+                                User? tempUser;
+                                setState(() {
+                                  tempUser = data.removeAt(index);
+                                });
+                                await TeamApi().deleteJoinRequest(
+                                    widget.teamId,
+                                    tempUser!.uid ?? '',
+                                    SnackbarErrorHandler(context, onErrorHandler: () {
+                                      setState(() {
+                                        data.insert(index, tempUser!);
+                                      });
+                                    }));
+                              },
+                              icon: Icon(Icons.clear)),
+                        ),
                       ),
                     );
                   },

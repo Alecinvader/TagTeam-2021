@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class ImageViewer extends StatefulWidget {
   final String primaryImage;
+  final String messageId;
 
-  const ImageViewer({Key? key, required this.primaryImage}) : super(key: key);
+  const ImageViewer({Key? key, required this.primaryImage, required this.messageId}) : super(key: key);
 
   @override
   _ImageViewerState createState() => _ImageViewerState();
@@ -34,7 +35,7 @@ class _ImageViewerState extends State<ImageViewer> {
               minScale: 0.5,
               maxScale: 2,
               child: Hero(
-                tag: 'messageimage${widget.key.toString()}',
+                tag: 'messageimage${widget.messageId}',
                 child: Image.network(
                   widget.primaryImage,
                   loadingBuilder: (context, child, progress) {

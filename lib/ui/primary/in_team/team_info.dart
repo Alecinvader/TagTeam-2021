@@ -76,16 +76,20 @@ class _TeamInfoState extends State<TeamInfo> {
                       SizedBox(
                         height: 8.0,
                       ),
-                      GestureDetector(
-                        onTap: () async {
-                          await selectAndUploadImage(teamData.currentTeam!.teamId!, context);
-                        },
-                        child: Center(
-                            child: Text(
-                          'Change Picture',
-                          style: TextStyle(color: Theme.of(context).accentColor),
-                        )),
-                      ),
+                      Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+                        return data.isAdmin
+                            ? GestureDetector(
+                                onTap: () async {
+                                  await selectAndUploadImage(teamData.currentTeam!.teamId!, context);
+                                },
+                                child: Center(
+                                    child: Text(
+                                  'Change Picture',
+                                  style: TextStyle(color: Theme.of(context).accentColor),
+                                )),
+                              )
+                            : SizedBox();
+                      }),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                         child: Text('Name'),

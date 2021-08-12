@@ -92,12 +92,11 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
               return data.isAdmin
                   ? GestureDetector(
                       onTap: () async {
-                        await ChannelApi().removeChannel(widget.channelId, SnackbarErrorHandler(context));
-
                         var count = 0;
                         Navigator.popUntil(context, (route) {
                           return count++ == 2;
                         });
+                        await ChannelApi().removeChannel(widget.channelId, SnackbarErrorHandler(context));
                       },
                       child: Container(
                         height: 60,
