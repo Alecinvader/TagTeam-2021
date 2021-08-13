@@ -15,10 +15,10 @@ class MenuDrawer extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.red, size: 30.0, opacity: 1),
       ),
       child: Drawer(
-        child: SafeArea(
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 24.0),
-            color: Theme.of(context).primaryColor,
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 24.0),
+          color: Theme.of(context).primaryColor,
+          child: SafeArea(
             child: Column(
               children: [
                 Expanded(
