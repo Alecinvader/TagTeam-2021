@@ -191,7 +191,7 @@ class MessageBubble extends StatelessWidget {
                                 onOpen: _onOpen,
                                 text: message.message ?? 'Missing Message',
                                 linkStyle: TextStyle(color: isMyMessage ? Colors.white : Colors.blue),
-                                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.0),
+                                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14.0),
                               ),
                             ),
                           )

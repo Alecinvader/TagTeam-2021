@@ -2,7 +2,7 @@
     package="com.example.tagteamprod">
    <application
         android:label="TagTeam"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"

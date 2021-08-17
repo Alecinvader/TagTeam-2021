@@ -79,6 +79,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> setupMessaging(BuildContext context) async {
     final NotificationSettings hasPermission = await FirebaseMessaging.instance.requestPermission();
+    
+    
 
     String? token = await FirebaseMessaging.instance.getToken();
 

@@ -14,7 +14,7 @@ import 'package:tagteamprod/ui/login/sign_in.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(App());
-}
+} 
 
 class App extends StatefulWidget {
   @override
