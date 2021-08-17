@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/ui/create_team/team_create_start.dart';
 import 'package:tagteamprod/ui/primary/search_team.dart';
 import '../login/sign_in.dart';
@@ -95,13 +97,13 @@ class MenuDrawer extends StatelessWidget {
                   alignment: Alignment.bottomCenter,
                   child: ListTile(
                     onTap: () async {
-                      // await FirebaseAuth.instance.signOut();
-                      // SharedPreferences prefs = await SharedPreferences.getInstance();
+                      await FirebaseAuth.instance.signOut();
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-                      // if (prefs.containsKey('userKey')) {
-                      //   await prefs.remove('userKey');
-                      //   await prefs.remove('username');
-                      // }
+                      if (prefs.containsKey('userkey')) {
+                        await prefs.remove('userkey');
+                        await prefs.remove('username');
+                      }
 
                       // await GoogleSignIn().signOut();
                       await Navigator.pushAndRemoveUntil(
