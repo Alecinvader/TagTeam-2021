@@ -169,6 +169,10 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                                           Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
                                           SnackbarErrorHandler(context,
                                               overrideErrorMessage: 'Failed to send message'));
+
+                                      setState(() {
+                                        _pendingMessage = '';
+                                      });
                                     }
                                   },
                                   child: Text(

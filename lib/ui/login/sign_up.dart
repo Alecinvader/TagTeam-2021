@@ -146,8 +146,11 @@ class _SignUpState extends State<SignUp> {
       _formKey.currentState!.save();
     }
 
-    await UserApi()
-        .createUser(UserRequest(email: email, pass: pass, displayName: displayName), SnackbarErrorHandler(context));
+    UserCredential credential =
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: pass);
+
+    await UserApi().createUser(
+        UserRequest(email: email, uid: credential.user!.uid, displayName: displayName), SnackbarErrorHandler(context));
 
     await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: pass);
 

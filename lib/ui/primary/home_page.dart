@@ -3,7 +3,9 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
+import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/core/tagteam_drawer.dart';
+import 'package:tagteamprod/ui/primary/search_team.dart';
 import '../../models/tagteam.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/team/team_api.dart';
@@ -37,6 +39,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: MenuDrawer(),
       appBar: AppBar(
+        centerTitle: true,
         // automaticallyImplyLeading: false,
         elevation: 0,
         title: Padding(
@@ -48,7 +51,24 @@ class _HomePageState extends State<HomePage> {
         builder: (BuildContext context, List<TagTeam>? data) {
           if (data?.isEmpty ?? [].isEmpty) {
             return Center(
-              child: Text('You are not a part of any teams.'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('You are not a part of any teams'),
+                  TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => SearchForTeam()));
+                      },
+                      icon: Icon(
+                        Icons.search_outlined,
+                        color: Theme.of(context).accentColor,
+                      ),
+                      label: Text(
+                        'Find Team',
+                        style: TextStyle(color: Theme.of(context).accentColor),
+                      ))
+                ],
+              ),
             );
           }
 

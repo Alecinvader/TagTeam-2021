@@ -4,10 +4,11 @@ class UserRequest {
   String? token;
   String? displayName;
   String? profileImage;
+  String? uid;
 
-  UserRequest({this.pass, this.email, this.displayName, this.profileImage, this.token});
+  UserRequest({this.uid, this.email, this.displayName, this.profileImage, this.token});
 
   toJson() {
-    return {'displayName': displayName, 'photoURL': profileImage, 'token': token, 'password': pass, 'email': email};
+    return {'displayName': displayName, 'photoURL': profileImage, 'token': token, 'email': email, 'uid': uid};
   }
 }

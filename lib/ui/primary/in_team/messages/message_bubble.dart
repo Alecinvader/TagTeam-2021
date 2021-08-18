@@ -43,113 +43,116 @@ class MessageBubble extends StatelessWidget {
             elevation: 0,
             backgroundColor: Colors.transparent,
             builder: (context2) {
-              return Wrap(
-                alignment: WrapAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      Share.share(message.message!);
-                      Navigator.pop(context2);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Text(
-                              'Share',
-                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
-                            ),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        Share.share(message.message!);
+                        Navigator.pop(context2);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      Navigator.pop(context2);
-                      if (message.imagePath == null) {
-                        Clipboard.setData(ClipboardData(text: message.message));
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Message copied')));
-                      } else {
-                        await _save(context);
-
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to photos')));
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Text(
-                              message.imagePath == null ? 'Copy Message' : 'Save Image',
-                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Consumer<TeamAuthNotifier>(builder: (context, data, _) {
-                    return data.isAdmin && message.deleted != true
-                        ? GestureDetector(
-                            onTap: () async {
-                              Navigator.pop(context2);
-
-                              try {
-                                await FirebaseFirestore.instance
-                                    .collection('channels')
-                                    .doc(channelId)
-                                    .collection('deletedMessages')
-                                    .add(message.toCompleteJson());
-
-                                await FirebaseFirestore.instance
-                                    .collection('channels')
-                                    .doc(channelId)
-                                    .collection('messages')
-                                    .doc(message.messageId)
-                                    .update({"message": "Message removed", "deleted": true});
-                              } catch (error) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(content: Text('Could not remove message')));
-                              }
-                            },
+                          child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor,
-                                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                                ),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(24.0),
-                                    child: Text(
-                                      'Remove Message',
-                                      style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                'Share',
+                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        Navigator.pop(context2);
+                        if (message.imagePath == null) {
+                          Clipboard.setData(ClipboardData(text: message.message));
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Message copied')));
+                        } else {
+                          await _save(context);
+
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to photos')));
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                          ),
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                message.imagePath == null ? 'Copy Message' : 'Save Image',
+                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+                      return data.isAdmin && message.deleted != true
+                          ? GestureDetector(
+                              onTap: () async {
+                                Navigator.pop(context2);
+
+                                try {
+                                  await FirebaseFirestore.instance
+                                      .collection('channels')
+                                      .doc(channelId)
+                                      .collection('deletedMessages')
+                                      .add(message.toCompleteJson());
+
+                                  await FirebaseFirestore.instance
+                                      .collection('channels')
+                                      .doc(channelId)
+                                      .collection('messages')
+                                      .doc(message.messageId)
+                                      .update({"message": "Message removed", "deleted": true});
+                                } catch (error) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(content: Text('Could not remove message')));
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24.0),
+                                      child: Text(
+                                        'Remove Message',
+                                        style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
-                        : SizedBox();
-                  }),
-                ],
+                            )
+                          : SizedBox();
+                    }),
+                  ],
+                ),
               );
             });
       },

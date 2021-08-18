@@ -70,8 +70,7 @@ class _SignInState extends State<SignIn> {
                                 return validateEmail(value);
                               },
                               initialValue: _email,
-                              // decoration: borderStyle.copyWith(labelText: 'Email Address'),
-
+                              decoration: InputDecoration(labelText: 'Email'),
                               keyboardType: TextInputType.emailAddress,
                             ),
                             SizedBox(
@@ -80,6 +79,7 @@ class _SignInState extends State<SignIn> {
                             TextFormField(
                               initialValue: _key,
                               obscureText: true,
+                              decoration: InputDecoration(labelText: 'Password'),
                               onChanged: (value) => _key = value,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
