@@ -26,6 +26,8 @@ class _SignUpState extends State<SignUp> {
 
   final InputDecoration signInStyles = InputDecoration();
 
+  List<FocusNode> nodes = List.generate(4, (index) => FocusNode());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,12 +53,15 @@ class _SignUpState extends State<SignUp> {
                             height: 16.0,
                           ),
                           TextFormField(
+                            focusNode: nodes[0],
                             decoration: signInStyles.copyWith(labelText: 'Email'),
                             onChanged: (value) => email = value,
                             validator: (value) {
                               return validateEmail(value);
                             },
-
+                            onFieldSubmitted: (String value) {
+                              nodes[1].requestFocus();
+                            },
                             // decoration: borderStyle.copyWith(labelText: 'Email Address'),
 
                             keyboardType: TextInputType.emailAddress,
@@ -65,6 +70,10 @@ class _SignUpState extends State<SignUp> {
                             height: 16.0,
                           ),
                           TextFormField(
+                            onFieldSubmitted: (String value) {
+                              nodes[2].requestFocus();
+                            },
+                            focusNode: nodes[1],
                             decoration: signInStyles.copyWith(labelText: 'Display Name'),
                             onChanged: (value) => displayName = value,
                             validator: (value) {
@@ -79,6 +88,10 @@ class _SignUpState extends State<SignUp> {
                             height: 16.0,
                           ),
                           TextFormField(
+                            onFieldSubmitted: (String value) {
+                              nodes[3].requestFocus();
+                            },
+                            focusNode: nodes[2],
                             obscureText: true,
                             decoration: signInStyles.copyWith(labelText: 'Password'),
                             onChanged: (value) => pass = value,
@@ -97,6 +110,10 @@ class _SignUpState extends State<SignUp> {
                           ),
                           !widget.accountSetup
                               ? TextFormField(
+                                  focusNode: nodes[3],
+                                  onFieldSubmitted: (String value) async {
+                                    await signUp();
+                                  },
                                   obscureText: true,
                                   decoration: signInStyles.copyWith(labelText: 'Confirm Password'),
                                   onChanged: (value) => confirmPass = value,

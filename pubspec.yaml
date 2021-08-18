@@ -47,7 +47,7 @@ flutter_icons:
   image_path: 'assets/images/tagteambackgroundfinal.png'
   image_path_ios: 'assets/images/paddedLogo.png'
   adaptive_icon_background: '#172A3A'
-  adaptive_icon_foreground: 'assets/images/iosLogo.png'
+  adaptive_icon_foreground: 'assets/images/paddedLogo.png'
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

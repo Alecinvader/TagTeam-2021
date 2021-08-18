@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
+import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/create_team/team_create_start.dart';
 import 'package:tagteamprod/ui/primary/search_team.dart';
 import 'package:tagteamprod/ui/user/account_info.dart';
@@ -98,7 +100,11 @@ class MenuDrawer extends StatelessWidget {
                   alignment: Alignment.bottomCenter,
                   child: ListTile(
                     onTap: () async {
+                      await UserApi()
+                          .updateFCMToken(null, FirebaseAuth.instance.currentUser!.uid, SnackbarErrorHandler(context));
+
                       await FirebaseAuth.instance.signOut();
+
                       SharedPreferences prefs = await SharedPreferences.getInstance();
 
                       if (prefs.containsKey('userkey')) {
