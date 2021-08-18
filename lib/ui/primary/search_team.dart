@@ -100,6 +100,10 @@ class _SearchForTeamState extends State<SearchForTeam> {
                           title: Text(data!.name!),
                           trailing: TextButton(
                               onPressed: () async {
+                                setState(() {
+                                  searchResult = null;
+                                });
+
                                 await TeamApi().requestToJoinTeam(data.teamId!, SnackbarErrorHandler(context));
                               },
                               child: Text(

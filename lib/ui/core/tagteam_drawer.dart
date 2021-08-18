@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/ui/create_team/team_create_start.dart';
 import 'package:tagteamprod/ui/primary/search_team.dart';
+import 'package:tagteamprod/ui/user/account_info.dart';
 import '../login/sign_in.dart';
 import '../primary/home_page.dart';
 
@@ -82,7 +83,7 @@ class MenuDrawer extends StatelessWidget {
                       ),
                       ListTile(
                         onTap: () {
-                          // Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => AccountInfo()));
                         },
                         leading: Icon(
                           Icons.person_outline_rounded,

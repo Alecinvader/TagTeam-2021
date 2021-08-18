@@ -123,7 +123,7 @@ class _SignUpState extends State<SignUp> {
                                 'Create Account',
                                 style: TextStyle(color: Colors.white, fontSize: 16.0),
                               ),
-                              onPressed: signUp,
+                              onPressed: !_loading ? signUp : null,
                             ),
                           ),
                         ],
@@ -146,16 +146,31 @@ class _SignUpState extends State<SignUp> {
       _formKey.currentState!.save();
     }
 
-    UserCredential credential =
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: pass);
+    setState(() {
+      _loading = true;
+    });
 
-    await UserApi().createUser(
-        UserRequest(email: email, uid: credential.user!.uid, displayName: displayName), SnackbarErrorHandler(context));
+    try {
+      UserCredential credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: pass);
 
-    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: pass);
+      await UserApi().createUser(UserRequest(email: email, uid: credential.user!.uid, displayName: displayName),
+          SnackbarErrorHandler(context, showSnackBar: false));
 
-    await Navigator.of(context)
-        .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: pass);
+
+      await Navigator.of(context)
+          .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+
+      setState(() {
+        _loading = false;
+      });
+    } catch (error) {
+      setState(() {
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+    }
   }
 
   String? validateEmail(String? email) {
