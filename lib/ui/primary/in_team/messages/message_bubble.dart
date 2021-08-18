@@ -104,17 +104,28 @@ class MessageBubble extends StatelessWidget {
                     ),
                   ),
                   Consumer<TeamAuthNotifier>(builder: (context, data, _) {
-                    return data.isAdmin
+                    return data.isAdmin && message.deleted != true
                         ? GestureDetector(
                             onTap: () async {
                               Navigator.pop(context2);
 
-                              await FirebaseFirestore.instance
-                                  .collection('channels')
-                                  .doc(channelId)
-                                  .collection('messages')
-                                  .doc(message.messageId)
-                                  .delete();
+                              try {
+                                await FirebaseFirestore.instance
+                                    .collection('channels')
+                                    .doc(channelId)
+                                    .collection('deletedMessages')
+                                    .add(message.toCompleteJson());
+
+                                await FirebaseFirestore.instance
+                                    .collection('channels')
+                                    .doc(channelId)
+                                    .collection('messages')
+                                    .doc(message.messageId)
+                                    .update({"message": "Message removed", "deleted": true});
+                              } catch (error) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(content: Text('Could not remove message')));
+                              }
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
@@ -182,16 +193,23 @@ class MessageBubble extends StatelessWidget {
                           )
                         : SizedBox.shrink(),
                     !isMyMessage ? userAvatar : SizedBox.shrink(),
-                    !isImage
+                    message.deleted == true || !isImage
                         ? Flexible(
                             child: Container(
                               padding: EdgeInsets.all(8.0),
                               decoration: BoxDecoration(color: messageColor, borderRadius: BorderRadius.circular(4.0)),
                               child: Linkify(
-                                onOpen: _onOpen,
+                                onOpen: (LinkableElement element) async {
+                                  await _onOpen(element, context);
+                                },
                                 text: message.message ?? 'Missing Message',
-                                linkStyle: TextStyle(color: isMyMessage ? Colors.white : Colors.blue),
-                                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14.0),
+                                linkStyle: TextStyle(
+                                  color: isMyMessage ? Colors.white : Colors.blue,
+                                ),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14.0,
+                                    fontStyle: message.deleted == true ? FontStyle.italic : FontStyle.normal),
                               ),
                             ),
                           )
@@ -264,11 +282,11 @@ class MessageBubble extends StatelessWidget {
     }
   }
 
-  Future<void> _onOpen(LinkableElement link) async {
+  Future<void> _onOpen(LinkableElement link, BuildContext context) async {
     if (await canLaunch(link.url)) {
       await launch(link.url);
     } else {
-      throw 'Could not launch $link';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not open link')));
     }
   }
 

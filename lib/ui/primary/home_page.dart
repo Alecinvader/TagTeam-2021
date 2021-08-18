@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
@@ -25,7 +26,7 @@ class _HomePageState extends State<HomePage> {
     future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
     // future = Future.value([]);
     setupMessaging(context);
-
+    initDynamicLinks();
     FirebaseAuth.instance.authStateChanges().listen((firebaseUser) {
       print('listened');
     });
@@ -77,18 +78,38 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void initDynamicLinks() async {
+    FirebaseDynamicLinks.instance.onLink(onSuccess: (PendingDynamicLinkData? dynamicLink) async {
+      final Uri? deepLink = dynamicLink?.link;
+
+      print(deepLink);
+
+      // if (deepLink != null) {
+      //   Navigator.pushNamed(context, deepLink.path);
+      // }
+    }, onError: (OnLinkErrorException e) async {
+      print('onLinkError');
+      print(e.message);
+    });
+
+    final PendingDynamicLinkData? data = await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri? deepLink = data?.link;
+
+    print(deepLink);
+
+    if (deepLink != null) {
+      // Navigator.pushNamed(context, deepLink.path);
+    }
+  }
+
   Future<void> setupMessaging(BuildContext context) async {
     final NotificationSettings hasPermission = await FirebaseMessaging.instance.requestPermission();
-    
-    
 
     String? token = await FirebaseMessaging.instance.getToken();
 
     if (token != null) {
       await UserApi().updateFCMToken(token, FirebaseAuth.instance.currentUser!.uid, SnackbarErrorHandler(context));
     }
-
-    print(token);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       print('received message');

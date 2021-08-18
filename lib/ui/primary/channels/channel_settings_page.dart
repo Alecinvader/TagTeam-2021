@@ -92,11 +92,42 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
               return data.isAdmin
                   ? GestureDetector(
                       onTap: () async {
-                        var count = 0;
-                        Navigator.popUntil(context, (route) {
-                          return count++ == 2;
-                        });
-                        await ChannelApi().removeChannel(widget.channelId, SnackbarErrorHandler(context));
+                        bool? selection = await showDialog<bool?>(
+                            context: context,
+                            builder: (context) {
+                              bool choice;
+
+                              return AlertDialog(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                title: Text('Delete channel?'),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context, false);
+                                      },
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(color: Colors.white70),
+                                      )),
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context, true);
+                                      },
+                                      child: Text(
+                                        'Confirm',
+                                        style: TextStyle(color: Theme.of(context).accentColor),
+                                      ))
+                                ],
+                              );
+                            });
+
+                        if (selection == true) {
+                          var count = 0;
+                          Navigator.popUntil(context, (route) {
+                            return count++ == 2;
+                          });
+                          await ChannelApi().removeChannel(widget.channelId, SnackbarErrorHandler(context));
+                        }
                       },
                       child: Container(
                         height: 60,
