@@ -1,6 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
+import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/create_team/team_create_start.dart';
 import 'package:tagteamprod/ui/primary/search_team.dart';
+import 'package:tagteamprod/ui/user/account_info.dart';
 import '../login/sign_in.dart';
 import '../primary/home_page.dart';
 
@@ -80,7 +85,7 @@ class MenuDrawer extends StatelessWidget {
                       ),
                       ListTile(
                         onTap: () {
-                          // Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => AccountInfo()));
                         },
                         leading: Icon(
                           Icons.person_outline_rounded,
@@ -95,13 +100,17 @@ class MenuDrawer extends StatelessWidget {
                   alignment: Alignment.bottomCenter,
                   child: ListTile(
                     onTap: () async {
-                      // await FirebaseAuth.instance.signOut();
-                      // SharedPreferences prefs = await SharedPreferences.getInstance();
+                      await UserApi()
+                          .updateFCMToken(null, FirebaseAuth.instance.currentUser!.uid, SnackbarErrorHandler(context));
 
-                      // if (prefs.containsKey('userKey')) {
-                      //   await prefs.remove('userKey');
-                      //   await prefs.remove('username');
-                      // }
+                      await FirebaseAuth.instance.signOut();
+
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+                      if (prefs.containsKey('userkey')) {
+                        await prefs.remove('userkey');
+                        await prefs.remove('username');
+                      }
 
                       // await GoogleSignIn().signOut();
                       await Navigator.pushAndRemoveUntil(

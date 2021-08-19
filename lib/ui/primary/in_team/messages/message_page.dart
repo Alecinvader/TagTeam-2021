@@ -127,7 +127,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                       ]),
                     ),
                     Consumer<TeamAuthNotifier>(builder: (context, data, _) {
-                      if (data.authType == TeamAuthType.user && channel.type == ChannelType.announcment) {
+                      if (!data.isAdmin && channel.type == ChannelType.announcment) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 16.0),
                           child: SizedBox(),
@@ -169,6 +169,10 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                                           Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
                                           SnackbarErrorHandler(context,
                                               overrideErrorMessage: 'Failed to send message'));
+
+                                      setState(() {
+                                        _pendingMessage = '';
+                                      });
                                     }
                                   },
                                   child: Text(

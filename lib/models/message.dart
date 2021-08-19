@@ -9,6 +9,7 @@ class Message {
   String? senderPhoto;
 
   bool? imageFinalized;
+  bool? deleted;
 
   MessageType? messageType;
   String? imagePath;
@@ -29,7 +30,8 @@ class Message {
       this.senderPhoto,
       this.createdAt,
       this.messageId,
-      this.imageDownloadLink});
+      this.imageDownloadLink,
+      this.deleted});
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
@@ -43,11 +45,22 @@ class Message {
         messageType: parseMessageType(json['messageType']),
         imageFinalized: json['imageFinalized'],
         imageDownloadLink: json['imageDownloadLink'],
+        deleted: json['deleted'],
         messageId: json['messageID']);
   }
 
-  toJson() {
+  Map<String, dynamic> toJson() {
     return {"message": message, "imagePath": imagePath, "messageType": messageType.toString()};
+  }
+
+  Map<String, dynamic> toCompleteJson() {
+    return <String, dynamic>{
+      ...toJson(),
+      "senderID": this.senderId,
+      "senderPhoto": this.senderPhoto,
+      "senderDisplayName": this.senderDisplayName,
+      "createdAt": this.createdAt!.toIso8601String(),
+    };
   }
 
   static MessageType parseMessageType(String? typeString) {

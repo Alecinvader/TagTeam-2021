@@ -10,16 +10,8 @@ class SplashPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          height: 125,
+          height: 100,
           child: Image.asset('assets/images/TagTeamLogo.png'),
-        ),
-        const SizedBox(
-          height: 24.0,
-        ),
-        Center(
-          child: CircularProgressIndicator(
-            color: Theme.of(context).accentColor,
-          ),
         ),
       ],
     );

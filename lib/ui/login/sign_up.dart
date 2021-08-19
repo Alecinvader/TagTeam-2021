@@ -26,6 +26,8 @@ class _SignUpState extends State<SignUp> {
 
   final InputDecoration signInStyles = InputDecoration();
 
+  List<FocusNode> nodes = List.generate(4, (index) => FocusNode());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,12 +53,15 @@ class _SignUpState extends State<SignUp> {
                             height: 16.0,
                           ),
                           TextFormField(
+                            focusNode: nodes[0],
                             decoration: signInStyles.copyWith(labelText: 'Email'),
                             onChanged: (value) => email = value,
                             validator: (value) {
                               return validateEmail(value);
                             },
-
+                            onFieldSubmitted: (String value) {
+                              nodes[1].requestFocus();
+                            },
                             // decoration: borderStyle.copyWith(labelText: 'Email Address'),
 
                             keyboardType: TextInputType.emailAddress,
@@ -65,6 +70,10 @@ class _SignUpState extends State<SignUp> {
                             height: 16.0,
                           ),
                           TextFormField(
+                            onFieldSubmitted: (String value) {
+                              nodes[2].requestFocus();
+                            },
+                            focusNode: nodes[1],
                             decoration: signInStyles.copyWith(labelText: 'Display Name'),
                             onChanged: (value) => displayName = value,
                             validator: (value) {
@@ -79,6 +88,10 @@ class _SignUpState extends State<SignUp> {
                             height: 16.0,
                           ),
                           TextFormField(
+                            onFieldSubmitted: (String value) {
+                              nodes[3].requestFocus();
+                            },
+                            focusNode: nodes[2],
                             obscureText: true,
                             decoration: signInStyles.copyWith(labelText: 'Password'),
                             onChanged: (value) => pass = value,
@@ -97,6 +110,10 @@ class _SignUpState extends State<SignUp> {
                           ),
                           !widget.accountSetup
                               ? TextFormField(
+                                  focusNode: nodes[3],
+                                  onFieldSubmitted: (String value) async {
+                                    await signUp();
+                                  },
                                   obscureText: true,
                                   decoration: signInStyles.copyWith(labelText: 'Confirm Password'),
                                   onChanged: (value) => confirmPass = value,
@@ -123,7 +140,7 @@ class _SignUpState extends State<SignUp> {
                                 'Create Account',
                                 style: TextStyle(color: Colors.white, fontSize: 16.0),
                               ),
-                              onPressed: signUp,
+                              onPressed: !_loading ? signUp : null,
                             ),
                           ),
                         ],
@@ -146,13 +163,31 @@ class _SignUpState extends State<SignUp> {
       _formKey.currentState!.save();
     }
 
-    await UserApi()
-        .createUser(UserRequest(email: email, pass: pass, displayName: displayName), SnackbarErrorHandler(context));
+    setState(() {
+      _loading = true;
+    });
 
-    await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: pass);
+    try {
+      UserCredential credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: pass);
 
-    await Navigator.of(context)
-        .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+      await UserApi().createUser(UserRequest(email: email, uid: credential.user!.uid, displayName: displayName),
+          SnackbarErrorHandler(context, showSnackBar: false));
+
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: pass);
+
+      await Navigator.of(context)
+          .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+
+      setState(() {
+        _loading = false;
+      });
+    } catch (error) {
+      setState(() {
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+    }
   }
 
   String? validateEmail(String? email) {

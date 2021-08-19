@@ -43,102 +43,116 @@ class MessageBubble extends StatelessWidget {
             elevation: 0,
             backgroundColor: Colors.transparent,
             builder: (context2) {
-              return Wrap(
-                alignment: WrapAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      Share.share(message.message!);
-                      Navigator.pop(context2);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Text(
-                              'Share',
-                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
-                            ),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        Share.share(message.message!);
+                        Navigator.pop(context2);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      Navigator.pop(context2);
-                      if (message.imagePath == null) {
-                        Clipboard.setData(ClipboardData(text: message.message));
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Message copied')));
-                      } else {
-                        await _save(context);
-
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to photos')));
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Text(
-                              message.imagePath == null ? 'Copy Message' : 'Save Image',
-                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Consumer<TeamAuthNotifier>(builder: (context, data, _) {
-                    return data.isAdmin
-                        ? GestureDetector(
-                            onTap: () async {
-                              Navigator.pop(context2);
-
-                              await FirebaseFirestore.instance
-                                  .collection('channels')
-                                  .doc(channelId)
-                                  .collection('messages')
-                                  .doc(message.messageId)
-                                  .delete();
-                            },
+                          child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor,
-                                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                                ),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(24.0),
-                                    child: Text(
-                                      'Remove Message',
-                                      style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                'Share',
+                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        Navigator.pop(context2);
+                        if (message.imagePath == null) {
+                          Clipboard.setData(ClipboardData(text: message.message));
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Message copied')));
+                        } else {
+                          await _save(context);
+
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to photos')));
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                          ),
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                message.imagePath == null ? 'Copy Message' : 'Save Image',
+                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+                      return data.isAdmin && message.deleted != true
+                          ? GestureDetector(
+                              onTap: () async {
+                                Navigator.pop(context2);
+
+                                try {
+                                  await FirebaseFirestore.instance
+                                      .collection('channels')
+                                      .doc(channelId)
+                                      .collection('deletedMessages')
+                                      .add(message.toCompleteJson());
+
+                                  await FirebaseFirestore.instance
+                                      .collection('channels')
+                                      .doc(channelId)
+                                      .collection('messages')
+                                      .doc(message.messageId)
+                                      .update({"message": "Message removed", "deleted": true});
+                                } catch (error) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(content: Text('Could not remove message')));
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24.0),
+                                      child: Text(
+                                        'Remove Message',
+                                        style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
-                        : SizedBox();
-                  }),
-                ],
+                            )
+                          : SizedBox();
+                    }),
+                  ],
+                ),
               );
             });
       },
@@ -182,16 +196,23 @@ class MessageBubble extends StatelessWidget {
                           )
                         : SizedBox.shrink(),
                     !isMyMessage ? userAvatar : SizedBox.shrink(),
-                    !isImage
+                    message.deleted == true || !isImage
                         ? Flexible(
                             child: Container(
                               padding: EdgeInsets.all(8.0),
                               decoration: BoxDecoration(color: messageColor, borderRadius: BorderRadius.circular(4.0)),
                               child: Linkify(
-                                onOpen: _onOpen,
+                                onOpen: (LinkableElement element) async {
+                                  await _onOpen(element, context);
+                                },
                                 text: message.message ?? 'Missing Message',
-                                linkStyle: TextStyle(color: isMyMessage ? Colors.white : Colors.blue),
-                                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14.0),
+                                linkStyle: TextStyle(
+                                  color: isMyMessage ? Colors.white : Colors.blue,
+                                ),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14.0,
+                                    fontStyle: message.deleted == true ? FontStyle.italic : FontStyle.normal),
                               ),
                             ),
                           )
@@ -264,11 +285,11 @@ class MessageBubble extends StatelessWidget {
     }
   }
 
-  Future<void> _onOpen(LinkableElement link) async {
+  Future<void> _onOpen(LinkableElement link, BuildContext context) async {
     if (await canLaunch(link.url)) {
       await launch(link.url);
     } else {
-      throw 'Could not launch $link';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not open link')));
     }
   }
 

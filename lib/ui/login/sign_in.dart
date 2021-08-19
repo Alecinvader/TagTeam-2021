@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/login/login_api.dart';
 import 'sign_up.dart';
@@ -21,6 +22,23 @@ class _SignInState extends State<SignIn> {
 
   String _email = EnvConfig().user;
   String _key = EnvConfig().pass;
+
+  @override
+  void initState() {
+    super.initState();
+
+    SharedPreferences.getInstance().then((SharedPreferences value) async {
+      if (value.containsKey('userkey')) {
+        setState(() {
+          _showSplashPage = true;
+          _email = value.getString('username')!;
+          _key = value.getString('userkey')!;
+        });
+
+        signIn();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +70,7 @@ class _SignInState extends State<SignIn> {
                                 return validateEmail(value);
                               },
                               initialValue: _email,
-                              // decoration: borderStyle.copyWith(labelText: 'Email Address'),
-
+                              decoration: InputDecoration(labelText: 'Email'),
                               keyboardType: TextInputType.emailAddress,
                             ),
                             SizedBox(
@@ -62,6 +79,7 @@ class _SignInState extends State<SignIn> {
                             TextFormField(
                               initialValue: _key,
                               obscureText: true,
+                              decoration: InputDecoration(labelText: 'Password'),
                               onChanged: (value) => _key = value,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -114,9 +132,34 @@ class _SignInState extends State<SignIn> {
   }
 
   Future signIn() async {
-    await LoginServices().login(_email, _key, SnackbarErrorHandler(context));
+    setState(() {
+      _loading = true;
+    });
+
+    print(_email);
+    print(_key);
+
+    try {
+      await LoginServices().login(_email, _key, SnackbarErrorHandler(context));
+    } catch (error) {
+      setState(() {
+        _loading = false;
+        _showSplashPage = false;
+      });
+      throw error;
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('userkey', _key);
+    await prefs.setString('username', _email);
 
     await Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+
+    setState(() {
+      _loading = false;
+      _showSplashPage = false;
+    });
   }
 
   String? validateEmail(String? email) {

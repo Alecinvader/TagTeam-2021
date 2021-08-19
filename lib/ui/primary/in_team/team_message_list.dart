@@ -29,6 +29,8 @@ class _TeamMessageListState extends State<TeamMessageList> {
 
   List<Channel> channels = [];
 
+  bool futureCompleted = false;
+
   List<Channel> sqlDataChannels = [];
 
   @override
@@ -45,10 +47,15 @@ class _TeamMessageListState extends State<TeamMessageList> {
               .collection('channels')
               .where(FieldPath.documentId, whereIn: firebaseUniques)
               .snapshots();
+          futureCompleted = true;
         });
       }
 
       return value;
+    }).catchError((error) {
+      setState(() {
+        futureCompleted = true;
+      });
     });
   }
 
@@ -111,9 +118,17 @@ class _TeamMessageListState extends State<TeamMessageList> {
                           ),
                         ),
                       );
+                    } else if (futureCompleted == false) {
+                      return Expanded(
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Theme.of(context).accentColor,
+                          ),
+                        ),
+                      );
                     } else {
-                      return Center(
-                        child: CircularProgressIndicator(),
+                      return Expanded(
+                        child: Center(child: SizedBox()),
                       );
                     }
                   }),
