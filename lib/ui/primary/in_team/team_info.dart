@@ -162,7 +162,7 @@ class _TeamInfoState extends State<TeamInfo> {
                                       Container(
                                         width: 35,
                                         padding: EdgeInsets.all(8.0),
-                                        decoration: BoxDecoration(color: kLightBackgroundColor, shape: BoxShape.circle),
+                                        decoration: BoxDecoration(color: data!.length > 0 ?  Colors.red : kLightBackgroundColor, shape: BoxShape.circle),
                                         child: Center(child: Text(data!.length.toString())),
                                       ),
                                     ],
