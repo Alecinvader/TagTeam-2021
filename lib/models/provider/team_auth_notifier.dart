@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:tagteamprod/models/user.dart';
 
 import '../tagteam.dart';
 
@@ -7,6 +8,8 @@ enum TeamAuthType { owner, manager, user }
 class TeamAuthNotifier extends ChangeNotifier {
   TagTeam? currentTeam;
   TeamAuthType? authType;
+
+  List<User> blockedUsers = [];
 
   bool get isAdmin => authType == TeamAuthType.manager || authType == TeamAuthType.owner;
 

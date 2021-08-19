@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart' as fbauth;
 import 'package:tagteamprod/models/user.dart';
+import 'package:tagteamprod/server/parsing.dart';
 
 import '../auth_api.dart';
 import '../errors/error_handler.dart';
@@ -28,5 +30,17 @@ class UserApi {
   Future<ServerResponse> updateUserImage(String uid, String imageLink, ErrorHandler handler) async {
     return await api.patch(
         '/user/$uid/update/image', {}, {"profilePicture": imageLink}, handler, (map) => ServerResponse.fromJson(map));
+  }
+
+  Future<ServerResponse> blockUser(String blockedUid, ErrorHandler handler) async {
+    String uid = fbauth.FirebaseAuth.instance.currentUser!.uid;
+    print(uid);
+    return await api.get('/user/$uid/block/$blockedUid', {}, handler, (map) => ServerResponse.fromJson(map));
+  }
+
+  Future<List<User>> getBlockedUsers(ErrorHandler handler) async {
+    String uid = fbauth.FirebaseAuth.instance.currentUser!.uid;
+    return await api.get(
+        '/user/$uid/blockedusers', {}, handler, (map) => parseJsonList(map['users'], (json) => User.fromJson(json)));
   }
 }

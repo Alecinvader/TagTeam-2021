@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
+import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/message_image_viewer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -107,6 +108,36 @@ class MessageBubble extends StatelessWidget {
                         ),
                       ),
                     ),
+                    !isMyMessage
+                        ? GestureDetector(
+                            onTap: () async {
+                              // TODO: Show confirm dialog
+                              Navigator.pop(context2);
+                              await UserApi().blockUser(message.senderId!, SnackbarErrorHandler(context));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(content: Text('User blocked, please refresh')));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                              child: Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor,
+                                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                ),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(24.0),
+                                    child: Text(
+                                      'Block User',
+                                      style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : SizedBox.shrink(),
                     GestureDetector(
                       onTap: () async {
                         // TODO: Show confirm dialog

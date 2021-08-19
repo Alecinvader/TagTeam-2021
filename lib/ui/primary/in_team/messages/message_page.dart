@@ -1,13 +1,15 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fbauth;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
+import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/storage/storage_utility.dart';
+import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/channels/channel_settings_page.dart';
 import '../../../../models/channel.dart';
@@ -44,6 +46,11 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   void initState() {
     super.initState();
 
+    UserApi().getBlockedUsers(SnackbarErrorHandler(context)).then((value) {
+      Provider.of<TeamAuthNotifier>(context, listen: false).blockedUsers = value;
+      setState(() {});
+    });
+
     SharedPreferences.getInstance().then((SharedPreferences prefs) async {
       setState(() {
         _preferences = prefs;
@@ -59,7 +66,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
             SnackbarErrorHandler(context, onErrorHandler: () {
               Navigator.pop(context);
             }))
-        .then((value) => FirebaseAuth.instance.currentUser!.getIdToken(true));
+        .then((value) => fbauth.FirebaseAuth.instance.currentUser!.getIdToken(true));
 
     messageStream = FirebaseFirestore.instance
         .doc('channels/${channel.firebaseId}')
@@ -234,9 +241,19 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   void convertSnapshotsIntoMessages(List<QueryDocumentSnapshot> list) {
     List<Message> tempMessages = [];
 
+    List<User> blockedUsers = Provider.of<TeamAuthNotifier>(context, listen: false).blockedUsers;
+
     tempMessages = List.generate(list.length,
         (index) => Message.fromJson({...list[index].data() as Map<String, dynamic>, "messageID": list[index].id}));
     tempMessages = List<Message>.of(tempMessages.reversed);
+    tempMessages.removeWhere((element) {
+      bool choice = false;
+      blockedUsers.forEach((blocked) {
+        choice = element.senderId == blocked.uid;
+      });
+
+      return choice;
+    });
 
     messages = tempMessages;
   }

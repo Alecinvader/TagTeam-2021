@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
+import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/primary/channels/create_single_channel.dart';
 import '../../../models/channel.dart';
 import '../../../models/message.dart';
@@ -33,9 +34,21 @@ class _TeamMessageListState extends State<TeamMessageList> {
 
   List<Channel> sqlDataChannels = [];
 
+  bool blockedUsersFetched = false;
+
   @override
   void initState() {
     super.initState();
+
+    var value = Provider.of<TeamAuthNotifier>(context, listen: false).currentTeam;
+
+    UserApi().getBlockedUsers(SnackbarErrorHandler(context, showSnackBar: true)).then((value) {
+      Provider.of<TeamAuthNotifier>(context, listen: false).blockedUsers = value;
+
+      setState(() {
+        blockedUsersFetched = true;
+      });
+    });
 
     channelFuture = fetchChannels().then((value) {
       setState(() {
@@ -103,6 +116,10 @@ class _TeamMessageListState extends State<TeamMessageList> {
                               });
 
                               return value;
+                            });
+
+                            UserApi().getBlockedUsers(SnackbarErrorHandler(context, showSnackBar: true)).then((value) {
+                              Provider.of<TeamAuthNotifier>(context, listen: false).blockedUsers = value;
                             });
                           },
                           child: ListView.builder(
