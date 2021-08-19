@@ -163,7 +163,7 @@ class _TeamInfoState extends State<TeamInfo> {
                                         width: 35,
                                         padding: EdgeInsets.all(8.0),
                                         decoration: BoxDecoration(color: data!.length > 0 ?  Colors.red : kLightBackgroundColor, shape: BoxShape.circle),
-                                        child: Center(child: Text(data!.length.toString())),
+                                        child: Center(child: Text(data.length.toString())),
                                       ),
                                     ],
                                   ),
