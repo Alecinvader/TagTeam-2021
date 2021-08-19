@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
+import 'package:tagteamprod/server/team/team_api.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/message_image_viewer.dart';
@@ -18,6 +19,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../models/message.dart';
 import '../../../core/tagteam_circleavatar.dart';
+import 'message_delete_action_dialog.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message message;
@@ -138,33 +140,73 @@ class MessageBubble extends StatelessWidget {
                             ),
                           )
                         : SizedBox.shrink(),
-                    GestureDetector(
-                      onTap: () async {
-                        // TODO: Show confirm dialog
-                        Navigator.pop(context2);
-                        await ChannelApi().reportUserMessage(message, SnackbarErrorHandler(context));
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User reported')));
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          ),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Text(
-                                'Report Message',
-                                style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                    Consumer<TeamAuthNotifier>(builder: (context, data, child) {
+                      return data.isAdmin
+                          ? GestureDetector(
+                              onTap: () async {
+                                Navigator.pop(context2);
+                                await TeamApi().removeUserFromTeam(
+                                    data.currentTeam!.teamId!, message.senderId!, SnackbarErrorHandler(context));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(content: Text('User will be removed shortly.')));
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24.0),
+                                      child: Text(
+                                        'Remove from team',
+                                        style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                            )
+                          : GestureDetector(
+                              onTap: () async {
+                                bool? choice = await showDialog(
+                                    context: context2,
+                                    builder: (context) => DeleteActionDialog(
+                                          title: 'Report ${message.senderDisplayName}?',
+                                          bodyText: message.message!,
+                                        ));
+
+                                Navigator.pop(context2);
+
+                                if (choice == true) {
+                                  await ChannelApi().reportUserMessage(message, SnackbarErrorHandler(context));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User reported')));
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24.0),
+                                      child: Text(
+                                        'Report Message',
+                                        style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                    }),
                     Consumer<TeamAuthNotifier>(builder: (context, data, _) {
                       return data.isAdmin && message.deleted != true
                           ? GestureDetector(
@@ -347,9 +389,7 @@ class MessageBubble extends StatelessWidget {
 
   Future<void> _onOpen(LinkableElement link, BuildContext context) async {
     if (await canLaunch(link.url)) {
-      await launch(
-        link.url,
-      );
+      await launch(link.url, forceWebView: false, forceSafariVC: false, universalLinksOnly: true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not open link')));
     }

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
 import '../../../../models/channel.dart';
@@ -71,34 +73,48 @@ class _MessagePageTileState extends State<MessagePageTile> {
             const SizedBox(
               width: 12.0,
             ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    widget.channel.name ?? "Unknown",
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
-                        color: isNewMessage ? Colors.white : Colors.white70),
-                  ),
-                  widget.channel.mostRecentMessage?.senderDisplayName != null
-                      ? Text(
-                          widget.channel.mostRecentMessage!.senderDisplayName! +
-                              ': ' +
-                              widget.channel.mostRecentMessage!.message!,
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14.0,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      : const SizedBox()
-                ],
-              ),
-            ),
+            Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+              bool? canShowMostRecent = true;
+
+              data.blockedUsers.forEach((element) {
+                if (element.uid == widget.channel.mostRecentMessage?.senderId) {
+                  canShowMostRecent = false;
+                } else {
+                  canShowMostRecent = true;
+                }
+              });
+
+              return Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.channel.name ?? "Unknown",
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: isNewMessage ? Colors.white : Colors.white70),
+                    ),
+                    widget.channel.mostRecentMessage?.senderDisplayName != null
+                        ? Text(
+                            canShowMostRecent == true
+                                ? widget.channel.mostRecentMessage!.senderDisplayName! +
+                                    ': ' +
+                                    widget.channel.mostRecentMessage!.message!
+                                : 'Blocked User: Hidden message',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14.0,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        : const SizedBox()
+                  ],
+                ),
+              );
+            }),
             const SizedBox(
               width: 8.0,
             ),
