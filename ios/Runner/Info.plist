@@ -21,11 +21,13 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>TagTeam would like access to your photos to upload and download images</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>TagTeam would like to access your photos to upload or download images</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
