@@ -1,6 +1,8 @@
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
@@ -130,11 +132,12 @@ class _TeamInfoState extends State<TeamInfo> {
                               overflow: TextOverflow.visible,
                             ),
                             trailing: TextButton(
-                                onPressed: () {
-                                  Clipboard.setData(ClipboardData(text: teamData.currentTeam?.inviteCode ?? ''));
+                                onPressed: () async {
+                                  String? string = await generateInvitLink(teamData.currentTeam!.inviteCode!);
+                                  Share.share(string ?? 'Empty');
                                 },
                                 child: Text(
-                                  'COPY',
+                                  'SHARE',
                                   style: TextStyle(color: Theme.of(context).accentColor),
                                 )),
                           ),
@@ -226,5 +229,44 @@ class _TeamInfoState extends State<TeamInfo> {
         updateImagePath = imagePath;
       });
     }
+  }
+
+  Future<String?> generateInvitLink(String inviteCode) async {
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: 'https://tagteammobile.page.link',
+      link: Uri.parse('https://tagteammobile.page.link.com/?invite=$inviteCode'),
+      androidParameters: AndroidParameters(
+        packageName: 'com.eyro.tagteamprod',
+        minimumVersion: 1,
+      ),
+      // iosParameters: IosParameters(
+      //   bundleId: 'com.example.ios',
+      //   minimumVersion: '1.0.1',
+      //   appStoreId: '123456789',
+      // ),
+      // googleAnalyticsParameters: GoogleAnalyticsParameters(
+      //   campaign: 'example-promo',
+      //   medium: 'social',
+      //   source: 'orkut',
+      // ),
+      // itunesConnectAnalyticsParameters: ItunesConnectAnalyticsParameters(
+      //   providerToken: '123456',
+      //   campaignToken: 'example-promo',
+      // ),
+      socialMetaTagParameters: SocialMetaTagParameters(
+        title: 'Invite to join team',
+        description: 'An owner of a team on TagTeam has invited you to join',
+      ),
+    );
+
+    final ShortDynamicLink shortenedLink = await DynamicLinkParameters.shortenUrl(
+      Uri.parse(
+          'https://tagteammobile.page.link/?link=https://tagteammobile.page.link.com/?code=$inviteCode/&apn=com.eyro.tagteamprod'),
+      DynamicLinkParametersOptions(shortDynamicLinkPathLength: ShortDynamicLinkPathLength.unguessable),
+    );
+
+    final Uri shortUrl = shortenedLink.shortUrl;
+
+    return shortUrl.toString();
   }
 }
