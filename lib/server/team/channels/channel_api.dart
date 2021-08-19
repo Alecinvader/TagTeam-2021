@@ -71,4 +71,23 @@ class ChannelApi {
       return false;
     });
   }
+
+  Future<ServerResponse> toggleImageSending(int channelId, String firebaseId, ErrorHandler handler) async {
+    return await api.get('/channel/$channelId/$firebaseId/toggleimagesending', {}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
+
+  Future<ServerResponse> reportUserMessage(Message message, ErrorHandler handler) async {
+    return await api.post(
+        '/channel/${message.channelId}/${message.senderId}/report',
+        {},
+        {
+          "reason": message.message,
+          "imagePath": message.imagePath,
+        },
+        handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
 }

@@ -51,6 +51,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     });
 
     channel = widget.channel;
+
     ChannelApi()
         .setChannelActive(
             widget.channel.id!,
@@ -82,12 +83,16 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
           actions: [
             IconButton(
                 onPressed: () async {
-                  await Navigator.push(
+                  Channel updatedChannel = await Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => ChannelSettingsPage(
-                                channelId: channel.id!,
+                                channel: channel,
                               )));
+
+                  setState(() {
+                    channel = updatedChannel;
+                  });
                 },
                 icon: Icon(Icons.settings))
           ],
@@ -157,7 +162,9 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                                       enabledBorder: InputBorder.none),
                                 ),
                               ),
-                              IconButton(onPressed: selectAndSendImage, icon: Icon(Icons.image_outlined)),
+                              channel.allowImageSending == true
+                                  ? IconButton(onPressed: selectAndSendImage, icon: Icon(Icons.image_outlined))
+                                  : SizedBox(),
                               TextButton(
                                   onPressed: () async {
                                     if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {

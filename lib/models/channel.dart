@@ -11,6 +11,7 @@ class Channel {
   String? name;
   ChannelType? type;
   bool? public;
+  bool? allowImageSending;
 
   Message? mostRecentMessage;
 
@@ -25,7 +26,8 @@ class Channel {
       "teamID": teamId,
       "type": type.toString(),
       // "users": List.generate(users.length, (index) => users[index].uid),
-      "public": public == true ? 1 : 0
+      "public": public == true ? 1 : 0,
+      "allowImages": allowImageSending == true ? 1 : 0
     };
   }
 
@@ -34,6 +36,7 @@ class Channel {
     teamId = json['teamID'];
     firebaseId = json['firebaseID'];
     name = json['name'];
+    allowImageSending = json['allowImages'] == 1 ? true : false;
     type = parseChannelType(json['type']);
     public = json['public'] == 1 ? true : false;
     mostRecentMessage = json['mostRecentMessage'] != null ? Message.fromJson(json['mostRecentMessage']) : null;

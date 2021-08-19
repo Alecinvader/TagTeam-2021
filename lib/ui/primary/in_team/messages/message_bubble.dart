@@ -9,6 +9,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
+import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
+import 'package:tagteamprod/server/team/channels/channel_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/message_image_viewer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -105,6 +107,33 @@ class MessageBubble extends StatelessWidget {
                         ),
                       ),
                     ),
+                    GestureDetector(
+                      onTap: () async {
+                        // TODO: Show confirm dialog
+                        Navigator.pop(context2);
+                        await ChannelApi().reportUserMessage(message, SnackbarErrorHandler(context));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User reported')));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                          ),
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Text(
+                                'Report Message',
+                                style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     Consumer<TeamAuthNotifier>(builder: (context, data, _) {
                       return data.isAdmin && message.deleted != true
                           ? GestureDetector(
@@ -141,7 +170,7 @@ class MessageBubble extends StatelessWidget {
                                     child: Padding(
                                       padding: const EdgeInsets.all(24.0),
                                       child: Text(
-                                        'Remove Message',
+                                        'Delete Message',
                                         style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
                                       ),
                                     ),
@@ -287,7 +316,9 @@ class MessageBubble extends StatelessWidget {
 
   Future<void> _onOpen(LinkableElement link, BuildContext context) async {
     if (await canLaunch(link.url)) {
-      await launch(link.url);
+      await launch(
+        link.url,
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not open link')));
     }
