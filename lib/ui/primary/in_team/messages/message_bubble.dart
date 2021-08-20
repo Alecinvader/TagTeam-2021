@@ -475,6 +475,7 @@ class MessageBubble extends StatelessWidget {
   }
 
   Future<void> _onOpen(LinkableElement link, BuildContext context) async {
+
     if (await canLaunch(link.url)) {
       await launch(link.url, forceWebView: false, forceSafariVC: false);
     } else {

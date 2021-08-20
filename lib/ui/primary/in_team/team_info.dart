@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,18 +45,19 @@ class _TeamInfoState extends State<TeamInfo> {
         child: Consumer<TeamAuthNotifier>(builder: (context, teamData, _) {
           bool isAdmin = false;
 
-          if (teamData.authType == TeamAuthType.manager || teamData.authType == TeamAuthType.owner) {
+          if (teamData.authType == TeamAuthType.manager ||
+              teamData.authType == TeamAuthType.owner) {
             isAdmin = true;
-            pendingRequestsFuture ??=
-                TeamApi().allJoinRequests(teamData.currentTeam!.teamId!, SnackbarErrorHandler(context));
-            _titleController ??= TextEditingController(text: teamData.currentTeam?.name ?? 'Untitled Team');
+            pendingRequestsFuture ??= TeamApi().allJoinRequests(
+                teamData.currentTeam!.teamId!, SnackbarErrorHandler(context));
+            _titleController ??= TextEditingController(
+                text: teamData.currentTeam?.name ?? 'Untitled Team');
           }
 
           return SimpleFutureBuilder(
-            onWaiting: (context, data) {
-              return SizedBox();
-              
-            },
+              onWaiting: (context, data) {
+                return SizedBox();
+              },
               future: pendingRequestsFuture ?? Future<List<User>>.value([]),
               builder: (context, List<User>? data) {
                 return SafeArea(
@@ -75,10 +78,14 @@ class _TeamInfoState extends State<TeamInfo> {
                                 height: 100,
                                 width: 100,
                                 decoration: BoxDecoration(
-                                    shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 1.5)),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        color: Colors.white, width: 1.5)),
                                 child: Icon(Icons.camera_alt),
                               ),
-                              url: updateImagePath != null ? updateImagePath! : teamData.currentTeam!.imageLink ?? '',
+                              url: updateImagePath != null
+                                  ? updateImagePath!
+                                  : teamData.currentTeam!.imageLink ?? '',
                             ),
                           ),
                         ),
@@ -89,22 +96,26 @@ class _TeamInfoState extends State<TeamInfo> {
                           return data.isAdmin
                               ? GestureDetector(
                                   onTap: () async {
-                                    await selectAndUploadImage(teamData.currentTeam!.teamId!, context);
+                                    await selectAndUploadImage(
+                                        teamData.currentTeam!.teamId!, context);
                                   },
                                   child: Center(
                                       child: Text(
                                     'Change Picture',
-                                    style: TextStyle(color: Theme.of(context).accentColor),
+                                    style: TextStyle(
+                                        color: Theme.of(context).accentColor),
                                   )),
                                 )
                               : SizedBox();
                         }),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
                           child: Text('Name'),
                         ),
                         Container(
-                          decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor),
                           child: ListTile(
                               trailing: isAdmin && nameChanged == true
                                   ? TextButton(
@@ -115,7 +126,9 @@ class _TeamInfoState extends State<TeamInfo> {
                                       },
                                       child: Text(
                                         'SAVE',
-                                        style: TextStyle(color: Theme.of(context).accentColor),
+                                        style: TextStyle(
+                                            color:
+                                                Theme.of(context).accentColor),
                                       ))
                                   : null,
                               title: Text(
@@ -124,11 +137,13 @@ class _TeamInfoState extends State<TeamInfo> {
                               )),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
                           child: Text('Invite Code'),
                         ),
                         Container(
-                          decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor),
                           child: ListTile(
                             title: Text(
                               teamData.currentTeam?.inviteCode ?? 'No code',
@@ -137,28 +152,35 @@ class _TeamInfoState extends State<TeamInfo> {
                             ),
                             trailing: TextButton(
                                 onPressed: () async {
-                                  String? string = await generateInvitLink(teamData.currentTeam!.inviteCode!);
-                                  Share.share((string ?? 'Empty') + ' or code: ${teamData.currentTeam!.inviteCode!}');
+                                  String? string = await generateInvitLink(
+                                      teamData.currentTeam!.inviteCode!);
+                                  Share.share((string ?? 'Empty') +
+                                      ' or code: ${teamData.currentTeam!.inviteCode!}');
                                 },
                                 child: Text(
                                   'SHARE',
-                                  style: TextStyle(color: Theme.of(context).accentColor),
+                                  style: TextStyle(
+                                      color: Theme.of(context).accentColor),
                                 )),
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
                           child: Text('Members'),
                         ),
                         isAdmin
                             ? Container(
-                                decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                                decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor),
                                 child: ListTile(
                                   onTap: () async {
                                     await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => TeamRequests(teamId: teamData.currentTeam!.teamId!)));
+                                            builder: (context) => TeamRequests(
+                                                teamId: teamData
+                                                    .currentTeam!.teamId!)));
                                   },
                                   leading: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -167,9 +189,13 @@ class _TeamInfoState extends State<TeamInfo> {
                                         width: 35,
                                         padding: EdgeInsets.all(8.0),
                                         decoration: BoxDecoration(
-                                            color: data!.length > 0 ? Colors.red : kLightBackgroundColor,
+                                            color: data!.length > 0
+                                                ? Colors.red
+                                                : kLightBackgroundColor,
                                             shape: BoxShape.circle),
-                                        child: Center(child: Text(data.length.toString())),
+                                        child: Center(
+                                            child:
+                                                Text(data.length.toString())),
                                       ),
                                     ],
                                   ),
@@ -183,13 +209,16 @@ class _TeamInfoState extends State<TeamInfo> {
                               )
                             : SizedBox(),
                         Container(
-                          decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor),
                           child: ListTile(
                             onTap: () async {
                               await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => TeamActiveUsers(teamId: teamData.currentTeam!.teamId!)));
+                                      builder: (context) => TeamActiveUsers(
+                                          teamId:
+                                              teamData.currentTeam!.teamId!)));
                             },
                             leading: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -221,16 +250,21 @@ class _TeamInfoState extends State<TeamInfo> {
   }
 
   Future<void> selectAndUploadImage(int teamId, BuildContext context) async {
-    final String imagePath = await StorageUtility().getImagePath(SnackbarErrorHandler(context));
+    final String imagePath =
+        await StorageUtility().getImagePath(SnackbarErrorHandler(context));
 
     if (imagePath.isNotEmpty) {
-      String ref = await StorageUtility().uploadFile(imagePath, 'teams/coverphoto', SnackbarErrorHandler(context));
-      String? downloadUrl = await StorageUtility().getImageURL(ref, SnackbarErrorHandler(context));
+      String ref = await StorageUtility().uploadFile(
+          imagePath, 'teams/coverphoto', SnackbarErrorHandler(context));
+      String? downloadUrl = await StorageUtility()
+          .getImageURL(ref, SnackbarErrorHandler(context));
 
       if (downloadUrl != null) {
-        await TeamApi().updateImageLink(teamId, downloadUrl, SnackbarErrorHandler(context));
+        await TeamApi().updateImageLink(
+            teamId, downloadUrl, SnackbarErrorHandler(context));
       }
-      Provider.of<TeamAuthNotifier>(context, listen: false).updateImage(downloadUrl!);
+      Provider.of<TeamAuthNotifier>(context, listen: false)
+          .updateImage(downloadUrl!);
       setState(() {
         updateImagePath = imagePath;
       });
@@ -240,16 +274,14 @@ class _TeamInfoState extends State<TeamInfo> {
   Future<String?> generateInvitLink(String inviteCode) async {
     final DynamicLinkParameters parameters = DynamicLinkParameters(
       uriPrefix: 'https://tagteammobile.page.link',
-      link: Uri.parse('https://tagteammobile.page.link.com/?invite=$inviteCode'),
+      link:
+          Uri.parse('https://tagteammobile.page.link.com/?code=$inviteCode/'),
       androidParameters: AndroidParameters(
         packageName: 'com.eyro.tagteamprod',
         minimumVersion: 1,
       ),
       iosParameters: IosParameters(
-        bundleId: 'com.eyro.tagteammobile',
-        
-        
-      ),
+          bundleId: 'com.eyro.tagteammobile', appStoreId: '1581011730'),
       // googleAnalyticsParameters: GoogleAnalyticsParameters(
       //   campaign: 'example-promo',
       //   medium: 'social',
@@ -265,13 +297,20 @@ class _TeamInfoState extends State<TeamInfo> {
       ),
     );
 
-    final ShortDynamicLink shortenedLink = await DynamicLinkParameters.shortenUrl(
-      Uri.parse(
-          'https://tagteammobile.page.link/?link=https://tagteammobile.page.link.com/?code=$inviteCode/&apn=com.eyro.tagteamprod'),
-      DynamicLinkParametersOptions(shortDynamicLinkPathLength: ShortDynamicLinkPathLength.unguessable),
-    );
+    final ShortDynamicLink shortDynamicLink = await parameters.buildShortLink();
+    final Uri shortUrl = shortDynamicLink.shortUrl;
 
-    final Uri shortUrl = shortenedLink.shortUrl;
+    inspect(shortDynamicLink.warnings);
+
+    // final ShortDynamicLink shortenedLink = await DynamicLinkParameters.shortenUrl(
+
+    //   Uri.parse(
+    //       'https://tagteammobile.page.link/?link=https://tagteammobile.page.link.com/?code=$inviteCode/&apn=com.eyro.tagteamprodibn=com.example.ios'),
+
+    //   DynamicLinkParametersOptions(shortDynamicLinkPathLength: ShortDynamicLinkPathLength.unguessable),
+    // );
+
+    // final Uri shortUrl = shortenedLink.shortUrl;
 
     return shortUrl.toString();
   }

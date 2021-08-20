@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -122,6 +124,7 @@ class _HomePageState extends State<HomePage> {
     final Uri? deepLink = data?.link;
 
     String inviteCode = '';
+
 
     if (deepLink.toString().contains('code')) {
       inviteCode = deepLink.toString().split('=')[1];
