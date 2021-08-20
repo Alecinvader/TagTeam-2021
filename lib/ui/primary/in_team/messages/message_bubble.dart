@@ -59,19 +59,24 @@ class MessageBubble extends StatelessWidget {
                         Navigator.pop(context2);
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
                         child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
                           ),
                           child: Center(
                             child: Padding(
                               padding: const EdgeInsets.all(24.0),
                               child: Text(
                                 'Share',
-                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
@@ -82,28 +87,38 @@ class MessageBubble extends StatelessWidget {
                       onTap: () async {
                         Navigator.pop(context2);
                         if (message.imagePath == null) {
-                          Clipboard.setData(ClipboardData(text: message.message));
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Message copied')));
+                          Clipboard.setData(
+                              ClipboardData(text: message.message));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Message copied')));
                         } else {
                           await _save(context);
 
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image saved to photos')));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Image saved to photos')));
                         }
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
                         child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0)),
                           ),
                           child: Center(
                             child: Padding(
                               padding: const EdgeInsets.all(24.0),
                               child: Text(
-                                message.imagePath == null ? 'Copy Message' : 'Save Image',
-                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                                message.imagePath == null
+                                    ? 'Copy Message'
+                                    : 'Save Image',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
@@ -113,26 +128,43 @@ class MessageBubble extends StatelessWidget {
                     !isMyMessage
                         ? GestureDetector(
                             onTap: () async {
-                              // TODO: Show confirm dialog
+                              bool? choice = await showDialog(
+                                  context: context2,
+                                  builder: (context2) => DeleteActionDialog(
+                                        title:
+                                            'Block ${message.senderDisplayName}?',
+                                        bodyText:
+                                            'You will no longer to be able to this persons messages',
+                                      ));
                               Navigator.pop(context2);
-                              await UserApi().blockUser(message.senderId!, SnackbarErrorHandler(context));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(content: Text('User blocked, please refresh')));
+                              if (choice == true) {
+                                await UserApi().blockUser(message.senderId!,
+                                    SnackbarErrorHandler(context));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'User blocked, please refresh')));
+                              }
                             },
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0, vertical: 4.0),
                               child: Container(
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).primaryColor,
-                                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8.0)),
                                 ),
                                 child: Center(
                                   child: Padding(
                                     padding: const EdgeInsets.all(24.0),
                                     child: Text(
                                       'Block User',
-                                      style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                                      style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500),
                                     ),
                                   ),
                                 ),
@@ -142,64 +174,93 @@ class MessageBubble extends StatelessWidget {
                         : SizedBox.shrink(),
                     Consumer<TeamAuthNotifier>(builder: (context, data, child) {
                       return data.isAdmin
-                          ? GestureDetector(
-                              onTap: () async {
-                                Navigator.pop(context2);
-                                await TeamApi().removeUserFromTeam(
-                                    data.currentTeam!.teamId!, message.senderId!, SnackbarErrorHandler(context));
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(content: Text('User will be removed shortly.')));
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                child: Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                                  ),
-                                  child: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(24.0),
-                                      child: Text(
-                                        'Remove from team',
-                                        style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                          ? !isMyMessage
+                              ? GestureDetector(
+                                  onTap: () async {
+                                    bool? choice = await showDialog(
+                                        context: context2,
+                                        builder: (context2) =>
+                                            DeleteActionDialog(
+                                              title:
+                                                  'Remove ${message.senderDisplayName}?',
+                                            ));
+                                    Navigator.pop(context2);
+
+                                    if (choice == true) {
+                                      await TeamApi().removeUserFromTeam(
+                                          data.currentTeam!.teamId!,
+                                          message.senderId!,
+                                          SnackbarErrorHandler(context));
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(
+                                                  'User will be removed shortly.')));
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0, vertical: 4.0),
+                                    child: Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).primaryColor,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8.0)),
+                                      ),
+                                      child: Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(24.0),
+                                          child: Text(
+                                            'Remove from team',
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            )
+                                )
+                              : SizedBox()
                           : GestureDetector(
                               onTap: () async {
                                 bool? choice = await showDialog(
                                     context: context2,
-                                    builder: (context) => DeleteActionDialog(
-                                          title: 'Report ${message.senderDisplayName}?',
+                                    builder: (context2) => DeleteActionDialog(
+                                          title:
+                                              'Report ${message.senderDisplayName}?',
                                           bodyText: message.message!,
                                         ));
 
                                 Navigator.pop(context2);
 
                                 if (choice == true) {
-                                  await ChannelApi().reportUserMessage(message, SnackbarErrorHandler(context));
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User reported')));
+                                  await ChannelApi().reportUserMessage(
+                                      message, SnackbarErrorHandler(context));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('User reported')));
                                 }
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
                                 child: Container(
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                     color: Theme.of(context).primaryColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
                                   ),
                                   child: Center(
                                     child: Padding(
                                       padding: const EdgeInsets.all(24.0),
                                       child: Text(
                                         'Report Message',
-                                        style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                                        style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500),
                                       ),
                                     ),
                                   ),
@@ -225,26 +286,36 @@ class MessageBubble extends StatelessWidget {
                                       .doc(channelId)
                                       .collection('messages')
                                       .doc(message.messageId)
-                                      .update({"message": "Message removed", "deleted": true});
+                                      .update({
+                                    "message": "Message removed",
+                                    "deleted": true
+                                  });
                                 } catch (error) {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(content: Text('Could not remove message')));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Could not remove message')));
                                 }
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0, vertical: 4.0),
                                 child: Container(
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                     color: Theme.of(context).primaryColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
                                   ),
                                   child: Center(
                                     child: Padding(
                                       padding: const EdgeInsets.all(24.0),
                                       child: Text(
                                         'Delete Message',
-                                        style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w500),
+                                        style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500),
                                       ),
                                     ),
                                   ),
@@ -277,7 +348,8 @@ class MessageBubble extends StatelessWidget {
                     ? Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: EdgeInsets.only(right: 64.0, left: 44.0, bottom: 2.0),
+                          padding: EdgeInsets.only(
+                              right: 64.0, left: 44.0, bottom: 2.0),
                           child: Text(
                             message.senderDisplayName!,
                             style: TextStyle(color: Colors.white70),
@@ -286,14 +358,17 @@ class MessageBubble extends StatelessWidget {
                     : SizedBox.shrink(),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+                  mainAxisAlignment: isMyMessage
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.start,
                   children: [
                     isMyMessage
                         ? Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: Text(
                               DateFormat.jm().format(message.createdAt!),
-                              style: TextStyle(color: Colors.white54, fontSize: 11.0),
+                              style: TextStyle(
+                                  color: Colors.white54, fontSize: 11.0),
                             ),
                           )
                         : SizedBox.shrink(),
@@ -302,19 +377,24 @@ class MessageBubble extends StatelessWidget {
                         ? Flexible(
                             child: Container(
                               padding: EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(color: messageColor, borderRadius: BorderRadius.circular(4.0)),
+                              decoration: BoxDecoration(
+                                  color: messageColor,
+                                  borderRadius: BorderRadius.circular(4.0)),
                               child: Linkify(
                                 onOpen: (LinkableElement element) async {
                                   await _onOpen(element, context);
                                 },
                                 text: message.message ?? 'Missing Message',
                                 linkStyle: TextStyle(
-                                  color: isMyMessage ? Colors.white : Colors.blue,
+                                  color:
+                                      isMyMessage ? Colors.white : Colors.blue,
                                 ),
                                 style: TextStyle(
                                     fontWeight: FontWeight.w400,
                                     fontSize: 14.0,
-                                    fontStyle: message.deleted == true ? FontStyle.italic : FontStyle.normal),
+                                    fontStyle: message.deleted == true
+                                        ? FontStyle.italic
+                                        : FontStyle.normal),
                               ),
                             ),
                           )
@@ -325,12 +405,14 @@ class MessageBubble extends StatelessWidget {
                                   MaterialPageRoute(
                                       builder: (context) => ImageViewer(
                                             messageId: message.messageId!,
-                                            primaryImage: message.imagePath ?? '',
+                                            primaryImage:
+                                                message.imagePath ?? '',
                                           )));
                             },
                             child: Container(
-                              decoration:
-                                  BoxDecoration(borderRadius: BorderRadius.circular(8.0), color: kLightBackgroundColor),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  color: kLightBackgroundColor),
                               width: 200,
                               height: 250,
                               child: ClipRRect(
@@ -340,15 +422,18 @@ class MessageBubble extends StatelessWidget {
                                   child: Image.network(
                                     message.imagePath ?? '',
                                     errorBuilder: (context, object, trace) {
-                                      return Center(child: Text('Failed to load image'));
+                                      return Center(
+                                          child: Text('Failed to load image'));
                                     },
                                     loadingBuilder: (context, child, progress) {
                                       if (progress == null) return child;
 
                                       return Center(
                                         child: CircularProgressIndicator(
-                                          value: progress.expectedTotalBytes != null
-                                              ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                          value: progress.expectedTotalBytes !=
+                                                  null
+                                              ? progress.cumulativeBytesLoaded /
+                                                  progress.expectedTotalBytes!
                                               : null,
                                         ),
                                       );
@@ -364,7 +449,8 @@ class MessageBubble extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 8.0),
                             child: Text(
                               DateFormat.jm().format(message.createdAt!),
-                              style: TextStyle(color: Colors.white54, fontSize: 11.0),
+                              style: TextStyle(
+                                  color: Colors.white54, fontSize: 11.0),
                             ),
                           )
                         : SizedBox.shrink(),
@@ -383,29 +469,35 @@ class MessageBubble extends StatelessWidget {
       var response = await http.readBytes(Uri.parse(message.imagePath!));
       final result = await ImageGallerySaver.saveImage(response, quality: 80);
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to save image')));
     }
   }
 
   Future<void> _onOpen(LinkableElement link, BuildContext context) async {
     if (await canLaunch(link.url)) {
-      await launch(link.url, forceWebView: false, forceSafariVC: false, universalLinksOnly: true);
+      await launch(link.url, forceWebView: false, forceSafariVC: false);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not open link')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Could not open link')));
     }
   }
 
   bool get isImage => message.imagePath != null;
 
-  bool get isMyMessage => FirebaseAuth.instance.currentUser?.uid == message.senderId;
+  bool get isMyMessage =>
+      FirebaseAuth.instance.currentUser?.uid == message.senderId;
 
   Widget get avatarSpacer => SizedBox(
         width: 44.0,
       );
-  Color get messageColor => isMyMessage ? kAccentMessageBubble : kLightBackgroundColor;
+  Color get messageColor =>
+      isMyMessage ? kAccentMessageBubble : kLightBackgroundColor;
   Widget get userAvatar => isInGroup && isLastOfGroup || !isInGroup
       ? Padding(
-          padding: isMyMessage ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+          padding: isMyMessage
+              ? EdgeInsets.only(left: 8.0)
+              : EdgeInsets.only(right: 8.0),
           child: TagTeamCircleAvatar(
             url: message.senderPhoto ?? '',
             radius: 18,

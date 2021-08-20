@@ -136,9 +136,6 @@ class _SignInState extends State<SignIn> {
       _loading = true;
     });
 
-    print(_email);
-    print(_key);
-
     try {
       await LoginServices().login(_email, _key, SnackbarErrorHandler(context));
     } catch (error) {
@@ -154,7 +151,8 @@ class _SignInState extends State<SignIn> {
     await prefs.setString('userkey', _key);
     await prefs.setString('username', _email);
 
-    await Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+    await Navigator.of(context)
+          .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
 
     setState(() {
       _loading = false;

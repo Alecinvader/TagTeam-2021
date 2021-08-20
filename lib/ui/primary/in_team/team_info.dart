@@ -51,6 +51,10 @@ class _TeamInfoState extends State<TeamInfo> {
           }
 
           return SimpleFutureBuilder(
+            onWaiting: (context, data) {
+              return SizedBox();
+              
+            },
               future: pendingRequestsFuture ?? Future<List<User>>.value([]),
               builder: (context, List<User>? data) {
                 return SafeArea(
@@ -134,7 +138,7 @@ class _TeamInfoState extends State<TeamInfo> {
                             trailing: TextButton(
                                 onPressed: () async {
                                   String? string = await generateInvitLink(teamData.currentTeam!.inviteCode!);
-                                  Share.share(string ?? 'Empty');
+                                  Share.share((string ?? 'Empty') + ' or code: ${teamData.currentTeam!.inviteCode!}');
                                 },
                                 child: Text(
                                   'SHARE',
@@ -241,11 +245,11 @@ class _TeamInfoState extends State<TeamInfo> {
         packageName: 'com.eyro.tagteamprod',
         minimumVersion: 1,
       ),
-      // iosParameters: IosParameters(
-      //   bundleId: 'com.example.ios',
-      //   minimumVersion: '1.0.1',
-      //   appStoreId: '123456789',
-      // ),
+      iosParameters: IosParameters(
+        bundleId: 'com.eyro.tagteammobile',
+        
+        
+      ),
       // googleAnalyticsParameters: GoogleAnalyticsParameters(
       //   campaign: 'example-promo',
       //   medium: 'social',
