@@ -46,6 +46,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   void initState() {
     super.initState();
 
+    
+
     UserApi().getBlockedUsers(SnackbarErrorHandler(context)).then((value) {
       Provider.of<TeamAuthNotifier>(context, listen: false).blockedUsers = value;
       setState(() {});
@@ -214,7 +216,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     if (imagePath.isNotEmpty) {
       await showDialog(
           context: context,
-          builder: (context) => ImageDialogConfirmation(
+          builder: (context2) => ImageDialogConfirmation(
               imagePath: imagePath,
               onChoice: (bool value) async {
                 if (value) {
