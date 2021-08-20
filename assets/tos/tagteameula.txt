@@ -1,0 +1,109 @@
+TAGTEAM SOFTWARE END USER LICENSE AGREEMENT
+Updated August 19, 2021
+ 
+BY INSTALLING OR OTHERWISE USING THE SOFTWARE, YOU AGREE TO BE BOUND BY THE TERMS OF THIS AGREEMENT INCLUDING THE DISCLAIMER OF WARRANTIES, LIMITATIONS OF LIABILITY AND TERMINATION PROVISIONS BELOW.
+
+IF YOU DO NOT AGREE TO THE TERMS OF THIS END USER LICENSE AGREEMENT AND/OR THE ADDITIONAL TERMS, DO NOT INSTALL OR USE THE SOFTWARE, AND EXIT NOW.
+ 
+USE OF THE SOFTWARE WITHOUT SIGNIFYING YOUR AGREEMENT TO THESE TERMS IN THE MANNER INDICATED ABOVE IS STRICTLY PROHIBITED.
+ 
+ADDITIONAL TERMS
+ 
+This End User License Agreement, together with the Additional Terms, as they might change from time-to-time, shall constitute the entire agreement (collectively the Agreement).
+ 
+DISCLAIMER OF WARRANTIES
+ 
+THE SOFTWARE AND THE SITE ARE COPYRIGHTED AND LICENSED (NOT SOLD).  THIS AGREEMENT REPRESENTS THE ENTIRE AGREEMENT CONCERNING THE SOFTWARE BETWEEN YOU AND LICENSOR, AND IT SUPERSEDES ANY PRIOR PROPOSAL, REPRESENTATION, OR UNDERSTANDING BETWEEN THE PARTIES.
+ 
+THE SOFTWARE IS LICENSED WHERE IS AND AS IS, AND LICENSOR DISCLAIMS ANY AND ALL WARRANTIES TO THE EXTENT PERMITTED BY LAW, WHETHER EXPRESS OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES AS TO THE ACCURACY, RELIABILITY, COMPLETENESS, OR CORRECTNESS OF THE SOFTWARE, AND OF ANY TEST RESULTS.
+ 
+TO THE EXTENT PERMITTED BY LAW, LICENSOR DISCLAIMS, AMONG OTHERS, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND ALL WARRANTIES ARISING FORM COURSE OF DEALING OR USAGE OF TRADE.
+ 
+YOU ACKNOWLEDGE THAT THERE ARE RISKS INHERENT IN THE USE OF THE SOFTWARE, HARDWARE AND INTERNET CONNECTIVITY THAT MAY RESULT IN INTERRUPTIONS OR ERRORS IN THE SERVICE, LOSS OF PRIVACY, CONFIDENTIALITY, INFORMATION OR PROPERTY, AS WELL AS OTHER LOSSES, DAMAGES OR ADVERSE OCCURRENCES, REGARDLESS OF THE MEASURES TAKEN TO AVOID SUCH OCCURRENCES.
+ 
+IN NO EVENT WILL LICENSOR BE LIABLE TO YOU OR ANY THIRD PARTY IN CONTRACT, TORT, STRICT LIABILITY OR OTHERWISE, FOR ANY INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE, INACCURATE OR INCOMPLETE TEST RESULTS, LOST PROFITS OR DAMAGES EXTENDING FROM THE LOSS OR CORRUPTION OF DATA, AND CLAIMS RELATED TO TEST RESULTS, EVEN IF LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+LICENSE GRANT
+ 
+Licensor hereby grants to You, and You accept, a nonexclusive and nontransferable personal license to use the Software according to the terms set out herein.  The license granted extends only to use of the Software in connection with services offered by Licensor.  All other uses are strictly prohibited.
+ 
+The Software may only be used by You personally.  Use by an individual other than yourself is not permitted without separate authorization from Licensor.  You hereby agree not to use, promote, advertise, market, publish, transfer, distribute, rent, license, sell, copy, modify, create derivative works from, or use in a timesharing arrangement, the Software, or any copy thereof, in whole or in part, except as expressly provided in this Agreement.  You hereby agree not to reverse engineer, disassemble, decompile, translate, modify, violate, circumvent or otherwise tamper with the Software, or otherwise attempt to derive the source code of any of the Softwares software.  You hereby agree not to develop, distribute or sell applications that are capable of launching, being launched from, or are otherwise integrated with, the Software.  You hereby agree not to use and You are granted no license or right with respect to any current or future sign, logo, mascot, insignia, slogan, trade name, trademark, or service mark of Licensor or its affiliates, in whole or in part, for any purpose, including, without limitation, any marketing, advertising, publicity, or promotion in connection with the Software or otherwise.
+ 
+Licensor reserves the right to refuse service, terminate accounts, remove or edit content, or cancel logins in its sole and absolute discretion.
+ 
+LICENSORS RIGHTS
+ 
+You acknowledge and agree that the Software is the proprietary property of Licensor and is protected under copyright and / or patent law both in the U.S. and in countries foreign thereto.  You further acknowledge and agree that all right, title, and interest in and to the Software, including intellectual property rights associated therewith, are and shall remain with Licensor.  This Agreement does not convey to You an interest in or to the Software, but only a limited right of use revocable in accordance with the terms of this Agreement.
+ 
+YOUR ACCOUNT
+ 
+You may be given an account and/or password that grants You access to the Software and/or additional features accessible through the Site.  You are responsible for maintaining the confidentiality of your account or password.  You may not transfer this account or the License granted hereunder to a third party without prior written consent of Licensor.  You agree to accept full responsibility for all activities that occur under your account or password.  Licensor reserves the right to refuse service, terminate accounts, remove or edit content, in its sole discretion.
+You agree that all user-generated content under your account is not objectionable content and does not violate the restrictions of 3rd party services. Objectionable content that is sent under your account and otherwise abused, will result in suspension or termination with or without notice. 
+
+RESTRICTIONS
+ 
+You agree that You may not modify, adapt, translate, reverse engineer, or create derivative works based upon the Software or any part thereof.  You also agree that You may not reverse assemble, reverse compile, or otherwise translate the Software or any portion thereof.
+You further agree that You will not assign, sublicense, transfer, pledge, lease, rent, loan, or share your rights under this Agreement.
+ 
+You still further agree that You may not use the Software for the direct benefit of, or for purpose of rendering services to, any third party business entities or organizations, except as authorized by Licensor.
+ 
+ADDITIONAL TERMS
+ 
+TERM
+ 
+This Agreement is effective upon your acceptance of its terms and conditions and your successful activation of the Software and shall continue until terminated.  Licensor may terminate this Agreement with or without notice to You at any time and for any reason.  Upon termination of this Agreement, You shall cease all access to and use of the Software and destroy all copies, full or partial, of the Software.  Licensor reserves the right to modify, suspend, discontinue or disable access to the Software (or any part or content thereof), and may impose limits on the use of or access to certain features or portions of the Software, at any time with or without notice to You, and Licensor will not be liable to You or to any third party should it exercise such rights.
+ 
+3rd PARTY SOFTWARE
+ 
+The Software may contain or be provided with open source libraries, components, utilities and other 3rd Party software (collectively, 3rd Party Software), which 3rd Party Software may have applicable license terms as identified on the 3rd Party Software Agreements section designated by Licensor or otherwise provided by Licensor.  Notwithstanding anything to the contrary herein, use of the 3rd Party Software shall be subject to the applicable 3rd Party Software license terms and conditions to the extent required by the applicable licensor (which terms shall not restrict the license rights granted to You hereunder but may contain additional rights).  Licensor expressly disclaims any warranty or other assurance to you regarding the 3rd Party Software.
+ 
+MAINTENANCE OF EQUIPMENT AND SOFTWARE
+ 
+You acknowledge that updates to the Software may cause changes to the minimum system requirements to use the Software.  Licensor reserves the right to make changes to the minimum system requirements from time to time.  You agree to obtain, maintain and operateat your own expenseall hardware and non-TagTeam software required to use the Software.  You agree, at your own expense, to periodically update the same as necessary due to updates in the Software.
+ 
+DISPUTE RESOLUTION
+ 
+This Agreement shall be governed in all respects by the laws of the State of Utah as they apply to agreements entered into and to be performed entirely within Utah between Utah residents, without regard to conflict of law provisions.  You agree that any claim or dispute You may have against Licensor must be resolved by a court located in Utah County, Utah, except as otherwise agreed by the parties.  You agree to submit to the personal jurisdiction of the courts located within Utah County, Utah, for the purpose of litigating all such claims or disputes.
+ 
+NO AGENCY
+ 
+No agency, partnership, joint venture, employee-employer or franchiser-franchisee relationship is intended or created by this Agreement.
+ 
+AMENDMENTS TO THE AGREEMENT
+ 
+This Agreement may not be otherwise amended except in a writing signed by You and Licensor.  This Agreement sets forth the entire understanding and agreement between us with respect to the subject matter hereof.  The following Sections survive any termination of this Agreement: Disclaimer of Warranties, Limitation of Liability, Indemnity, Restrictions, Dispute Resolution, and Proprietary Information.
+ 
+LIMITATION OF LIABILITY
+ 
+Licensors cumulative liability to You or any other party for any loss or damages resulting from any claims, demands, or actions arising out of or relating to this Agreement or the Software shall not exceed the license fee paid to Licensor for the use of the Software and Site, if any.
+Under no circumstances shall Licensor be responsible for user error including, but not limited to, erroneous data input, misuse of the Software or Site, incorrect interpretation of data or missing data.  Licensor shall additionally not be responsible for errors in the transmission or storage of your data that are beyond its control or supervision.
+ 
+PROPRIETARY INFORMATION
+ 
+The Software and all information and materials related thereto constitute proprietary information and trade secrets of Licensor.  You shall use your best efforts to ensure the confidentiality of the Software and all related materials and information supplied by Licensor.
+You warrant that You will not disclose, use, modify, copy, or reproduce the Software or any of the information or materials supplied by Licensor except in accordance with this Agreement or after first obtaining the written permission of Licensor.
+ 
+You specifically agree to prevent your employees, agents, attorneys and representatives, if any, from disclosing such proprietary information and shall hold Licensor harmless and protect and indemnify Licensor in the event of any disclosure by such persons.
+ 
+The non-disclosure provisions of this section shall continue beyond the term of the contract and shall be binding and enforceable even after termination of this Agreement.
+ 
+INDEMNITY
+ 
+You will indemnify and hold the Licensor, including our officers, directors, agents, subsidiaries, joint ventures and employees (collectively, Indemnitees), harmless from any costs, expenses (including legal costs and attorneys fees), liabilities, penalties, fines, losses, damages, demands, third-party claims, judgments and/or other forms of liability, whether arising from personal or bodily injury, illness, or death, or tangible or intangible property damage or loss, or otherwise (collectively, Claims), in connection with, arising out of, or relating to: (a) any use of or inability to use, or reliance on, the Software by or on behalf of user? (b) any misstatements, inaccuracies, errors, omissions, delays, or interruptions in connection with the application? and/or (c) any diagnosis, recommendation, advice, treatment, procedure, or other action by or on behalf of user in connection with the purchase, download, access, viewing, or use of, inability to use, or reliance on the application with respect to any individual(s), regardless of the legal basis for the claim(s).  You hereby assume and bear the entire risk with respect to the foregoing, and to the fullest extent permitted by law, releases Licensor and its Indemnitees from any liability relating to the foregoing.
+ 
+GOVERNING LAW
+ 
+This Agreement shall be construed and governed in accordance with the laws of the State of Utah, without regard to the choice of law provisions of that state, and all actions, regardless of the form or nature of such, to enforce this license or for the breach of same shall be brought within one (1) year from the occurrence of the grounds for such action in either state or federal court in Utah County, Utah.
+ 
+COSTS OF LITIGATION
+ 
+If any action is brought by either party to this Agreement against the other party regarding the subject matter hereof, the prevailing party shall be entitled to recover, in addition to any other relief granted, reasonable attorney fees and expenses of litigation.
+ 
+SEVERABILITY
+ 
+Should any term of this Agreement be declared void or unenforceable by any court of competent jurisdiction, such declaration shall have no effect on the remaining terms hereof.
+ 
+NO WAIVER
+ 
+The failure of either party to enforce any rights granted hereunder or to take action against the other party in the event of any breach hereunder shall not be deemed a waiver by that party as to subsequent enforcement of rights or subsequent actions in the event of future breaches.
+It is specifically agreed that the breach of this Agreement, and in particular the section concerning non-disclosure of proprietary information, will result in irreparable injury and the party who claims such a breach shall be entitled to specific performance and injunctive relief to correct and enjoin such breach in addition to all other remedies which might be available.
+

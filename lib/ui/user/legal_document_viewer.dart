@@ -97,11 +97,12 @@ class _LegalDocumentViewerState extends State<LegalDocumentViewer> {
                             onPressed: () {
                               Navigator.pop(context, false);
                             },
-                            child: Text('CANCEL'),
+                            child: Text(
+                              'CANCEL',
+                              style: TextStyle(color: Colors.white),
+                            ),
                             style: TextButton.styleFrom(
-                              side: BorderSide(
-                                width: 1.0,
-                              ),
+                              side: BorderSide(width: 1.0, color: Colors.grey),
                             ),
                           ),
                           SizedBox(
@@ -116,8 +117,8 @@ class _LegalDocumentViewerState extends State<LegalDocumentViewer> {
                               style: TextStyle(color: Colors.white),
                             ),
                             style: TextButton.styleFrom(
-                              side: BorderSide(width: 1.0),
-                            ),
+                                side: BorderSide(width: 1.0, color: Theme.of(context).accentColor),
+                                backgroundColor: Theme.of(context).accentColor),
                           )
                         ],
                       ),

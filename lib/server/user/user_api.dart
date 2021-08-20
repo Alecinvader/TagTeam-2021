@@ -43,4 +43,11 @@ class UserApi {
     return await api.get(
         '/user/$uid/blockedusers', {}, handler, (map) => parseJsonList(map['users'], (json) => User.fromJson(json)));
   }
+
+  Future<ServerResponse> acceptEULA(ErrorHandler handler) async {
+    String uid = fbauth.FirebaseAuth.instance.currentUser!.uid;
+    return await api.get('/user/$uid/accepteula', {}, handler, (map) {
+      return ServerResponse.fromJson(map);
+    });
+  }
 }

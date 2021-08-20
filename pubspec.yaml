@@ -56,4 +56,5 @@ flutter_icons:
 flutter:
   assets:
     - assets/images/
+    - assets/tos/tagteameula.txt
   uses-material-design: true
