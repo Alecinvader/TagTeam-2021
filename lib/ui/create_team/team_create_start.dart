@@ -4,6 +4,7 @@ import 'package:tagteamprod/models/create_team_request.dart';
 import 'package:tagteamprod/models/tagteam.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/team_api.dart';
+import 'package:tagteamprod/ui/core/success_snackbar.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/create_team/team_next_button.dart';
 import 'package:tagteamprod/ui/primary/channels/create_single_channel.dart';
@@ -57,34 +58,7 @@ class _TeamBasicDetailsState extends State<TeamBasicDetails> {
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: CircleNextButton(
-                    onPressed: () async {
-                      Channel? channel =
-                          await Navigator.push(context, MaterialPageRoute(builder: (context) => CreateSingleChannel()));
-
-                      team.name = teamName;
-
-                      setState(() {
-                        isLoading = true;
-                      });
-
-                      await TeamApi().createTeam(
-                          CreateTeamRequest(team: team, channels: channel != null ? [channel] : []),
-                          SnackbarErrorHandler(context, onErrorHandler: () {
-                            setState(() {
-                              isLoading = false;
-                            });
-                          }));
-
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Team will be created shortly'),
-                        behavior: SnackBarBehavior.floating,
-                      ));
-
-                      int count = 0;
-                      Navigator.popUntil(context, (route) {
-                        return count++ == 2;
-                      });
-                    },
+                    onPressed: createTeam,
                     enabled: teamName.isNotEmpty && !isLoading,
                   ),
                 ),
@@ -94,5 +68,30 @@ class _TeamBasicDetailsState extends State<TeamBasicDetails> {
         ),
       ),
     );
+  }
+
+  Future<void> createTeam() async {
+    Channel? channel = await Navigator.push(context, MaterialPageRoute(builder: (context) => CreateSingleChannel()));
+
+    team.name = teamName;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    SuccessSnackBar(context, widget: Text('Team will be created shortly')).showSnackbar(context);
+
+    int count = 0;
+    Navigator.popUntil(context, (route) {
+      return count++ == 3;
+    });
+
+    await TeamApi().createTeam(
+        CreateTeamRequest(team: team, channels: channel != null ? [channel] : []),
+        SnackbarErrorHandler(context, onErrorHandler: () {
+          setState(() {
+            isLoading = false;
+          });
+        }));
   }
 }

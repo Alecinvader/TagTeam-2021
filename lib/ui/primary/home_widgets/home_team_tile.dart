@@ -36,33 +36,32 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: InkWell(
-        onTap: () async {
-          setState(() {
-            _isLoading = true;
-          });
+        onTap: _isLoading == false
+            ? () async {
+                setState(() {
+                  _isLoading = true;
+                });
 
-          final ServerResponse role = await TeamApi().setActiveTeam(
-              team.teamId ?? 0,
-              SnackbarErrorHandler(context, onErrorHandler: () {
+                final ServerResponse role = await TeamApi().setActiveTeam(
+                    team.teamId ?? 0,
+                    SnackbarErrorHandler(context, onErrorHandler: () {
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    }, overrideErrorMessage: '${team.name} is not available'));
+
+                await FirebaseAuth.instance.currentUser!.getIdToken(true);
+
+                Provider.of<TeamAuthNotifier>(context, listen: false).setActiveTeam(team, role.message!);
+
+                await Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => TeamMessageList(teamId: team.teamId!)));
+
                 setState(() {
                   _isLoading = false;
                 });
-              }, overrideErrorMessage: '${team.name} is not available'));
-
-          await FirebaseAuth.instance.currentUser!.getIdToken(true);
-
-          Provider.of<TeamAuthNotifier>(context, listen: false)
-              .setActiveTeam(team, role.message!);
-
-          await Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => TeamMessageList(teamId: team.teamId!)));
-
-          setState(() {
-            _isLoading = false;
-          });
-        },
+              }
+            : null,
         child: Container(
           decoration: BoxDecoration(
               image: team.imageLink != null && !failedToLoadImage
@@ -70,8 +69,7 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
                       onError: (object, trace) {},
                       image: NetworkImage(team.imageLink!),
                       fit: BoxFit.cover,
-                      colorFilter:
-                          ColorFilter.mode(Colors.black54, BlendMode.srcOver))
+                      colorFilter: ColorFilter.mode(Colors.black54, BlendMode.srcOver))
                   : null,
               border: Border(
                 bottom: BorderSide(color: Colors.grey.shade200, width: .5),
@@ -98,10 +96,7 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
               ),
               Text(
                 team.name ?? 'Team Name',
-                style: TextStyle(
-                    color: Theme.of(context).accentColor,
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600),
+                style: TextStyle(color: Theme.of(context).accentColor, fontSize: 18.0, fontWeight: FontWeight.w600),
               ),
             ],
           ),

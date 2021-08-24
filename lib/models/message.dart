@@ -56,6 +56,7 @@ class Message {
   Map<String, dynamic> toCompleteJson() {
     return <String, dynamic>{
       ...toJson(),
+      "channelID": this.channelId,
       "senderID": this.senderId,
       "senderPhoto": this.senderPhoto,
       "senderDisplayName": this.senderDisplayName,

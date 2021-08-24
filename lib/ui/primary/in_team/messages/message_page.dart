@@ -31,28 +31,30 @@ class SendMesssagePage extends StatefulWidget {
 }
 
 class _SendMesssagePageState extends State<SendMesssagePage> {
+  // Stream
   late Stream<QuerySnapshot> messageStream;
   late Channel channel;
 
   final TextEditingController _textFieldController = new TextEditingController();
 
+  // Messages
   List<Message> messages = [];
-
   String? _pendingMessage;
 
+  // Local Storage
   SharedPreferences? _preferences;
 
   @override
   void initState() {
     super.initState();
 
-    
-
+    // Get blocked users
     UserApi().getBlockedUsers(SnackbarErrorHandler(context)).then((value) {
       Provider.of<TeamAuthNotifier>(context, listen: false).blockedUsers = value;
       setState(() {});
     });
 
+    // Have this ready to set exit date
     SharedPreferences.getInstance().then((SharedPreferences prefs) async {
       setState(() {
         _preferences = prefs;
@@ -61,6 +63,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
 
     channel = widget.channel;
 
+    // Set the channel as active in server
     ChannelApi()
         .setChannelActive(
             widget.channel.id!,
@@ -70,6 +73,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
             }))
         .then((value) => fbauth.FirebaseAuth.instance.currentUser!.getIdToken(true));
 
+    // Grab all the snapshots
     messageStream = FirebaseFirestore.instance
         .doc('channels/${channel.firebaseId}')
         .collection('messages')
@@ -179,12 +183,26 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                                     if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
                                       _textFieldController.clear();
 
-                                      await ChannelApi().sendMessage(
-                                          widget.channel.id!,
-                                          widget.channel.teamId!,
-                                          Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
-                                          SnackbarErrorHandler(context,
-                                              overrideErrorMessage: 'Failed to send message'));
+                                      await FirebaseFirestore.instance
+                                          .collection('channels')
+                                          .doc(widget.channel.firebaseId)
+                                          .collection('messages')
+                                          .add(Message(
+                                                  message: _pendingMessage!.trim(),
+                                                  messageType: MessageType.text,
+                                                  createdAt: DateTime.now(),
+                                                  senderDisplayName: "Bobby Jones",
+                                                  senderId: fbauth.FirebaseAuth.instance.currentUser!.uid,
+                                                  senderPhoto: '',
+                                                  channelId: widget.channel.id)
+                                              .toCompleteJson());
+
+                                      // await ChannelApi().sendMessage(
+                                      //     widget.channel.id!,
+                                      //     widget.channel.teamId!,
+                                      //     Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
+                                      //     SnackbarErrorHandler(context,
+                                      //         overrideErrorMessage: 'Failed to send message'));
 
                                       setState(() {
                                         _pendingMessage = '';
@@ -229,11 +247,20 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                     String? downloadLink =
                         await StorageUtility().getImageURL(imageRefAfterUpload, SnackbarErrorHandler(context));
 
-                    await ChannelApi().sendMessage(
-                        widget.channel.id!,
-                        widget.channel.teamId!,
-                        Message(imagePath: downloadLink, messageType: MessageType.image),
-                        SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message'));
+                    await FirebaseFirestore.instance
+                        .collection('channels')
+                        .doc(widget.channel.firebaseId)
+                        .collection('messages')
+                        .add(Message(
+                                imagePath: downloadLink,
+                                message: "Sent an image",
+                                messageType: MessageType.text,
+                                createdAt: DateTime.now(),
+                                senderDisplayName: "Username",
+                                senderId: fbauth.FirebaseAuth.instance.currentUser!.uid,
+                                senderPhoto: '',
+                                channelId: widget.channel.id)
+                            .toCompleteJson());
                   }
                 }
               }));
