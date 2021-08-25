@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/primary/channels/create_single_channel.dart';
@@ -36,11 +37,17 @@ class _TeamMessageListState extends State<TeamMessageList> {
 
   bool blockedUsersFetched = false;
 
+  SharedPreferences? _prefs;
+
   @override
   void initState() {
     super.initState();
 
-    var value = Provider.of<TeamAuthNotifier>(context, listen: false).currentTeam;
+    SharedPreferences.getInstance().then((value) {
+      setState(() {
+        _prefs = value;
+      });
+    });
 
     UserApi().getBlockedUsers(SnackbarErrorHandler(context, showSnackBar: true)).then((value) {
       Provider.of<TeamAuthNotifier>(context, listen: false).blockedUsers = value;
@@ -51,18 +58,19 @@ class _TeamMessageListState extends State<TeamMessageList> {
     });
 
     channelFuture = fetchChannels().then((value) {
-      setState(() {
-        sqlDataChannels = value;
-      });
       if (firebaseUniques.isNotEmpty) {
         setState(() {
           stream1 = FirebaseFirestore.instance
               .collection('channels')
               .where(FieldPath.documentId, whereIn: firebaseUniques)
               .snapshots();
-          futureCompleted = true;
         });
       }
+
+      setState(() {
+        sqlDataChannels = value;
+        futureCompleted = true;
+      });
 
       return value;
     }).catchError((error) {
@@ -100,7 +108,11 @@ class _TeamMessageListState extends State<TeamMessageList> {
               StreamBuilder<QuerySnapshot>(
                   stream: stream1,
                   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (snapshot.hasData) {
+                    if (futureCompleted == true && sqlDataChannels.isEmpty) {
+                      return SizedBox();
+                    }
+
+                    if (snapshot.hasData && _prefs != null) {
                       convertSnapshotIntoChannels(snapshot.data?.docs ?? []);
 
                       return Expanded(
@@ -128,7 +140,12 @@ class _TeamMessageListState extends State<TeamMessageList> {
 
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                child: MessagePageTile(channel: currentChannel),
+                                child: MessagePageTile(
+                                  newestSenderId: currentChannel.mostRecentMessage!.senderId ?? '',
+                                  channel: currentChannel,
+                                  prefs: _prefs!,
+                                  newestDate: currentChannel.mostRecentMessage?.createdAt ?? DateTime(2000),
+                                ),
                               );
                             },
                             itemCount: channels.length,

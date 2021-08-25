@@ -10,8 +10,17 @@ import 'message_page.dart';
 
 class MessagePageTile extends StatefulWidget {
   final Channel channel;
+  final SharedPreferences prefs;
+  final DateTime newestDate;
+  final String newestSenderId;
 
-  const MessagePageTile({Key? key, required this.channel}) : super(key: key);
+  const MessagePageTile({
+    Key? key,
+    required this.channel,
+    required this.prefs,
+    required this.newestDate,
+    required this.newestSenderId,
+  }) : super(key: key);
 
   @override
   _MessagePageTileState createState() => _MessagePageTileState();
@@ -21,25 +30,17 @@ class _MessagePageTileState extends State<MessagePageTile> {
   bool isNewMessage = false;
 
   SharedPreferences? _preferences;
-
+  late DateTime? time;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    SharedPreferences.getInstance().then((value) {
-      setState(() {
-        _preferences = value;
-      });
-    });
+    _preferences = widget.prefs;
+    time = DateTime.tryParse(_preferences!.getString('${widget.channel.id}') ?? '');
   }
 
   @override
   Widget build(BuildContext context) {
-    checkIfMessageIsUnread(widget.channel).then((value) {
-      isNewMessage = value;
-
-      print(isNewMessage);
-    });
+    checkIfMessageIsUnread();
 
     return InkWell(
       onTap: () async {
@@ -53,6 +54,10 @@ class _MessagePageTileState extends State<MessagePageTile> {
                 builder: (context) => SendMesssagePage(
                       channel: widget.channel,
                     )));
+
+        setState(() {
+          isNewMessage = false;
+        });
       },
       child: Container(
         height: 80,
@@ -137,30 +142,14 @@ class _MessagePageTileState extends State<MessagePageTile> {
     );
   }
 
-  Future<bool> checkIfMessageIsUnread(Channel channel) async {
-    if (_preferences == null) {
-      return false;
+  void checkIfMessageIsUnread() {
+    time = DateTime.tryParse(_preferences!.getString('${widget.channel.id}') ?? '');
+    if (time != null) {
+      if (widget.newestDate.isAfter(time!) && widget.newestSenderId != FirebaseAuth.instance.currentUser!.uid) {
+        isNewMessage = true;
+      } else {
+        isNewMessage = false;
+      }
     }
-
-    bool containsKey = _preferences!.containsKey('${channel.id}');
-
-    if (!containsKey) {
-      if (channel.mostRecentMessage == null) {
-        return false;
-      } else if (channel.mostRecentMessage!.senderId != FirebaseAuth.instance.currentUser!.uid) return true;
-    }
-
-    DateTime? time = DateTime.tryParse(_preferences!.getString('${channel.id}') ?? '');
-
-    if (time == null) {
-      return true;
-    } else if (channel.mostRecentMessage == null) {
-      return false;
-    } else if (channel.mostRecentMessage!.senderId != FirebaseAuth.instance.currentUser!.uid &&
-        channel.mostRecentMessage!.createdAt!.isAfter(time)) {
-      return true;
-    }
-
-    return false;
   }
 }
