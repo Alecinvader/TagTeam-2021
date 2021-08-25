@@ -10,10 +10,11 @@ class Message {
 
   bool? imageFinalized;
   bool? deleted;
+  bool? isFileImage = false;
 
   MessageType? messageType;
   String? imagePath;
-  String? imageDownloadLink;
+
   String? message;
   String? messageId;
   DateTime? createdAt;
@@ -30,8 +31,8 @@ class Message {
       this.senderPhoto,
       this.createdAt,
       this.messageId,
-      this.imageDownloadLink,
-      this.deleted});
+      this.deleted,
+      this.isFileImage});
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
@@ -44,7 +45,6 @@ class Message {
         channelId: json['channelID'],
         messageType: parseMessageType(json['messageType']),
         imageFinalized: json['imageFinalized'],
-        imageDownloadLink: json['imageDownloadLink'],
         deleted: json['deleted'],
         messageId: json['messageID']);
   }
