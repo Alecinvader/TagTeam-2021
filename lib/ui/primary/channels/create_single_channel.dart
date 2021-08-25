@@ -24,6 +24,8 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
 
   late Channel channel;
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -179,10 +181,12 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: TextButton(
-                      onPressed: channel.name!.isNotEmpty ? createChannel : null,
+                      onPressed: channel.name!.isNotEmpty && !_isLoading ? createChannel : null,
                       child: Text(
                         'CREATE',
-                        style: TextStyle(color: channel.name!.isNotEmpty ? Theme.of(context).accentColor : Colors.grey),
+                        style: TextStyle(
+                            color:
+                                channel.name!.isNotEmpty && !_isLoading ? Theme.of(context).accentColor : Colors.grey),
                       )),
                 ),
               ))
@@ -218,11 +222,24 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
     channel.type = selectedMessageType;
     channel.teamId = widget.teamId;
     if (widget.teamId != null) {
-      await ChannelApi().createChannels([channel], widget.teamId!, SnackbarErrorHandler(context));
+      setState(() {
+        _isLoading = true;
+      });
+      await ChannelApi().createChannels(
+          [channel],
+          widget.teamId!,
+          SnackbarErrorHandler(context, onErrorHandler: () {
+            setState(() {
+              _isLoading = false;
+            });
+          }));
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Channel will be created shortly'),
         behavior: SnackBarBehavior.floating,
       ));
+      setState(() {
+        _isLoading = false;
+      });
       Navigator.pop(context);
     } else if (channel.name == null || channel.name!.isEmpty) {
       Navigator.pop(context);

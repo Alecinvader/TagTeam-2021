@@ -141,7 +141,7 @@ class _TeamMessageListState extends State<TeamMessageList> {
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                 child: MessagePageTile(
-                                  newestSenderId: currentChannel.mostRecentMessage!.senderId ?? '',
+                                  newestSenderId: currentChannel.mostRecentMessage?.senderId ?? '',
                                   channel: currentChannel,
                                   prefs: _prefs!,
                                   newestDate: currentChannel.mostRecentMessage?.createdAt ?? DateTime(2000),
