@@ -29,7 +29,7 @@ class MessageBubble extends StatelessWidget {
   final bool isFirstOfGroup;
   final bool isLastOfGroup;
   final bool isInGroup;
-  final bool isWithin10MinutesOfNextMessage;
+  final bool showTime;
   final String channelId;
 
   MessageBubble(
@@ -40,7 +40,7 @@ class MessageBubble extends StatelessWidget {
       this.isLastOfGroup = false,
       this.isInGroup = false,
       required this.channelId,
-      this.isWithin10MinutesOfNextMessage = true})
+      this.showTime = true})
       : super(key: key);
 
   @override
@@ -310,7 +310,7 @@ class MessageBubble extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
                   children: [
-                    isMyMessage && !isWithinTimeFrame
+                    isMyMessage && showTime
                         ? Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: Text(
@@ -389,7 +389,7 @@ class MessageBubble extends StatelessWidget {
                               ),
                             ),
                           ),
-                    !isMyMessage && !isWithinTimeFrame
+                    !isMyMessage && showTime
                         ? Padding(
                             padding: const EdgeInsets.only(left: 8.0),
                             child: Text(
@@ -424,8 +424,6 @@ class MessageBubble extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not open link')));
     }
   }
-
-  bool get isWithinTimeFrame => isWithin10MinutesOfNextMessage;
 
   bool get isImage => message.imagePath != null;
 
