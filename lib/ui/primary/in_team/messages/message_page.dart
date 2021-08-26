@@ -140,6 +140,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                               key: Key('$index'),
                               channelId: widget.channel.firebaseId!,
                               isInGroup: getIsInGroup(index),
+                              isWithin10MinutesOfNextMessage: getIsWithinTimeFrame(index),
                               showsMessageDate: getIsMessageFirstOfDay(index),
                               isFirstOfGroup: getIsMessageFirstInGroup(index),
                               isLastOfGroup: getIsMessageLastInGroup(index),
@@ -415,6 +416,26 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     } else if (index == 0) {
       return true;
     } else if (messages[index - 1].senderId != messages[index].senderId) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool getIsWithinTimeFrame(int index) {
+    if (getIsInGroup(index)) {
+      if (getIsMessageLastInGroup(index)) {
+        if (index == 0) return false;
+
+        if ((messages[index - 1].createdAt!.minute - messages[index].createdAt!.minute).abs() <= 10) {
+          return false;
+        }
+      } else if (getIsMessageFirstInGroup(index)) {
+        if ((messages[index - 1].createdAt!.minute - messages[index].createdAt!.minute).abs() <= 10) {
+          return false;
+        }
+      }
+    } else {
       return true;
     }
 

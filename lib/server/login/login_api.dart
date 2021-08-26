@@ -22,8 +22,6 @@ class LoginServices {
         return json;
       });
 
-      print(response);
-
       if (response['user']['acceptedEULA'] == 0) {
         bool? acceptedawait = await Navigator.push(
             handler.context!,

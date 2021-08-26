@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/primary/channels/create_single_channel.dart';
+import 'package:tagteamprod/ui/utility/notifications/notification_handler.dart';
 import '../../../models/channel.dart';
 import '../../../models/message.dart';
 import '../../../server/errors/snackbar_error_handler.dart';

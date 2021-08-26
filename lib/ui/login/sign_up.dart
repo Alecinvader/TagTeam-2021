@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tagteamprod/ui/user/legal_document_viewer.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/user/user_api.dart';
 import '../../server/user/user_request.dart';
@@ -178,6 +179,25 @@ class _SignUpState extends State<SignUp> {
           SnackbarErrorHandler(context, showSnackBar: false));
 
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: pass);
+
+      bool? acceptedawait = await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => LegalDocumentViewer(
+                    assetName: 'tagteameula.txt',
+                    title: 'End User License Agreement',
+                  )));
+
+      if (acceptedawait == true) {
+        await UserApi().acceptEULA(SnackbarErrorHandler(context, onErrorHandler: () {
+          throw "Could not accept terms";
+        }));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Must accept terms in order to use app"),
+        ));
+        throw "Must accept terms";
+      }
 
       await Navigator.of(context)
           .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
