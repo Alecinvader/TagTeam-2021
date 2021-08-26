@@ -73,7 +73,10 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
             SnackbarErrorHandler(context, onErrorHandler: () {
               Navigator.pop(context);
             }))
-        .then((value) => fbauth.FirebaseAuth.instance.currentUser!.getIdToken(true));
+        .then((value) {
+      fbauth.FirebaseAuth.instance.currentUser!.getIdToken(true);
+      Provider.of<TeamAuthNotifier>(context, listen: false).setActiveChannel(widget.channel.firebaseId!);
+    });
 
     // Grab all the snapshots
     messageStream = FirebaseFirestore.instance
@@ -87,6 +90,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        Provider.of<TeamAuthNotifier>(context, listen: false).setActiveChannel('');
         if (_preferences != null) {
           await _preferences!.setString('${channel.id}', DateTime.now().toIso8601String());
         }

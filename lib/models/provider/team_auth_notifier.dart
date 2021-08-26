@@ -9,6 +9,7 @@ class TeamAuthNotifier extends ChangeNotifier {
   TagTeam? currentTeam;
   TeamAuthType? authType;
 
+  String? activeChannelId;
   List<User> blockedUsers = [];
 
   bool get isAdmin => authType == TeamAuthType.manager || authType == TeamAuthType.owner;
@@ -17,6 +18,11 @@ class TeamAuthNotifier extends ChangeNotifier {
     currentTeam = team;
     authType = parseAuthType(role);
 
+    notifyListeners();
+  }
+
+  void setActiveChannel(String id) {
+    activeChannelId = id;
     notifyListeners();
   }
 

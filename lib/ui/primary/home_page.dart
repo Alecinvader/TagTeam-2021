@@ -5,8 +5,10 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/channel.dart';
 import 'package:tagteamprod/models/chat_notification.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_circleavatar.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
@@ -155,9 +157,10 @@ class _HomePageState extends State<HomePage> {
       ChatNotification? chatNotification;
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
-
-        showToast(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
-            chatNotification.teamId!);
+        if (Provider.of<TeamAuthNotifier>(context, listen: false).activeChannelId != chatNotification.firebaseId) {
+          showToast(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
+              chatNotification.teamId!);
+        }
       }
     });
 
@@ -175,9 +178,10 @@ class _HomePageState extends State<HomePage> {
 
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
-
-        await NotificationHandler(context)
-            .tryNavigateToMessage(chatNotification.teamId ?? 0, chatNotification.firebaseId ?? '');
+        if (Provider.of<TeamAuthNotifier>(context, listen: false).activeChannelId != chatNotification.firebaseId) {
+          await NotificationHandler(context)
+              .tryNavigateToMessage(chatNotification.teamId ?? 0, chatNotification.firebaseId ?? '');
+        }
       }
     });
   }
@@ -248,12 +252,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-
-    // fToast.showToast(
-    //   child: toast,
-    //   gravity: ToastGravity.TOP,
-    //   toastDuration: Duration(seconds: 2),
-    // );
 
     fToast.showToast(
         child: toast,
