@@ -265,18 +265,6 @@ class _TeamInfoState extends State<TeamInfo> {
     final ShortDynamicLink shortDynamicLink = await parameters.buildShortLink();
     final Uri shortUrl = shortDynamicLink.shortUrl;
 
-    inspect(shortDynamicLink.warnings);
-
-    // final ShortDynamicLink shortenedLink = await DynamicLinkParameters.shortenUrl(
-
-    //   Uri.parse(
-    //       'https://tagteammobile.page.link/?link=https://tagteammobile.page.link.com/?code=$inviteCode/&apn=com.eyro.tagteamprodibn=com.example.ios'),
-
-    //   DynamicLinkParametersOptions(shortDynamicLinkPathLength: ShortDynamicLinkPathLength.unguessable),
-    // );
-
-    // final Uri shortUrl = shortenedLink.shortUrl;
-
     return shortUrl.toString();
   }
 }

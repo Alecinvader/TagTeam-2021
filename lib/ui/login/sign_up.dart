@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info/package_info.dart';
+import 'package:tagteamprod/server/login/login_api.dart';
 import 'package:tagteamprod/ui/user/legal_document_viewer.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/user/user_api.dart';
@@ -24,6 +27,15 @@ class _SignUpState extends State<SignUp> {
   String pass = '';
   String confirmPass = '';
   String displayName = '';
+
+  RemoteConfig remoteConfig = RemoteConfig.instance;
+
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+  );
 
   final InputDecoration signInStyles = InputDecoration();
 
@@ -160,6 +172,25 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
+
+  Future<void> tryGetRemoteConfig() async {
+    try {
+      await remoteConfig.fetchAndActivate();
+      await _initPackageInfo();
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Could not fetch app version info")));
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
   Future signUp() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -170,6 +201,18 @@ class _SignUpState extends State<SignUp> {
     setState(() {
       _loading = true;
     });
+
+    await tryGetRemoteConfig();
+
+    if (remoteConfig.getString('minAppVersion') != _packageInfo.version) {
+      setState(() {
+        _loading = false;
+        _showSplashPage = false;
+      });
+      String appUpdateLink = remoteConfig.getString('appUpdateLink');
+      await LoginServices().showUpdateDialog(context, appUpdateLink);
+      return;
+    }
 
     try {
       UserCredential credential =

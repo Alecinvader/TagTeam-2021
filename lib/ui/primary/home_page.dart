@@ -42,9 +42,7 @@ class _HomePageState extends State<HomePage> {
     fToast.init(context);
     setupMessaging(context);
     initDynamicLinks();
-    FirebaseAuth.instance.authStateChanges().listen((firebaseUser) {
-      print('listened');
-    });
+    FirebaseAuth.instance.authStateChanges().listen((firebaseUser) {});
   }
 
   @override
@@ -154,6 +152,8 @@ class _HomePageState extends State<HomePage> {
     }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      print('got message');
+
       ChatNotification? chatNotification;
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
@@ -186,7 +186,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  showToast(String title, String body, String firebaseId, int teamId) {
+  void showToast(String title, String body, String firebaseId, int teamId) {
     Widget toast = GestureDetector(
       onVerticalDragEnd: (DragEndDetails details) {
         if (details.primaryVelocity!.abs() > 100) {
@@ -217,6 +217,9 @@ class _HomePageState extends State<HomePage> {
                         radius: 18,
                         url:
                             'https://images.unsplash.com/photo-1629934646118-bdcd5d2ea97e?ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwxN3x8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'),
+                    SizedBox(
+                      width: 16.0,
+                    ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
