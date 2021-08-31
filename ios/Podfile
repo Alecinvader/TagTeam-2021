@@ -10,7 +10,6 @@ project 'Runner', {
   'Release' => :release,
 }
 
-pod 'Firebase/Analytics'
 
 
 def flutter_root
