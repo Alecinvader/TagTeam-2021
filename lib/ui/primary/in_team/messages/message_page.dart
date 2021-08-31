@@ -12,6 +12,7 @@ import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/channels/channel_settings_page.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_message_list.dart';
 import '../../../../models/channel.dart';
 import '../../../../models/message.dart';
 import '../../../../server/errors/snackbar_error_handler.dart';
@@ -23,8 +24,9 @@ import 'message_image_confirmation.dart';
 
 class SendMesssagePage extends StatefulWidget {
   final Channel channel;
+  final bool popToTeam;
 
-  SendMesssagePage({Key? key, required this.channel}) : super(key: key);
+  SendMesssagePage({Key? key, required this.channel, this.popToTeam = false}) : super(key: key);
 
   @override
   _SendMesssagePageState createState() => _SendMesssagePageState();
@@ -94,10 +96,21 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
         if (_preferences != null) {
           await _preferences!.setString('${channel.id}', DateTime.now().toIso8601String());
         }
+        if (widget.popToTeam) {
+          Navigator.pop(context);
+          await Navigator.push(
+              context, MaterialPageRoute(builder: (context) => TeamMessageList(teamId: channel.teamId!)));
+        }
         return true;
       },
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.maybePop(context);
+              }),
           centerTitle: true,
           actions: [
             IconButton(
@@ -371,7 +384,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     } else if (messages.length == 1) {
       return true;
     } else if (index < messages.length - 2) {
-      if (index > 1 && !messages[index - 1].createdAt!.isSameDate(messages[index].createdAt!)) {
+      if (index > 0 && !messages[index + 1].createdAt!.isSameDate(messages[index].createdAt!)) {
         return true;
       }
     }

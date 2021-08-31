@@ -165,6 +165,8 @@ class _HomePageState extends State<HomePage> {
     });
 
     RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+    inspect(initialMessage);
     // await NotificationHandler(context, initialMessage).handleIncomingMessage();
     // print(initialMessage);
     // If the message also contains a data property with a "type" of "chat",

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/server/login/login_api.dart';
 import 'package:tagteamprod/ui/user/legal_document_viewer.dart';
 import '../../server/errors/snackbar_error_handler.dart';
@@ -241,6 +242,11 @@ class _SignUpState extends State<SignUp> {
         ));
         throw "Must accept terms";
       }
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('userkey', email);
+      await prefs.setString('username', pass);
 
       await Navigator.of(context)
           .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
