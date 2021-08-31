@@ -83,7 +83,7 @@ class _TeamBasicDetailsState extends State<TeamBasicDetails> {
 
     int count = 0;
     Navigator.popUntil(context, (route) {
-      return count++ == 3;
+      return count++ == 2;
     });
 
     await TeamApi().createTeam(

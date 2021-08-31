@@ -215,13 +215,6 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: Row(
                   children: [
-                    TagTeamCircleAvatar(
-                        radius: 18,
-                        url:
-                            'https://images.unsplash.com/photo-1629934646118-bdcd5d2ea97e?ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwxN3x8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60'),
-                    SizedBox(
-                      width: 16.0,
-                    ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

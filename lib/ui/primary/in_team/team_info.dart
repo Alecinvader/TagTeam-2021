@@ -160,6 +160,11 @@ class _TeamInfoState extends State<TeamInfo> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => TeamRequests(teamId: teamData.currentTeam!.teamId!)));
+
+                                    setState(() {
+                                      pendingRequestsFuture = TeamApi().allJoinRequests(
+                                          teamData.currentTeam!.teamId!, SnackbarErrorHandler(context));
+                                    });
                                   },
                                   leading: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -247,15 +252,6 @@ class _TeamInfoState extends State<TeamInfo> {
         minimumVersion: 1,
       ),
       iosParameters: IosParameters(bundleId: 'com.eyro.tagteammobile', appStoreId: '1581011730'),
-      // googleAnalyticsParameters: GoogleAnalyticsParameters(
-      //   campaign: 'example-promo',
-      //   medium: 'social',
-      //   source: 'orkut',
-      // ),
-      // itunesConnectAnalyticsParameters: ItunesConnectAnalyticsParameters(
-      //   providerToken: '123456',
-      //   campaignToken: 'example-promo',
-      // ),
       socialMetaTagParameters: SocialMetaTagParameters(
         title: 'Invite to join team',
         description: 'An owner of a team on TagTeam has invited you to join',

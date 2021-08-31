@@ -116,25 +116,26 @@ class _TeamMessageListState extends State<TeamMessageList> {
                     if (snapshot.hasData && _prefs != null) {
                       convertSnapshotIntoChannels(snapshot.data?.docs ?? []);
 
+                      if (channels.length == 0) {
+                        return Expanded(
+                          child: Center(
+                            child: TextButton.icon(
+                                onPressed: refresh,
+                                icon: Icon(
+                                  Icons.refresh,
+                                  color: Theme.of(context).accentColor,
+                                ),
+                                label: Text('Refresh',
+                                    style: TextStyle(
+                                      color: Theme.of(context).accentColor,
+                                    ))),
+                          ),
+                        );
+                      }
+
                       return Expanded(
                         child: RefreshIndicator(
-                          onRefresh: () async {
-                            await fetchChannels().then((value) {
-                              setState(() {
-                                sqlDataChannels = value;
-                                stream1 = FirebaseFirestore.instance
-                                    .collection('channels')
-                                    .where(FieldPath.documentId, whereIn: firebaseUniques)
-                                    .snapshots();
-                              });
-
-                              return value;
-                            });
-
-                            UserApi().getBlockedUsers(SnackbarErrorHandler(context, showSnackBar: true)).then((value) {
-                              Provider.of<TeamAuthNotifier>(context, listen: false).blockedUsers = value;
-                            });
-                          },
+                          onRefresh: refresh,
                           child: ListView.builder(
                             itemBuilder: (context, index) {
                               Channel currentChannel = channels[index];
@@ -163,7 +164,17 @@ class _TeamMessageListState extends State<TeamMessageList> {
                       );
                     } else {
                       return Expanded(
-                        child: Center(child: SizedBox()),
+                        child: Center(
+                            child: TextButton.icon(
+                                onPressed: refresh,
+                                icon: Icon(
+                                  Icons.refresh,
+                                  color: Theme.of(context).accentColor,
+                                ),
+                                label: Text('Refresh',
+                                    style: TextStyle(
+                                      color: Theme.of(context).accentColor,
+                                    )))),
                       );
                     }
                   }),
@@ -172,6 +183,24 @@ class _TeamMessageListState extends State<TeamMessageList> {
         ),
       ),
     );
+  }
+
+  Future<void> refresh() async {
+    await fetchChannels().then((value) {
+      setState(() {
+        sqlDataChannels = value;
+        stream1 = FirebaseFirestore.instance
+            .collection('channels')
+            .where(FieldPath.documentId, whereIn: firebaseUniques)
+            .snapshots();
+      });
+
+      return value;
+    });
+
+    UserApi().getBlockedUsers(SnackbarErrorHandler(context, showSnackBar: true)).then((value) {
+      Provider.of<TeamAuthNotifier>(context, listen: false).blockedUsers = value;
+    });
   }
 
   void convertSnapshotIntoChannels(List<QueryDocumentSnapshot> list) {
@@ -201,6 +230,8 @@ class _TeamMessageListState extends State<TeamMessageList> {
 
   Future<List<Channel>> fetchChannels() async {
     List<Channel> temp = [];
+
+    firebaseUniques = [];
 
     temp = await ChannelApi().getChannelsForTeam(
       widget.teamId,
