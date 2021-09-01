@@ -4,11 +4,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/channel.dart';
+import 'package:tagteamprod/models/chat_notification.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_circleavatar.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/core/tagteam_drawer.dart';
+import 'package:tagteamprod/ui/primary/in_team/messages/message_page.dart';
 import 'package:tagteamprod/ui/primary/search_team.dart';
+import 'package:tagteamprod/ui/utility/notifications/notification_handler.dart';
 import '../../models/tagteam.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/team/team_api.dart';
@@ -25,16 +32,17 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<List<TagTeam>> future;
 
+  late FToast fToast;
+
   @override
   void initState() {
     super.initState();
     future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
-    // future = Future.value([]);
+    fToast = FToast();
+    fToast.init(context);
     setupMessaging(context);
     initDynamicLinks();
-    FirebaseAuth.instance.authStateChanges().listen((firebaseUser) {
-      print('listened');
-    });
+    FirebaseAuth.instance.authStateChanges().listen((firebaseUser) {});
   }
 
   @override
@@ -116,7 +124,6 @@ class _HomePageState extends State<HomePage> {
         await showJoinDialog(inviteCode);
       }
     }, onError: (OnLinkErrorException e) async {
-      print('onLinkError');
       print(e.message);
     });
 
@@ -124,7 +131,6 @@ class _HomePageState extends State<HomePage> {
     final Uri? deepLink = data?.link;
 
     String inviteCode = '';
-
 
     if (deepLink.toString().contains('code')) {
       inviteCode = deepLink.toString().split('=')[1];
@@ -146,10 +152,21 @@ class _HomePageState extends State<HomePage> {
     }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      print('received message');
+      print('got message');
+
+      ChatNotification? chatNotification;
+      if (message.data['type'] == "chat") {
+        chatNotification = ChatNotification.fromJson(message.data);
+        if (Provider.of<TeamAuthNotifier>(context, listen: false).activeChannelId != chatNotification.firebaseId) {
+          showToast(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
+              chatNotification.teamId!);
+        }
+      }
     });
 
     RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+    inspect(initialMessage);
     // await NotificationHandler(context, initialMessage).handleIncomingMessage();
     // print(initialMessage);
     // If the message also contains a data property with a "type" of "chat",
@@ -159,10 +176,93 @@ class _HomePageState extends State<HomePage> {
     // Also handle any interaction when the app is in the background via a
     // Stream listener
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      print('hello');
+      ChatNotification? chatNotification;
 
-      // new NotificationHandler(context, initialMessage).handleIncomingMessage();
+      if (message.data['type'] == "chat") {
+        chatNotification = ChatNotification.fromJson(message.data);
+        if (Provider.of<TeamAuthNotifier>(context, listen: false).activeChannelId != chatNotification.firebaseId) {
+          await NotificationHandler(context)
+              .tryNavigateToMessage(chatNotification.teamId ?? 0, chatNotification.firebaseId ?? '');
+        }
+      }
     });
+  }
+
+  void showToast(String title, String body, String firebaseId, int teamId) {
+    Widget toast = GestureDetector(
+      onVerticalDragEnd: (DragEndDetails details) {
+        if (details.primaryVelocity!.abs() > 100) {
+          fToast.removeQueuedCustomToasts();
+        }
+      },
+      onTap: () async {
+        fToast.removeQueuedCustomToasts();
+
+        NotificationHandler(context).tryNavigateToMessage(teamId, firebaseId);
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Material(
+              borderRadius: BorderRadius.circular(8.0),
+              elevation: 8.0,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                  color: Color(0xFF293C4D),
+                ),
+                child: Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$title',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Wrap(
+                          children: [
+                            Text(
+                              "$body",
+                              maxLines: 2,
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              )),
+          Align(
+            alignment: Alignment.topRight,
+            child: Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).accentColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    fToast.showToast(
+        child: toast,
+        toastDuration: Duration(seconds: 2),
+        positionedToastBuilder: (context, child) {
+          return Positioned(
+            child: child,
+            top: 36.0,
+            left: 16.0,
+            right: 16.0,
+          );
+        });
+    // Custom Toast Position
   }
 
   Future<void> showJoinDialog(String inviteCode) async {

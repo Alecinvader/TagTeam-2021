@@ -6,6 +6,7 @@ import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/create_team/team_create_start.dart';
 import 'package:tagteamprod/ui/primary/search_team.dart';
 import 'package:tagteamprod/ui/user/account_info.dart';
+import 'package:tagteamprod/ui/utility/notifications/notification_handler.dart';
 import '../login/sign_in.dart';
 import '../primary/home_page.dart';
 
@@ -70,7 +71,7 @@ class MenuDrawer extends StatelessWidget {
                         title: Text('Create Team', style: TextStyle(fontSize: 16.0)),
                       ),
                       ListTile(
-                        onTap: () {
+                        onTap: () async {
                           Navigator.push(
                               context,
                               MaterialPageRoute(

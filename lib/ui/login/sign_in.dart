@@ -1,4 +1,6 @@
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/login/login_api.dart';
@@ -23,9 +25,24 @@ class _SignInState extends State<SignIn> {
   String _email = EnvConfig().user;
   String _key = EnvConfig().pass;
 
+  RemoteConfig remoteConfig = RemoteConfig.instance;
+
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+  );
+
   @override
   void initState() {
     super.initState();
+
+    remoteConfig.setDefaults(<String, dynamic>{'minAppVersion': _packageInfo.version, 'appUpdateLink': ''});
+    remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: Duration(seconds: 10),
+      minimumFetchInterval: Duration(minutes: 30),
+    ));
 
     SharedPreferences.getInstance().then((SharedPreferences value) async {
       if (value.containsKey('userkey')) {
@@ -117,7 +134,7 @@ class _SignInState extends State<SignIn> {
                                         context, MaterialPageRoute(builder: (context) => SignUp(accountSetup: false)))
                                     : null,
                                 child: Text(
-                                  'New user? Register here.',
+                                  'New to TagTeam? Register here.',
                                   style: TextStyle(color: Theme.of(context).accentColor),
                                 ))
                           ],
@@ -131,10 +148,42 @@ class _SignInState extends State<SignIn> {
     );
   }
 
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
+
+  Future<void> tryGetRemoteConfig() async {
+    try {
+      await remoteConfig.fetchAndActivate();
+      await _initPackageInfo();
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Could not fetch app version info")));
+      setState(() {
+        _loading = false;
+        _showSplashPage = false;
+      });
+    }
+  }
+
   Future signIn() async {
     setState(() {
       _loading = true;
     });
+
+    await tryGetRemoteConfig();
+
+    if (remoteConfig.getString('minAppVersion') != _packageInfo.version) {
+      setState(() {
+        _loading = false;
+        _showSplashPage = false;
+      });
+      String appUpdateLink = remoteConfig.getString('appUpdateLink');
+      await LoginServices().showUpdateDialog(context, appUpdateLink);
+      return;
+    }
 
     try {
       await LoginServices().login(_email, _key, SnackbarErrorHandler(context));
@@ -152,7 +201,7 @@ class _SignInState extends State<SignIn> {
     await prefs.setString('username', _email);
 
     await Navigator.of(context)
-          .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+        .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
 
     setState(() {
       _loading = false;

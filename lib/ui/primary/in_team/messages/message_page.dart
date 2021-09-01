@@ -12,6 +12,7 @@ import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/channels/channel_settings_page.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_message_list.dart';
 import '../../../../models/channel.dart';
 import '../../../../models/message.dart';
 import '../../../../server/errors/snackbar_error_handler.dart';
@@ -23,8 +24,9 @@ import 'message_image_confirmation.dart';
 
 class SendMesssagePage extends StatefulWidget {
   final Channel channel;
+  final bool popToTeam;
 
-  SendMesssagePage({Key? key, required this.channel}) : super(key: key);
+  SendMesssagePage({Key? key, required this.channel, this.popToTeam = false}) : super(key: key);
 
   @override
   _SendMesssagePageState createState() => _SendMesssagePageState();
@@ -36,6 +38,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   late Channel channel;
 
   final TextEditingController _textFieldController = new TextEditingController();
+
+  int _pendingMessageId = 0;
 
   // Messages
   List<Message> messages = [];
@@ -71,7 +75,10 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
             SnackbarErrorHandler(context, onErrorHandler: () {
               Navigator.pop(context);
             }))
-        .then((value) => fbauth.FirebaseAuth.instance.currentUser!.getIdToken(true));
+        .then((value) {
+      fbauth.FirebaseAuth.instance.currentUser!.getIdToken(true);
+      Provider.of<TeamAuthNotifier>(context, listen: false).setActiveChannel(widget.channel.firebaseId!);
+    });
 
     // Grab all the snapshots
     messageStream = FirebaseFirestore.instance
@@ -85,13 +92,25 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        Provider.of<TeamAuthNotifier>(context, listen: false).setActiveChannel('');
         if (_preferences != null) {
           await _preferences!.setString('${channel.id}', DateTime.now().toIso8601String());
+        }
+        if (widget.popToTeam) {
+          Navigator.pop(context);
+          await Navigator.push(
+              context, MaterialPageRoute(builder: (context) => TeamMessageList(teamId: channel.teamId!)));
         }
         return true;
       },
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.maybePop(context);
+              }),
           centerTitle: true,
           actions: [
             IconButton(
@@ -117,7 +136,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
             stream: messageStream,
             builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.hasData) {
-                convertSnapshotsIntoMessages(snapshot.data?.docs ?? []);
+                if (!(snapshot.data!.docs.length < messages.length))
+                  convertSnapshotsIntoMessages(snapshot.data?.docs ?? []);
               }
 
               if (snapshot.hasError) {
@@ -137,6 +157,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                               key: Key('$index'),
                               channelId: widget.channel.firebaseId!,
                               isInGroup: getIsInGroup(index),
+                              showTime: getIsWithinTimeFrame(index),
                               showsMessageDate: getIsMessageFirstOfDay(index),
                               isFirstOfGroup: getIsMessageFirstInGroup(index),
                               isLastOfGroup: getIsMessageLastInGroup(index),
@@ -176,33 +197,17 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                                 ),
                               ),
                               channel.allowImageSending == true
-                                  ? IconButton(onPressed: selectAndSendImage, icon: Icon(Icons.image_outlined))
+                                  ? IconButton(
+                                      onPressed: () async {
+                                        await sendMessage(true);
+                                      },
+                                      icon: Icon(Icons.image_outlined))
                                   : SizedBox(),
                               TextButton(
                                   onPressed: () async {
                                     if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
                                       _textFieldController.clear();
-
-                                      await FirebaseFirestore.instance
-                                          .collection('channels')
-                                          .doc(widget.channel.firebaseId)
-                                          .collection('messages')
-                                          .add(Message(
-                                                  message: _pendingMessage!.trim(),
-                                                  messageType: MessageType.text,
-                                                  createdAt: DateTime.now(),
-                                                  senderDisplayName: "Bobby Jones",
-                                                  senderId: fbauth.FirebaseAuth.instance.currentUser!.uid,
-                                                  senderPhoto: '',
-                                                  channelId: widget.channel.id)
-                                              .toCompleteJson());
-
-                                      // await ChannelApi().sendMessage(
-                                      //     widget.channel.id!,
-                                      //     widget.channel.teamId!,
-                                      //     Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
-                                      //     SnackbarErrorHandler(context,
-                                      //         overrideErrorMessage: 'Failed to send message'));
+                                      await sendMessage(false);
 
                                       setState(() {
                                         _pendingMessage = '';
@@ -228,18 +233,34 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     );
   }
 
-  Future selectAndSendImage() async {
-    final String imagePath = await StorageUtility().getImagePath(SnackbarErrorHandler(context));
+  Future<void> sendMessage(bool isImage) async {
+    if (isImage) {
+      final String imagePath = await StorageUtility().getImagePath(
+          SnackbarErrorHandler(context, overrideErrorMessage: 'Access denied, please grant access in your settings.'));
 
-    if (imagePath.isNotEmpty) {
-      await showDialog(
-          context: context,
-          builder: (context2) => ImageDialogConfirmation(
-              imagePath: imagePath,
-              onChoice: (bool value) async {
-                if (value) {
-                  if (imagePath.isNotEmpty) {
-                    String endOfMessage = imagePath.split('/').last;
+      if (imagePath.isNotEmpty) {
+        await showDialog(
+            context: context,
+            builder: (context2) => ImageDialogConfirmation(
+                imagePath: imagePath,
+                onChoice: (bool value) async {
+                  if (value) {
+                    String tempIdLiteral = '${(_pendingMessageId + 1)}';
+
+                    setState(() {
+                      messages.insert(
+                          0,
+                          Message(
+                              messageId: tempIdLiteral,
+                              createdAt: DateTime.now(),
+                              message: 'Sent an image',
+                              isFileImage: true,
+                              imagePath: imagePath,
+                              senderPhoto: '',
+                              senderDisplayName: "User's name",
+                              channelId: widget.channel.id,
+                              senderId: fbauth.FirebaseAuth.instance.currentUser!.uid));
+                    });
 
                     String imageRefAfterUpload = await StorageUtility()
                         .uploadFile(imagePath, 'channels/${widget.channel.firebaseId}', SnackbarErrorHandler(context));
@@ -247,25 +268,96 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                     String? downloadLink =
                         await StorageUtility().getImageURL(imageRefAfterUpload, SnackbarErrorHandler(context));
 
-                    await FirebaseFirestore.instance
-                        .collection('channels')
-                        .doc(widget.channel.firebaseId)
-                        .collection('messages')
-                        .add(Message(
-                                imagePath: downloadLink,
-                                message: "Sent an image",
-                                messageType: MessageType.text,
-                                createdAt: DateTime.now(),
-                                senderDisplayName: "Username",
-                                senderId: fbauth.FirebaseAuth.instance.currentUser!.uid,
-                                senderPhoto: '',
-                                channelId: widget.channel.id)
-                            .toCompleteJson());
+                    await ChannelApi().sendMessage(
+                        widget.channel.id!,
+                        widget.channel.teamId!,
+                        Message(imagePath: downloadLink, messageType: MessageType.image),
+                        SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message',
+                            onErrorHandler: () {
+                          setState(() {
+                            messages.removeWhere((element) => element.messageId == tempIdLiteral);
+                          });
+                        }));
                   }
-                }
-              }));
+                }));
+      }
+    } else {
+      String tempIdLiteral = '${(_pendingMessageId + 1)}';
+
+      setState(() {
+        messages.insert(
+            0,
+            Message(
+                messageId: tempIdLiteral,
+                createdAt: DateTime.now(),
+                message: _pendingMessage!.trim(),
+                senderPhoto: '',
+                senderDisplayName: "User's name",
+                channelId: widget.channel.id,
+                senderId: fbauth.FirebaseAuth.instance.currentUser!.uid));
+      });
+
+      await ChannelApi().sendMessage(
+          widget.channel.id!,
+          widget.channel.teamId!,
+          Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
+          SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message', onErrorHandler: () {
+            setState(() {
+              messages.removeWhere((element) => element.messageId == tempIdLiteral);
+            });
+          }));
     }
   }
+
+  // Future selectAndSendImage() async {
+  //   final String imagePath = await StorageUtility().getImagePath(SnackbarErrorHandler(context));
+
+  //   if (imagePath.isNotEmpty) {
+  //     await showDialog(
+  //         context: context,
+  //         builder: (context2) => ImageDialogConfirmation(
+  //             imagePath: imagePath,
+  //             onChoice: (bool value) async {
+  //               if (value) {
+  //                 if (imagePath.isNotEmpty) {
+  //                   String endOfMessage = imagePath.split('/').last;
+
+  //                   String imageRefAfterUpload = await StorageUtility()
+  //                       .uploadFile(imagePath, 'channels/${widget.channel.firebaseId}', SnackbarErrorHandler(context));
+
+  //                   String? downloadLink =
+  //                       await StorageUtility().getImageURL(imageRefAfterUpload, SnackbarErrorHandler(context));
+
+  //                   String tempIdLiteral = '${(_pendingMessageId + 1)}';
+
+  //                   setState(() {
+  //                     messages.insert(
+  //                         0,
+  //                         Message(
+  //                             messageId: tempIdLiteral,
+  //                             createdAt: DateTime.now(),
+  //                             message: _pendingMessage!.trim(),
+  //                             senderPhoto: '',
+  //                             senderDisplayName: "User's name",
+  //                             channelId: widget.channel.id,
+  //                             senderId: fbauth.FirebaseAuth.instance.currentUser!.uid));
+  //                   });
+
+  //                   await ChannelApi().sendMessage(
+  //                       widget.channel.id!,
+  //                       widget.channel.teamId!,
+  //                       Message(message: _pendingMessage!.trim(), messageType: MessageType.text),
+  //                       SnackbarErrorHandler(context, overrideErrorMessage: 'Failed to send message',
+  //                           onErrorHandler: () {
+  //                         setState(() {
+  //                           messages.removeWhere((element) => element.messageId == tempIdLiteral);
+  //                         });
+  //                       }));
+  //                 }
+  //               }
+  //             }));
+  //   }
+  // }
 
   void convertSnapshotsIntoMessages(List<QueryDocumentSnapshot> list) {
     List<Message> tempMessages = [];
@@ -293,7 +385,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     } else if (messages.length == 1) {
       return true;
     } else if (index < messages.length - 2) {
-      if (index > 1 && !messages[index - 1].createdAt!.isSameDate(messages[index].createdAt!)) {
+      if (index > 0 && !messages[index + 1].createdAt!.isSameDate(messages[index].createdAt!)) {
         return true;
       }
     }
@@ -342,6 +434,22 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     } else if (index == 0) {
       return true;
     } else if (messages[index - 1].senderId != messages[index].senderId) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Show time on first message and if is in group compare to the last message in the group and what time that ended at
+
+  bool getIsWithinTimeFrame(int index) {
+    if (getIsInGroup(index)) {
+      if (getIsMessageFirstInGroup(index)) {
+        return true;
+      } else if (getIsMessageLastInGroup(index)) {
+        return true;
+      }
+    } else {
       return true;
     }
 

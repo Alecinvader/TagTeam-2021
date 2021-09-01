@@ -160,6 +160,11 @@ class _TeamInfoState extends State<TeamInfo> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) => TeamRequests(teamId: teamData.currentTeam!.teamId!)));
+
+                                    setState(() {
+                                      pendingRequestsFuture = TeamApi().allJoinRequests(
+                                          teamData.currentTeam!.teamId!, SnackbarErrorHandler(context));
+                                    });
                                   },
                                   leading: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -222,7 +227,8 @@ class _TeamInfoState extends State<TeamInfo> {
   }
 
   Future<void> selectAndUploadImage(int teamId, BuildContext context) async {
-    final String imagePath = await StorageUtility().getImagePath(SnackbarErrorHandler(context));
+    final String imagePath = await StorageUtility().getImagePath(
+        SnackbarErrorHandler(context, overrideErrorMessage: 'Access denied, please grant access in your settings.'));
 
     if (imagePath.isNotEmpty) {
       String ref = await StorageUtility().uploadFile(imagePath, 'teams/coverphoto', SnackbarErrorHandler(context));
@@ -247,15 +253,6 @@ class _TeamInfoState extends State<TeamInfo> {
         minimumVersion: 1,
       ),
       iosParameters: IosParameters(bundleId: 'com.eyro.tagteammobile', appStoreId: '1581011730'),
-      // googleAnalyticsParameters: GoogleAnalyticsParameters(
-      //   campaign: 'example-promo',
-      //   medium: 'social',
-      //   source: 'orkut',
-      // ),
-      // itunesConnectAnalyticsParameters: ItunesConnectAnalyticsParameters(
-      //   providerToken: '123456',
-      //   campaignToken: 'example-promo',
-      // ),
       socialMetaTagParameters: SocialMetaTagParameters(
         title: 'Invite to join team',
         description: 'An owner of a team on TagTeam has invited you to join',
@@ -264,18 +261,6 @@ class _TeamInfoState extends State<TeamInfo> {
 
     final ShortDynamicLink shortDynamicLink = await parameters.buildShortLink();
     final Uri shortUrl = shortDynamicLink.shortUrl;
-
-    inspect(shortDynamicLink.warnings);
-
-    // final ShortDynamicLink shortenedLink = await DynamicLinkParameters.shortenUrl(
-
-    //   Uri.parse(
-    //       'https://tagteammobile.page.link/?link=https://tagteammobile.page.link.com/?code=$inviteCode/&apn=com.eyro.tagteamprodibn=com.example.ios'),
-
-    //   DynamicLinkParametersOptions(shortDynamicLinkPathLength: ShortDynamicLinkPathLength.unguessable),
-    // );
-
-    // final Uri shortUrl = shortenedLink.shortUrl;
 
     return shortUrl.toString();
   }
