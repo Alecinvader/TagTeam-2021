@@ -227,7 +227,8 @@ class _TeamInfoState extends State<TeamInfo> {
   }
 
   Future<void> selectAndUploadImage(int teamId, BuildContext context) async {
-    final String imagePath = await StorageUtility().getImagePath(SnackbarErrorHandler(context));
+    final String imagePath = await StorageUtility().getImagePath(
+        SnackbarErrorHandler(context, overrideErrorMessage: 'Access denied, please grant access in your settings.'));
 
     if (imagePath.isNotEmpty) {
       String ref = await StorageUtility().uploadFile(imagePath, 'teams/coverphoto', SnackbarErrorHandler(context));

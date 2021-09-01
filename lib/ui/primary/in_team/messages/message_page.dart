@@ -235,7 +235,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
 
   Future<void> sendMessage(bool isImage) async {
     if (isImage) {
-      final String imagePath = await StorageUtility().getImagePath(SnackbarErrorHandler(context));
+      final String imagePath = await StorageUtility().getImagePath(
+          SnackbarErrorHandler(context, overrideErrorMessage: 'Access denied, please grant access in your settings.'));
 
       if (imagePath.isNotEmpty) {
         await showDialog(
