@@ -253,7 +253,7 @@ class _HomePageState extends State<HomePage> {
 
     fToast.showToast(
         child: toast,
-        toastDuration: Duration(seconds: 60),
+        toastDuration: Duration(seconds: 2),
         positionedToastBuilder: (context, child) {
           return Positioned(
             child: child,
