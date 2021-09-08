@@ -27,39 +27,49 @@ class _GenerateQRCodeState extends State<GenerateQRCode> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: 84.0,
-              ),
-              Text(
-                widget.team.name ?? '',
-                style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.w600),
+                height: 54.0,
               ),
               SizedBox(
                 height: 16.0,
               ),
               Center(
-                child: QrImage(
-                    foregroundColor: Theme.of(context).accentColor,
-                    data: widget.deepLink,
-                    version: QrVersions.auto,
-                    size: 280,
-                    gapless: false,
-                    errorStateBuilder: (cxt, err) {
-                      return Container(
-                        child: Center(
-                          child: Text(
-                            "Uh oh! Something went wrong...",
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      );
-                    }),
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  elevation: 8.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: QrImage(
+                        // foregroundColor: Theme.of(context).accentColor,
+                        data: widget.deepLink,
+                        version: QrVersions.auto,
+                        size: 260,
+                        gapless: true,
+                        errorStateBuilder: (cxt, err) {
+                          return Container(
+                            child: Center(
+                              child: Text(
+                                "Uh oh! Something went wrong...",
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          );
+                        }),
+                  ),
+                ),
               ),
               SizedBox(
                 height: 16.0,
               ),
               Text(
-                'Scan to join',
-                style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.w600),
+                widget.team.name ?? '',
+                style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(
+                height: 16.0,
               ),
             ],
           ),
