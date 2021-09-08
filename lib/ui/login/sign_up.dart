@@ -245,8 +245,8 @@ class _SignUpState extends State<SignUp> {
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      await prefs.setString('userkey', email);
-      await prefs.setString('username', pass);
+      await prefs.setString('userkey', pass);
+      await prefs.setString('username', email);
 
       await Navigator.of(context)
           .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
