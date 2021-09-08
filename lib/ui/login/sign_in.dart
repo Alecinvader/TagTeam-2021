@@ -41,7 +41,7 @@ class _SignInState extends State<SignIn> {
     remoteConfig.setDefaults(<String, dynamic>{'minAppVersion': _packageInfo.version, 'appUpdateLink': ''});
     remoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: Duration(seconds: 10),
-      minimumFetchInterval: Duration(minutes: 30),
+      minimumFetchInterval: Duration(minutes: 1),
     ));
 
     SharedPreferences.getInstance().then((SharedPreferences value) async {
