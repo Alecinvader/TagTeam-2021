@@ -180,7 +180,7 @@ class _SignUpState extends State<SignUp> {
     });
   }
 
-  Future<void> tryGetRemoteConfig() async {
+  Future<String?> tryGetRemoteConfig() async {
     try {
       await remoteConfig.fetchAndActivate();
       await _initPackageInfo();
@@ -189,6 +189,7 @@ class _SignUpState extends State<SignUp> {
       setState(() {
         _loading = false;
       });
+      return "Could not fetch remote config";
     }
   }
 
@@ -203,16 +204,15 @@ class _SignUpState extends State<SignUp> {
       _loading = true;
     });
 
-    await tryGetRemoteConfig();
-
-    if (remoteConfig.getString('minAppVersion') != _packageInfo.version) {
+    String? remoteConfigError = await tryGetRemoteConfig();
+    if (remoteConfigError != null) return remoteConfigError;
+    String? appVersionError = await LoginServices().checkAppVersion(remoteConfig.getString('minAppVersion'),
+        _packageInfo.version, remoteConfig.getString('appUpdateLink'), context);
+    if (appVersionError != null) {
       setState(() {
         _loading = false;
-        _showSplashPage = false;
       });
-      String appUpdateLink = remoteConfig.getString('appUpdateLink');
-      await LoginServices().showUpdateDialog(context, appUpdateLink);
-      return;
+      return appVersionError;
     }
 
     try {
