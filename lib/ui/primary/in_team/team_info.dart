@@ -12,6 +12,7 @@ import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/server/team/team_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_circleavatar.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
+import 'package:tagteamprod/ui/primary/in_team/qr_code/generate_qr_code.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_active_users.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_requests.dart';
 import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
@@ -145,6 +146,35 @@ class _TeamInfoState extends State<TeamInfo> {
                                   'SHARE',
                                   style: TextStyle(color: Theme.of(context).accentColor),
                                 )),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              border: Border(top: BorderSide(color: Colors.black38, width: .5))),
+                          child: ListTile(
+                            onTap: () async {
+                              String? deepLink = await generateInvitLink(teamData.currentTeam!.inviteCode!);
+                              if (deepLink != null) {
+                                await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => GenerateQRCode(
+                                              team: teamData.currentTeam!,
+                                              deepLink: deepLink,
+                                            )));
+                              }
+                            },
+                            title: Text(
+                              'QR Code',
+                              style: TextStyle(),
+                              overflow: TextOverflow.visible,
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.white,
+                              size: 15,
+                            ),
                           ),
                         ),
                         Padding(
