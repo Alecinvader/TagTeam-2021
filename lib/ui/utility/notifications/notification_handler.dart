@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/channel.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
@@ -31,44 +32,55 @@ class NotificationHandler {
       //     .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
 
       // Get all the channels and then get the one where it matches
-      channels = await ChannelApi().getChannelsForTeam(teamId, SnackbarErrorHandler(context));
-
-      Channel? currentChannel;
-      channels.forEach((element) {
-        if (element.firebaseId == firebaseId) {
-          currentChannel = element;
-        }
-      });
 
       // Do this if the current locally saved team is already active and check it against claims
-      if (currentTeam != null && (currentTeam.teamId == teamId) && currentChannel != null) {
+      if (currentTeam != null && (currentTeam.teamId == teamId)) {
+        Get.to(() => Scaffold(
+              body: SplashPage(),
+            ));
+
         IdTokenResult result = await FirebaseAuth.instance.currentUser!.getIdTokenResult();
 
+        channels = await ChannelApi().getChannelsForTeam(teamId, SnackbarErrorHandler(context));
+
+        Channel? currentChannel;
+        channels.forEach((element) {
+          if (element.firebaseId == firebaseId) {
+            currentChannel = element;
+          }
+        });
+
         if (result.claims!['team'] == currentTeam.teamId) {
-          await Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SendMesssagePage(channel: currentChannel!)));
+          await Get.to(() => SendMesssagePage(channel: currentChannel!));
         }
         // Otherwise do the typical of getting all the teams and matching it up while refreshing the token to get new claims
       } else {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Scaffold(
-                      body: SplashPage(
-                        bottomWidget: Text("Changing teams..."),
-                      ),
-                    )));
+        Get.to(() => Scaffold(
+              body: SplashPage(
+                bottomWidget: Text("Changing teams..."),
+              ),
+            ));
 
         teams = await TeamApi().getAllTeams(SnackbarErrorHandler(context));
         if (teams.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Team does not exist")));
+          Navigator.pop(context);
         }
         teams.forEach((element) {
           if (element.teamId == teamId) {
             currentTeam = element;
           }
         });
-        if (currentTeam != null && currentChannel != null) {
+        if (currentTeam != null) {
+          channels = await ChannelApi().getChannelsForTeam(teamId, SnackbarErrorHandler(context));
+
+          Channel? currentChannel;
+          channels.forEach((element) {
+            if (element.firebaseId == firebaseId) {
+              currentChannel = element;
+            }
+          });
+
           final ServerResponse role = await TeamApi().setActiveTeam(teamId, SnackbarErrorHandler(context));
 
           await FirebaseAuth.instance.currentUser!.getIdToken(true);
@@ -85,8 +97,9 @@ class NotificationHandler {
         }
       }
     } catch (error) {
-      await Navigator.of(context)
-          .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+      // await Navigator.of(context)
+      //     .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+      throw error;
     }
   }
 

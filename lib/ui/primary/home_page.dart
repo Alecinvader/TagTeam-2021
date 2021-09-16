@@ -4,7 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/channel.dart';
 import 'package:tagteamprod/models/chat_notification.dart';
@@ -152,12 +154,11 @@ class _HomePageState extends State<HomePage> {
     }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      print('got message');
-
       ChatNotification? chatNotification;
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
-        if (Provider.of<TeamAuthNotifier>(context, listen: false).activeChannelId != chatNotification.firebaseId) {
+        if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
+            chatNotification.firebaseId) {
           showToast(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
               chatNotification.teamId!);
         }
@@ -166,7 +167,6 @@ class _HomePageState extends State<HomePage> {
 
     RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
 
-    inspect(initialMessage);
     // await NotificationHandler(context, initialMessage).handleIncomingMessage();
     // print(initialMessage);
     // If the message also contains a data property with a "type" of "chat",
@@ -189,79 +189,90 @@ class _HomePageState extends State<HomePage> {
   }
 
   void showToast(String title, String body, String firebaseId, int teamId) {
-    Widget toast = GestureDetector(
-      onVerticalDragEnd: (DragEndDetails details) {
-        if (details.primaryVelocity!.abs() > 100) {
-          fToast.removeQueuedCustomToasts();
-        }
-      },
-      onTap: () async {
-        fToast.removeQueuedCustomToasts();
+    BuildContext context = Get.context ?? this.context;
 
-        NotificationHandler(context).tryNavigateToMessage(teamId, firebaseId);
-      },
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Material(
-              borderRadius: BorderRadius.circular(8.0),
-              elevation: 8.0,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: Color(0xFF293C4D),
-                ),
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '$title',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        Wrap(
-                          children: [
-                            Text(
-                              "$body",
-                              maxLines: 2,
-                              style: TextStyle(color: Colors.white70),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              )),
-          Align(
-            alignment: Alignment.topRight,
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context).accentColor,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    Get.snackbar(title, body,
+        backgroundColor: Color(0xFF293C4D),
+        messageText: Text(
+          body,
+          maxLines: 2,
+        ), onTap: (object) {
+      NotificationHandler(context).tryNavigateToMessage(teamId, firebaseId);
+    });
 
-    fToast.showToast(
-        child: toast,
-        toastDuration: Duration(seconds: 2),
-        positionedToastBuilder: (context, child) {
-          return Positioned(
-            child: child,
-            top: 36.0,
-            left: 16.0,
-            right: 16.0,
-          );
-        });
+    // Widget toast = GestureDetector(
+    //   onVerticalDragEnd: (DragEndDetails details) {
+    //     if (details.primaryVelocity!.abs() > 100) {
+    //       fToast.removeQueuedCustomToasts();
+    //     }
+    //   },
+    //   onTap: () async {
+    //     fToast.removeQueuedCustomToasts();
+
+    //     NotificationHandler(context).tryNavigateToMessage(teamId, firebaseId);
+    //   },
+    //   child: Stack(
+    //     clipBehavior: Clip.none,
+    //     children: [
+    //       Material(
+    //           borderRadius: BorderRadius.circular(8.0),
+    //           elevation: 8.0,
+    //           child: Container(
+    //             width: double.infinity,
+    //             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+    //             decoration: BoxDecoration(
+    //               borderRadius: BorderRadius.circular(8.0),
+    //               color: Color(0xFF293C4D),
+    //             ),
+    //             child: Row(
+    //               children: [
+    //                 Column(
+    //                   crossAxisAlignment: CrossAxisAlignment.start,
+    //                   children: [
+    //                     Text(
+    //                       '$title',
+    //                       style: TextStyle(color: Colors.white),
+    //                     ),
+    //                     Wrap(
+    //                       children: [
+    //                         Text(
+    //                           "$body",
+    //                           maxLines: 2,
+    //                           style: TextStyle(color: Colors.white70),
+    //                         ),
+    //                       ],
+    //                     ),
+    //                   ],
+    //                 ),
+    //               ],
+    //             ),
+    //           )),
+    //       Align(
+    //         alignment: Alignment.topRight,
+    //         child: Container(
+    //           width: 10,
+    //           height: 10,
+    //           decoration: BoxDecoration(
+    //             shape: BoxShape.circle,
+    //             color: Theme.of(context).accentColor,
+    //           ),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+
+    // fToast.showToast(
+    //     child: toast,
+    //     toastDuration: Duration(seconds: 2),
+    //     positionedToastBuilder: (context, child) {
+    //       return Positioned(
+    //         child: child,
+    //         top: 36.0,
+    //         left: 16.0,
+    //         right: 16.0,
+    //       );
+    //     });
     // Custom Toast Position
   }
 
@@ -270,7 +281,7 @@ class _HomePageState extends State<HomePage> {
         .searchByInviteCode(inviteCode, SnackbarErrorHandler(context, overrideErrorMessage: 'Team no longer exists'));
 
     await showDialog(
-        context: context,
+        context: Get.context ?? context,
         builder: (context2) {
           return SimpleDialog(
             backgroundColor: kLightBackgroundColor,

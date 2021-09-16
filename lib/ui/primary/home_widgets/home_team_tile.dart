@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/responses/server_response.dart';
+import 'package:tagteamprod/ui/login/splash_page.dart';
 import '../../../models/tagteam.dart';
 import '../../../server/errors/snackbar_error_handler.dart';
 import '../../../server/team/team_api.dart';
@@ -38,6 +39,8 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
       child: InkWell(
         onTap: _isLoading == false
             ? () async {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Scaffold(body: SplashPage())));
+
                 setState(() {
                   _isLoading = true;
                 });
@@ -48,13 +51,14 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
                       setState(() {
                         _isLoading = false;
                       });
+                      Navigator.pop(context);
                     }, overrideErrorMessage: '${team.name} is not available'));
 
                 await FirebaseAuth.instance.currentUser!.getIdToken(true);
 
                 Provider.of<TeamAuthNotifier>(context, listen: false).setActiveTeam(team, role.message!);
 
-                await Navigator.push(
+                await Navigator.pushReplacement(
                     context, MaterialPageRoute(builder: (context) => TeamMessageList(teamId: team.teamId!)));
 
                 setState(() {

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 // Import the firebase_core plugin
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:tagteamprod/config.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
@@ -14,7 +15,7 @@ import 'package:tagteamprod/ui/login/sign_in.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(App());
-} 
+}
 
 class App extends StatefulWidget {
   @override
@@ -56,7 +57,7 @@ class _AppState extends State<App> {
 
           return ChangeNotifierProvider(
             create: (BuildContext context) => TeamAuthNotifier(),
-            child: MaterialApp(
+            child: GetMaterialApp(
               theme: ThemeData(
                 iconTheme: IconThemeData(color: Colors.white),
                 unselectedWidgetColor: Colors.white60,

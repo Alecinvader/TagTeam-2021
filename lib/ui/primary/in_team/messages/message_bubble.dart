@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
@@ -205,7 +206,12 @@ class MessageBubble extends StatelessWidget {
 
                                 if (choice == true) {
                                   await ChannelApi().reportUserMessage(message, SnackbarErrorHandler(context));
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User reported')));
+                                  Get.snackbar('Bruh moment', 'dafdsaf');
+                                  // Get.showSnackbar(GetBar(
+                                  //   title: 'Ok',
+                                  //   message: 'Failing moment',
+                                  // ));
+                                  // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User reported')));
                                 }
                               },
                               child: Padding(

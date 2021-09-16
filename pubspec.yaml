@@ -25,6 +25,7 @@ dependencies:
   path: ^1.8.0
   http: ^0.13.3
   image_picker: ^0.8.3
+  get: ^4.3.8
   flutter_linkify: ^5.0.2
   url_launcher: ^6.0.9
   image_gallery_saver: ^1.6.9
