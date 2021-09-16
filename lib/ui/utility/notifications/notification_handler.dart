@@ -72,6 +72,14 @@ class NotificationHandler {
           }
         });
         if (currentTeam != null) {
+          
+
+          final ServerResponse role = await TeamApi().setActiveTeam(teamId, SnackbarErrorHandler(context));
+
+          
+
+          await FirebaseAuth.instance.currentUser!.getIdToken(true);
+
           channels = await ChannelApi().getChannelsForTeam(teamId, SnackbarErrorHandler(context));
 
           Channel? currentChannel;
@@ -80,10 +88,6 @@ class NotificationHandler {
               currentChannel = element;
             }
           });
-
-          final ServerResponse role = await TeamApi().setActiveTeam(teamId, SnackbarErrorHandler(context));
-
-          await FirebaseAuth.instance.currentUser!.getIdToken(true);
 
           Provider.of<TeamAuthNotifier>(context, listen: false).setActiveTeam(currentTeam!, role.message!);
 
