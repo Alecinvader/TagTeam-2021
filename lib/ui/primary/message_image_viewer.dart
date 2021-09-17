@@ -51,7 +51,7 @@ class _ImageViewerState extends State<ImageViewer> {
             children: [
               Expanded(
                 child: InteractiveViewer(
-                  panEnabled: false, // Set it to false
+                  panEnabled: true, // Set it to false
                   boundaryMargin: EdgeInsets.all(50),
                   minScale: 0.5,
                   maxScale: 2,

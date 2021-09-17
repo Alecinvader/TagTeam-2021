@@ -44,6 +44,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   // Messages
   List<Message> messages = [];
   String? _pendingMessage;
+  ScrollController _scrollController = new ScrollController();
 
   // Local Storage
   SharedPreferences? _preferences;
@@ -149,8 +150,9 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                 child: Column(
                   children: [
                     Expanded(
-                      child: CustomScrollView(reverse: true, slivers: [
+                      child: CustomScrollView(reverse: true, controller: _scrollController,slivers: [
                         SliverList(
+                          
                             delegate: SliverChildBuilderDelegate((context, index) {
                           return MessageBubble(
                               key: Key('$index'),
@@ -183,6 +185,9 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                             children: [
                               Expanded(
                                 child: TextField(
+                                  onTap: () {
+                                    _scrollController.animateTo(_scrollController.position.minScrollExtent, duration: Duration(milliseconds: 200), curve: Curves.easeInCirc);
+                                  },
                                   minLines: 1,
                                   maxLines: 6,
                                   controller: _textFieldController,

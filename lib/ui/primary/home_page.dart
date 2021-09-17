@@ -1,28 +1,24 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:tagteamprod/models/channel.dart';
 import 'package:tagteamprod/models/chat_notification.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_circleavatar.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/core/tagteam_drawer.dart';
-import 'package:tagteamprod/ui/primary/in_team/messages/message_page.dart';
 import 'package:tagteamprod/ui/primary/search_team.dart';
 import 'package:tagteamprod/ui/utility/notifications/notification_handler.dart';
+
 import '../../models/tagteam.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/team/team_api.dart';
-import 'home_widgets/home_team_tile.dart';
 import '../utility/core/better_future_builder.dart';
+import 'home_widgets/home_team_tile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
