@@ -206,12 +206,9 @@ class MessageBubble extends StatelessWidget {
 
                                 if (choice == true) {
                                   await ChannelApi().reportUserMessage(message, SnackbarErrorHandler(context));
-                                  Get.snackbar('Bruh moment', 'dafdsaf');
-                                  // Get.showSnackbar(GetBar(
-                                  //   title: 'Ok',
-                                  //   message: 'Failing moment',
-                                  // ));
-                                  // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User reported')));
+
+                                  ScaffoldMessenger.of(Get.context!)
+                                      .showSnackBar(SnackBar(content: Text('User reported')));
                                 }
                               },
                               child: Padding(

@@ -97,8 +97,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
           await _preferences!.setString('${channel.id}', DateTime.now().toIso8601String());
         }
         if (widget.popToTeam) {
-          Navigator.pop(context);
-          await Navigator.push(
+          await Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => TeamMessageList(teamId: channel.teamId!)));
         }
         return true;
