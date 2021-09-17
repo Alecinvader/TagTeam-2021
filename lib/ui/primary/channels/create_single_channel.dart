@@ -1,11 +1,8 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:tagteamprod/models/channel.dart';
-import 'package:tagteamprod/models/message.dart';
 import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
-import 'package:tagteamprod/server/responses/server_response.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/channels/channel_select_users.dart';
@@ -221,6 +218,7 @@ class _CreateSingleChannelState extends State<CreateSingleChannel> {
   Future createChannel() async {
     channel.type = selectedMessageType;
     channel.teamId = widget.teamId;
+    channel.name = channel.name!.trim();
     if (widget.teamId != null) {
       setState(() {
         _isLoading = true;
