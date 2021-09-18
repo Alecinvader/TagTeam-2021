@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -426,30 +427,30 @@ class MessageBubble extends StatelessWidget {
                                   tag: 'messageimage${message.messageId}',
                                   child: message.isFileImage == false ||
                                           message.isFileImage == null
-                                      ? Image.network(
-                                          message.imagePath ?? '',
-                                          errorBuilder:
+                                      ? CachedNetworkImage(
+                                          imageUrl: message.imagePath ?? '',
+                                          errorWidget:
                                               (context, object, trace) {
                                             return Center(
                                                 child: Text(
                                                     'Failed to load image'));
                                           },
-                                          frameBuilder: (BuildContext context,
-                                              Widget child,
-                                              int? frame,
-                                              bool wasSynchronouslyLoaded) {
-                                            if (wasSynchronouslyLoaded) {
-                                              return child;
-                                            }
+                                          // fra: (BuildContext context,
+                                          //     Widget child,
+                                          //     int? frame,
+                                          //     bool wasSynchronouslyLoaded) {
+                                          //   if (wasSynchronouslyLoaded) {
+                                          //     return child;
+                                          //   }
 
-                                            return AnimatedOpacity(
-                                              child: child,
-                                              opacity: frame == null ? 0 : 1,
-                                              duration: const Duration(
-                                                  milliseconds: 350),
-                                              curve: Curves.easeOut,
-                                            );
-                                          },
+                                          //   return AnimatedOpacity(
+                                          //     child: child,
+                                          //     opacity: frame == null ? 0 : 1,
+                                          //     duration: const Duration(
+                                          //         milliseconds: 350),
+                                          //     curve: Curves.easeOut,
+                                          //   );
+                                          // },
                                           fit: BoxFit.cover,
                                         )
                                       : Image.file(

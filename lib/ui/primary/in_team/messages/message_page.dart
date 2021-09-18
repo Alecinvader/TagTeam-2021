@@ -186,8 +186,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                               Expanded(
                                 child: TextField(
                                   onTap: () {
-                                    _scrollController.animateTo(_scrollController.position.minScrollExtent, duration: Duration(milliseconds: 200), curve: Curves.easeInCirc);
-                                  },
+                                    _scrollController.animateTo(_scrollController.position.minScrollExtent, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+                                  }, 
                                   minLines: 1,
                                   maxLines: 6,
                                   controller: _textFieldController,
