@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -68,39 +69,62 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
             : null,
         child: Container(
           decoration: BoxDecoration(
-              image: team.imageLink != null && !failedToLoadImage
-                  ? DecorationImage(
-                      onError: (object, trace) {},
-                      image: NetworkImage(team.imageLink!),
-                      fit: BoxFit.cover,
-                      colorFilter: ColorFilter.mode(Colors.black54, BlendMode.srcOver))
-                  : null,
+              // image: team.imageLink != null && !failedToLoadImage
+              //     ? DecorationImage(
+              //         onError: (object, trace) {},
+              //         image: NetworkImage(team.imageLink!),
+              //         fit: BoxFit.cover,
+              //         colorFilter: ColorFilter.mode(Colors.black54, BlendMode.srcOver))
+              //     : null,
               border: Border(
-                bottom: BorderSide(color: Colors.grey.shade200, width: .5),
-              )),
+            bottom: BorderSide(color: Colors.grey.shade200, width: .5),
+          )),
           height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+          child: Stack(
             children: [
-              const SizedBox(
-                width: 8.0,
-              ),
-              Container(
-                height: 40,
-                width: 40,
-                child: SizedBox.expand(
-                  child: Image.asset(
-                    'assets/images/TagTeamLogo.png',
-                    fit: BoxFit.cover,
+              CachedNetworkImage(
+                filterQuality: FilterQuality.medium,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(Colors.black54, BlendMode.darken)),
                   ),
                 ),
+                imageUrl: widget.team.imageLink ?? '',
+                errorWidget: (context, string, dynamic) => SizedBox(),
               ),
-              const SizedBox(
-                width: 8.0,
-              ),
-              Text(
-                team.name ?? 'Team Name',
-                style: TextStyle(color: Theme.of(context).accentColor, fontSize: 18.0, fontWeight: FontWeight.w600),
+              Align(
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      width: 8.0,
+                    ),
+                    Container(
+                      height: 40,
+                      width: 40,
+                      child: SizedBox.expand(
+                        child: Image.asset(
+                          'assets/images/TagTeamLogo.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 8.0,
+                    ),
+                    Text(
+                      team.name ?? 'Team Name',
+                      style:
+                          TextStyle(color: Theme.of(context).accentColor, fontSize: 18.0, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
