@@ -9,6 +9,8 @@ class TeamAuthNotifier extends ChangeNotifier {
   TagTeam? currentTeam;
   TeamAuthType? authType;
 
+  int pendingRequests = 3;
+
   String? activeChannelId;
   List<User> blockedUsers = [];
 
@@ -29,6 +31,7 @@ class TeamAuthNotifier extends ChangeNotifier {
   void removeActiveTeam() {
     currentTeam = null;
     authType = null;
+    pendingRequests = 0;
     notifyListeners();
   }
 

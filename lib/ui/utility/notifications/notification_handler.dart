@@ -13,6 +13,8 @@ import 'package:tagteamprod/server/team/team_api.dart';
 import 'package:tagteamprod/ui/login/splash_page.dart';
 import 'package:tagteamprod/ui/primary/home_page.dart';
 import 'package:tagteamprod/ui/primary/in_team/messages/message_page.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_info.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_message_list.dart';
 
 class NotificationHandler {
   BuildContext context;
@@ -72,11 +74,7 @@ class NotificationHandler {
           }
         });
         if (currentTeam != null) {
-          
-
           final ServerResponse role = await TeamApi().setActiveTeam(teamId, SnackbarErrorHandler(context));
-
-          
 
           await FirebaseAuth.instance.currentUser!.getIdToken(true);
 
@@ -104,6 +102,48 @@ class NotificationHandler {
       // await Navigator.of(context)
       //     .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
       throw error;
+    }
+  }
+
+  Future<void> tryGoToTeamRequest(int teamId) async {
+    TeamAuthNotifier teamAuthNotifier = Provider.of<TeamAuthNotifier>(context, listen: false);
+
+    try {
+      Get.to(Scaffold(body: SplashPage()));
+
+      if (teamAuthNotifier.currentTeam?.teamId == teamId) {
+        Get.offAll(TeamMessageList(teamId: teamId));
+        Get.to(TeamInfo());
+      } else {
+        final ServerResponse role = await TeamApi().setActiveTeam(
+            teamId,
+            SnackbarErrorHandler(context, onErrorHandler: () {
+              throw "Could not set team as active";
+            }));
+
+        await FirebaseAuth.instance.currentUser!.getIdToken(true);
+
+        List<TagTeam> teams = await TeamApi().getAllTeams(SnackbarErrorHandler(context, onErrorHandler: () {
+          throw "Could not get teams for user";
+        }));
+
+        TagTeam? selectedTeam;
+        teams.forEach((element) {
+          if (element.teamId == teamId) {
+            selectedTeam = element;
+          }
+        });
+
+        if (selectedTeam == null) throw "Team does not exist or failed to fetch";
+
+        teamAuthNotifier.setActiveTeam(selectedTeam!, role.message!);
+
+        Get.offAll(TeamMessageList(teamId: teamId));
+        Get.to(TeamInfo());
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+      Get.to(HomePage());
     }
   }
 

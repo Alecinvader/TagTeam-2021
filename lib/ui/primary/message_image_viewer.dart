@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:http/http.dart' as http;
@@ -57,16 +58,12 @@ class _ImageViewerState extends State<ImageViewer> {
                   maxScale: 2,
                   child: Hero(
                     tag: 'messageimage${widget.messageId}',
-                    child: Image.network(
-                      widget.primaryImage,
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-
+                    child: CachedNetworkImage(
+                      imageUrl: widget.primaryImage,
+                      progressIndicatorBuilder: (context, url, progress) {
                         return Center(
                           child: CircularProgressIndicator(
-                            value: progress.expectedTotalBytes != null
-                                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                                : null,
+                            value: progress.progress,
                           ),
                         );
                       },

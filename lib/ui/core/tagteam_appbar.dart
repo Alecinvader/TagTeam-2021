@@ -9,8 +9,10 @@ class TagTeamAppBar extends StatefulWidget {
   final String title;
   final VoidCallback onTap;
   final String? imageUrl;
+  final int? pendingRequests;
 
-  const TagTeamAppBar({Key? key, required this.onTap, required this.title, this.imageUrl}) : super(key: key);
+  const TagTeamAppBar({Key? key, required this.onTap, required this.title, this.imageUrl, this.pendingRequests})
+      : super(key: key);
 
   @override
   _CustomAppbarState createState() => _CustomAppbarState();
@@ -59,21 +61,39 @@ class _CustomAppbarState extends State<TagTeamAppBar> {
                       },
                       child: Align(
                         alignment: Alignment.centerRight,
-                        child: Hero(
-                            tag: 'appbar-icon',
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 16.0, left: 16.0),
-                              child: TagTeamCircleAvatar(
-                                radius: 15,
-                                onErrorReplacement: CircleAvatar(
-                                    backgroundColor: Theme.of(context).accentColor,
-                                    child: Icon(
-                                      Icons.settings,
-                                      color: Colors.white,
-                                    )),
-                                url: data.currentTeam!.imageLink ?? '',
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 16.0, left: 16.0),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Hero(
+                                tag: 'appbar-icon',
+                                child: TagTeamCircleAvatar(
+                                  radius: 15,
+                                  onErrorReplacement: CircleAvatar(
+                                      backgroundColor: Theme.of(context).accentColor,
+                                      child: Icon(
+                                        Icons.settings,
+                                        color: Colors.white,
+                                      )),
+                                  url: data.currentTeam!.imageLink ?? '',
+                                ),
                               ),
-                            )),
+                              if (data.pendingRequests >= 0)
+                                Positioned(
+                                  left: 20.0,
+                                  bottom: 20.0,
+                                  child: Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                                  ),
+                                )
+                              else
+                                SizedBox(),
+                            ],
+                          ),
+                        ),
                       ),
                     );
                   }),

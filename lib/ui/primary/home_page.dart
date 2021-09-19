@@ -46,6 +46,11 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showRequestNotif('Request to join', 'Alec has requested to join your team', 57);
+        },
+      ),
       drawer: MenuDrawer(),
       appBar: AppBar(
         centerTitle: true,
@@ -155,8 +160,14 @@ class _HomePageState extends State<HomePage> {
         chatNotification = ChatNotification.fromJson(message.data);
         if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
             chatNotification.firebaseId) {
-          showToast(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
+          showMessageNotif(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
               chatNotification.teamId!);
+        }
+      } else if (message.data['type'] == "request") {
+        int? teamId = message.data['teamID'];
+
+        if (teamId != null) {
+          showRequestNotif(message.notification!.title!, message.notification!.body!, teamId);
         }
       }
     });
@@ -184,7 +195,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void showToast(String title, String body, String firebaseId, int teamId) {
+  void showMessageNotif(String title, String body, String firebaseId, int teamId) {
     BuildContext context = Get.context ?? this.context;
 
     Get.snackbar(title, body,
@@ -270,6 +281,19 @@ class _HomePageState extends State<HomePage> {
     //       );
     //     });
     // Custom Toast Position
+  }
+
+  void showRequestNotif(String title, String body, int teamId) {
+    BuildContext context = Get.context ?? this.context;
+
+    Get.snackbar(title, body,
+        backgroundColor: Color(0xFF293C4D),
+        messageText: Text(
+          body,
+          maxLines: 2,
+        ), onTap: (object) {
+      NotificationHandler(context).tryGoToTeamRequest(teamId);
+    });
   }
 
   Future<void> showJoinDialog(String inviteCode) async {
