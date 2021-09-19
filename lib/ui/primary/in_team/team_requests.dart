@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/team_api.dart';
@@ -17,11 +19,13 @@ class TeamRequests extends StatefulWidget {
 
 class _TeamRequestsState extends State<TeamRequests> {
   late Future<List<User>> requestsFuture;
+  late TeamAuthNotifier notifier;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    notifier = Provider.of<TeamAuthNotifier>(context, listen: false);
     requestsFuture = TeamApi().allJoinRequests(widget.teamId, SnackbarErrorHandler(context));
   }
 
@@ -69,6 +73,7 @@ class _TeamRequestsState extends State<TeamRequests> {
                                           setState(() {
                                             tempUser = data.removeAt(index);
                                           });
+                                          notifier.updatePendingRequets(notifier.pendingRequests - 1);
                                           await TeamApi().acceptJoinRequest(
                                               widget.teamId,
                                               tempUser!.uid ?? '',
@@ -76,6 +81,7 @@ class _TeamRequestsState extends State<TeamRequests> {
                                                 setState(() {
                                                   data.insert(index, tempUser!);
                                                 });
+                                                notifier.updatePendingRequets(notifier.pendingRequests + 1);
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                     SnackBar(content: Text('Could not accept request, try again.')));
                                               }));
@@ -98,6 +104,7 @@ class _TeamRequestsState extends State<TeamRequests> {
                                           setState(() {
                                             tempUser = data.removeAt(index);
                                           });
+                                          notifier.updatePendingRequets(notifier.pendingRequests - 1);
                                           await TeamApi().deleteJoinRequest(
                                               widget.teamId,
                                               tempUser!.uid ?? '',
@@ -105,6 +112,7 @@ class _TeamRequestsState extends State<TeamRequests> {
                                                 setState(() {
                                                   data.insert(index, tempUser!);
                                                 });
+                                                notifier.updatePendingRequets(notifier.pendingRequests + 1);
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                     SnackBar(content: Text('Could not deny request, try again.')));
                                               }));

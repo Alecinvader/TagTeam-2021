@@ -9,7 +9,7 @@ class TeamAuthNotifier extends ChangeNotifier {
   TagTeam? currentTeam;
   TeamAuthType? authType;
 
-  int pendingRequests = 3;
+  int pendingRequests = 0;
 
   String? activeChannelId;
   List<User> blockedUsers = [];
@@ -20,6 +20,11 @@ class TeamAuthNotifier extends ChangeNotifier {
     currentTeam = team;
     authType = parseAuthType(role);
 
+    notifyListeners();
+  }
+
+  void updatePendingRequets(int count) {
+    pendingRequests = count;
     notifyListeners();
   }
 

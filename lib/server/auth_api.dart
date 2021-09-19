@@ -22,6 +22,14 @@ class AuthServer implements SafeServer {
       await addCredentials(headers);
       final firstAttempt = await unsafeServer.get(url, headers, responseParser);
       return firstAttempt;
+    } on FirebaseAuthException catch (authError) {
+      if (authError.code == 'id-token-expired') {
+        errorHandler.showReLoginDialog();
+        throw authError;
+      }
+
+      errorHandler.onError(authError);
+      throw authError;
     } catch (error) {
       if (error is ServerError && error.message == 'relog') {
         errorHandler.showReLoginDialog();
@@ -42,6 +50,14 @@ class AuthServer implements SafeServer {
       await addCredentials(headers);
       final firstAttempt = await unsafeServer.post(url, headers, body, responseParser);
       return firstAttempt;
+    } on FirebaseAuthException catch (authError) {
+      if (authError.code == 'id-token-expired') {
+        errorHandler.showReLoginDialog();
+        throw authError;
+      }
+
+      errorHandler.onError(authError);
+      throw authError;
     } catch (error) {
       if (error is ServerError && error.message == 'relog') {
         errorHandler.showReLoginDialog();
@@ -134,6 +150,14 @@ class AuthServer implements SafeServer {
       await addCredentials(headers);
       final firstAttempt = await unsafeServer.delete(url, headers, body, responseParser);
       return firstAttempt;
+    } on FirebaseAuthException catch (authError) {
+      if (authError.code == 'id-token-expired') {
+        errorHandler.showReLoginDialog();
+        throw authError;
+      }
+
+      errorHandler.onError(authError);
+      throw authError;
     } catch (error) {
       if (error is ServerError && error.message == 'relog') {
         errorHandler.showReLoginDialog();
@@ -153,6 +177,14 @@ class AuthServer implements SafeServer {
       await addCredentials(headers);
       final firstAtttempt = await unsafeServer.patch(url, headers, body, responseParser);
       return firstAtttempt;
+    } on FirebaseAuthException catch (authError) {
+      if (authError.code == 'id-token-expired') {
+        errorHandler.showReLoginDialog();
+        throw authError;
+      }
+
+      errorHandler.onError(authError);
+      throw authError;
     } catch (error) {
       // if authentication error, retry with new credentials
       if (error is ServerError && error.message == 'relog') {

@@ -69,13 +69,6 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
             : null,
         child: Container(
           decoration: BoxDecoration(
-              // image: team.imageLink != null && !failedToLoadImage
-              //     ? DecorationImage(
-              //         onError: (object, trace) {},
-              //         image: NetworkImage(team.imageLink!),
-              //         fit: BoxFit.cover,
-              //         colorFilter: ColorFilter.mode(Colors.black54, BlendMode.srcOver))
-              //     : null,
               border: Border(
             bottom: BorderSide(color: Colors.grey.shade200, width: .5),
           )),

@@ -113,7 +113,7 @@ class NotificationHandler {
 
       if (teamAuthNotifier.currentTeam?.teamId == teamId) {
         Get.offAll(TeamMessageList(teamId: teamId));
-        Get.to(TeamInfo());
+        Get.to(() => TeamInfo());
       } else {
         final ServerResponse role = await TeamApi().setActiveTeam(
             teamId,
@@ -139,11 +139,11 @@ class NotificationHandler {
         teamAuthNotifier.setActiveTeam(selectedTeam!, role.message!);
 
         Get.offAll(TeamMessageList(teamId: teamId));
-        Get.to(TeamInfo());
+        Get.to(() => TeamInfo());
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
-      Get.to(HomePage());
+      Get.to(() => HomePage());
     }
   }
 
