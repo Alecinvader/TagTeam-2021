@@ -2,6 +2,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tagteamprod/ui/login/forgot_password.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/login/login_api.dart';
 import 'sign_up.dart';
@@ -127,6 +128,7 @@ class _SignInState extends State<SignIn> {
                           height: 16.0,
                         ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             GestureDetector(
                                 onTap: () => !_loading
@@ -134,9 +136,17 @@ class _SignInState extends State<SignIn> {
                                         context, MaterialPageRoute(builder: (context) => SignUp(accountSetup: false)))
                                     : null,
                                 child: Text(
-                                  'New to TagTeam? Register here.',
+                                  'New? Sign up here.',
                                   style: TextStyle(color: Theme.of(context).accentColor),
-                                ))
+                                )),
+                            GestureDetector(
+                                onTap: () => !_loading
+                                    ? Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPassword()))
+                                    : null,
+                                child: Text(
+                                  'Forgot password?',
+                                  style: TextStyle(color: Theme.of(context).accentColor),
+                                )),
                           ],
                         ),
                       ],
