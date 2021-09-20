@@ -23,6 +23,13 @@ class TeamAuthNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateName(String newName) {
+    if (currentTeam != null) {
+      currentTeam!.name = newName;
+    }
+    notifyListeners();
+  }
+
   void updatePendingRequets(int count) {
     pendingRequests = count;
     notifyListeners();

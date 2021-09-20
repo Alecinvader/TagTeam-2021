@@ -155,8 +155,6 @@ class _HomePageState extends State<HomePage> {
     }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      inspect(message.data);
-
       ChatNotification? chatNotification;
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
@@ -186,12 +184,18 @@ class _HomePageState extends State<HomePage> {
     // Stream listener
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       ChatNotification? chatNotification;
-
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
-        if (Provider.of<TeamAuthNotifier>(context, listen: false).activeChannelId != chatNotification.firebaseId) {
-          await NotificationHandler(context)
-              .tryNavigateToMessage(chatNotification.teamId ?? 0, chatNotification.firebaseId ?? '');
+        if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
+            chatNotification.firebaseId) {
+          showMessageNotif(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
+              chatNotification.teamId!);
+        }
+      } else if (message.data['type'] == "request") {
+        int? teamId = int.tryParse(message.data['teamID']);
+
+        if (teamId != null) {
+          showRequestNotif(message.notification!.title!, message.notification!.body!, teamId);
         }
       }
     });
