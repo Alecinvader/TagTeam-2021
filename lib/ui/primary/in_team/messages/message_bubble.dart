@@ -315,7 +315,7 @@ class MessageBubble extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
                   children: [
-                    isMyMessage && showTime
+                    isMyMessage && showTime && !isInvite
                         ? Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: Text(
@@ -326,7 +326,7 @@ class MessageBubble extends StatelessWidget {
                         : SizedBox.shrink(),
                     !isMyMessage ? userAvatar : SizedBox.shrink(),
                     messageContent(context),
-                    !isMyMessage && showTime
+                    !isMyMessage && showTime && !isInvite
                         ? Padding(
                             padding: const EdgeInsets.only(left: 8.0),
                             child: Text(
@@ -389,8 +389,6 @@ class MessageBubble extends StatelessWidget {
       var tempName = message.message!.split(" ");
       tempName.removeLast();
       String teamName = tempName.join(" ").toString();
-
-      print(teamName);
 
       return Container(
         decoration: BoxDecoration(border: Border(), borderRadius: BorderRadius.circular(4.0)),
@@ -501,7 +499,7 @@ class MessageBubble extends StatelessWidget {
           padding: isMyMessage ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
           child: TagTeamCircleAvatar(
             url: message.senderPhoto ?? '',
-            radius: 18,
+            radius: 16,
           ),
         )
       : avatarSpacer;
@@ -520,11 +518,11 @@ class MessageBubble extends StatelessWidget {
     if (!isMyMessage && isFirstOfGroup) {
       return EdgeInsets.only(right: 48.0, left: 16.0, top: 6.0, bottom: 2.0);
     } else if (!isMyMessage && isLastOfGroup) {
-      return EdgeInsets.only(right: 48.0, left: 16.0, bottom: 6.0);
+      return EdgeInsets.only(right: 48.0, left: 20.0, bottom: 6.0);
     } else if (!isMyMessage && isInGroup) {
       return EdgeInsets.only(right: 48.0, left: 16.0, bottom: 2.0);
     } else if (!isMyMessage) {
-      return EdgeInsets.only(right: 48.0, left: 16.0, bottom: 6.0, top: 6.0);
+      return EdgeInsets.only(right: 48.0, left: 20.0, bottom: 6.0, top: 6.0);
     }
 
     return EdgeInsets.all(16.0);
