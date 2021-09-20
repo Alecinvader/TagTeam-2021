@@ -1,6 +1,7 @@
 enum MessageType {
   text,
   image,
+  invite,
 }
 
 class Message {
@@ -69,6 +70,8 @@ class Message {
       return MessageType.text;
     } else if (typeString == "MessageType.image") {
       return MessageType.image;
+    } else if (typeString == "MessageType.invite") {
+      return MessageType.invite;
     }
 
     return MessageType.text;
