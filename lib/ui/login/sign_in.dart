@@ -170,6 +170,7 @@ class _SignInState extends State<SignIn> {
       await remoteConfig.fetchAndActivate();
       await _initPackageInfo();
     } catch (error) {
+      print(error);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Could not fetch app version info")));
       setState(() {
         _loading = false;
@@ -186,7 +187,7 @@ class _SignInState extends State<SignIn> {
 
     String? remoteConfigError = await tryGetRemoteConfig();
     if (remoteConfigError != null) {
-      return;
+      return remoteConfigError;
     }
     String? appVersionError = await LoginServices().checkAppVersion(remoteConfig.getString('minAppVersion'),
         _packageInfo.version, remoteConfig.getString('appUpdateLink'), context);

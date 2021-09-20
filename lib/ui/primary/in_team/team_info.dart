@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
@@ -16,6 +18,8 @@ import 'package:tagteamprod/ui/primary/in_team/qr_code/generate_qr_code.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_active_users.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_requests.dart';
 import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
+
+import '../home_page.dart';
 
 class TeamInfo extends StatefulWidget {
   TeamInfo({Key? key}) : super(key: key);
@@ -245,7 +249,48 @@ class _TeamInfoState extends State<TeamInfo> {
                               size: 15,
                             ),
                           ),
-                        )
+                        ),
+                        SizedBox(
+                          height: 32.0,
+                        ),
+                        !teamData.isAdmin
+                            ? Container(
+                                decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                                child: ListTile(
+                                  onTap: () async {
+                                    Get.defaultDialog<bool>(
+                                        confirm: TextButton(
+                                          style: TextButton.styleFrom(primary: Theme.of(context).accentColor),
+                                          onPressed: () async {
+                                            Navigator.pop(context);
+
+                                            await TeamApi().leaveTeam(
+                                                teamData.currentTeam!.teamId!,
+                                                fb_auth.FirebaseAuth.instance.currentUser!.uid,
+                                                SnackbarErrorHandler(context));
+
+                                            Get.offAll(() => HomePage());
+                                          },
+                                          child: Text('Confirm'),
+                                        ),
+                                        titlePadding: EdgeInsets.all(16.0),
+                                        contentPadding: EdgeInsets.all(16.0),
+                                        backgroundColor: kLightBackgroundColor,
+                                        title: "Are you sure?",
+                                        content: Text(
+                                          "You will have to request to join again.",
+                                        ));
+                                  },
+                                  title: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('LEAVE TEAM',
+                                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500))
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : SizedBox(),
                       ],
                     ),
                   ),

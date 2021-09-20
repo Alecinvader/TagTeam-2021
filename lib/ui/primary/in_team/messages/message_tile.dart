@@ -36,6 +36,10 @@ class _MessagePageTileState extends State<MessagePageTile> {
     super.initState();
     _preferences = widget.prefs;
     time = DateTime.tryParse(_preferences!.getString('${widget.channel.id}') ?? '');
+
+    if (time == null) {
+      _preferences!.setString('${widget.channel.id}', DateTime.now().toIso8601String());
+    }
   }
 
   @override

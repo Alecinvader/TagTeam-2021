@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -46,11 +48,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showRequestNotif('Request to join', 'Alec has requested to join your team', 57);
-        },
-      ),
       drawer: MenuDrawer(),
       appBar: AppBar(
         centerTitle: true,
@@ -98,11 +95,14 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: ListView.builder(
                     itemBuilder: (context, index) {
-                      return MiniDashboardTile(team: data![index]);
+                      return Padding(
+                        padding: index == (data!.length - 1) ? EdgeInsets.only(bottom: 16.0) : EdgeInsets.all(0),
+                        child: MiniDashboardTile(team: data[index]),
+                      );
                     },
                     itemCount: data?.length ?? 0,
                   ),
-                ))
+                )),
               ],
             ),
           );
@@ -155,6 +155,8 @@ class _HomePageState extends State<HomePage> {
     }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      inspect(message.data);
+
       ChatNotification? chatNotification;
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
@@ -164,7 +166,7 @@ class _HomePageState extends State<HomePage> {
               chatNotification.teamId!);
         }
       } else if (message.data['type'] == "request") {
-        int? teamId = message.data['teamID'];
+        int? teamId = int.tryParse(message.data['teamID']);
 
         if (teamId != null) {
           showRequestNotif(message.notification!.title!, message.notification!.body!, teamId);

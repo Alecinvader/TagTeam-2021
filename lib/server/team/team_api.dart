@@ -75,4 +75,8 @@ class TeamApi {
     return await api.patch(
         '/team/updateimage/$teamId', {}, {"imageLink": link}, handler, (map) => ServerResponse.fromJson(map));
   }
+
+  Future<ServerResponse> leaveTeam(int teamId, String uid, ErrorHandler handler) async {
+    return await api.delete('/team/leaveteam/$teamId/$uid', {}, {}, handler, (map) => ServerResponse.fromJson(map));
+  }
 }
