@@ -388,7 +388,7 @@ PODS:
     - Firebase/DynamicLinks (= 8.6.0)
     - firebase_core
     - Flutter
-  - firebase_messaging (10.0.4):
+  - firebase_messaging (10.0.7):
     - Firebase/Messaging (= 8.6.0)
     - firebase_core
     - Flutter
@@ -661,7 +661,7 @@ SPEC CHECKSUMS:
   firebase_auth: ad04cf09ccdf9c28fbd55a5556ce1871cd0e2549
   firebase_core: c21ac09a8d23afd3594b56ed786bad12e5266bba
   firebase_dynamic_links: 54c39799a88ec42db3e01f3fede92f510c515c08
-  firebase_messaging: d98fd426eb18b88a6f20bcf0e2ee938d1f9564d8
+  firebase_messaging: 0fddeca6fcfee0bed23c66210391d782af8f8d0e
   firebase_remote_config: 68becd5f079ab2f73bc717c24ce6c31f5f1cf13f
   firebase_storage: 20f5c494192bbdca0f7edb26069b4ffa65f0da40
   FirebaseABTesting: c3e48ebf5e7e5c674c5a131c68e941d7921d83dc
