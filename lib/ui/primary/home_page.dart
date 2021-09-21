@@ -32,17 +32,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<List<TagTeam>> future;
 
-  late FToast fToast;
-
   @override
   void initState() {
     super.initState();
     future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
-    fToast = FToast();
-    fToast.init(context);
     setupMessaging(context);
     initDynamicLinks();
-    FirebaseAuth.instance.authStateChanges().listen((firebaseUser) {});
   }
 
   @override
@@ -174,14 +169,6 @@ class _HomePageState extends State<HomePage> {
 
     RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
 
-    // await NotificationHandler(context, initialMessage).handleIncomingMessage();
-    // print(initialMessage);
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
-    // s
-
-    // Also handle any interaction when the app is in the background via a
-    // Stream listener
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       ChatNotification? chatNotification;
       if (message.data['type'] == "chat") {
@@ -212,81 +199,6 @@ class _HomePageState extends State<HomePage> {
         ), onTap: (object) {
       NotificationHandler(context).tryNavigateToMessage(teamId, firebaseId);
     });
-
-    // Widget toast = GestureDetector(
-    //   onVerticalDragEnd: (DragEndDetails details) {
-    //     if (details.primaryVelocity!.abs() > 100) {
-    //       fToast.removeQueuedCustomToasts();
-    //     }
-    //   },
-    //   onTap: () async {
-    //     fToast.removeQueuedCustomToasts();
-
-    //     NotificationHandler(context).tryNavigateToMessage(teamId, firebaseId);
-    //   },
-    //   child: Stack(
-    //     clipBehavior: Clip.none,
-    //     children: [
-    //       Material(
-    //           borderRadius: BorderRadius.circular(8.0),
-    //           elevation: 8.0,
-    //           child: Container(
-    //             width: double.infinity,
-    //             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-    //             decoration: BoxDecoration(
-    //               borderRadius: BorderRadius.circular(8.0),
-    //               color: Color(0xFF293C4D),
-    //             ),
-    //             child: Row(
-    //               children: [
-    //                 Column(
-    //                   crossAxisAlignment: CrossAxisAlignment.start,
-    //                   children: [
-    //                     Text(
-    //                       '$title',
-    //                       style: TextStyle(color: Colors.white),
-    //                     ),
-    //                     Wrap(
-    //                       children: [
-    //                         Text(
-    //                           "$body",
-    //                           maxLines: 2,
-    //                           style: TextStyle(color: Colors.white70),
-    //                         ),
-    //                       ],
-    //                     ),
-    //                   ],
-    //                 ),
-    //               ],
-    //             ),
-    //           )),
-    //       Align(
-    //         alignment: Alignment.topRight,
-    //         child: Container(
-    //           width: 10,
-    //           height: 10,
-    //           decoration: BoxDecoration(
-    //             shape: BoxShape.circle,
-    //             color: Theme.of(context).accentColor,
-    //           ),
-    //         ),
-    //       ),
-    //     ],
-    //   ),
-    // );
-
-    // fToast.showToast(
-    //     child: toast,
-    //     toastDuration: Duration(seconds: 2),
-    //     positionedToastBuilder: (context, child) {
-    //       return Positioned(
-    //         child: child,
-    //         top: 36.0,
-    //         left: 16.0,
-    //         right: 16.0,
-    //       );
-    //     });
-    // Custom Toast Position
   }
 
   void showRequestNotif(String title, String body, int teamId) {

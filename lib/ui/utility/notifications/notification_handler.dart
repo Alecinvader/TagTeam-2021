@@ -43,7 +43,11 @@ class NotificationHandler {
 
         IdTokenResult result = await FirebaseAuth.instance.currentUser!.getIdTokenResult();
 
-        channels = await ChannelApi().getChannelsForTeam(teamId, SnackbarErrorHandler(context));
+        channels = await ChannelApi().getChannelsForTeam(
+            teamId,
+            SnackbarErrorHandler(context, onErrorHandler: () {
+              throw "Could not get channles";
+            }));
 
         Channel? currentChannel;
         channels.forEach((element) {
@@ -63,9 +67,13 @@ class NotificationHandler {
               ),
             ));
 
-        teams = await TeamApi().getAllTeams(SnackbarErrorHandler(context));
+        teams = await TeamApi().getAllTeams(SnackbarErrorHandler(context, onErrorHandler: () {
+          throw "Could not get all teams";
+        }));
         if (teams.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Team does not exist")));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Team does not exist"),
+          ));
           Navigator.pop(context);
         }
         teams.forEach((element) {
@@ -74,11 +82,19 @@ class NotificationHandler {
           }
         });
         if (currentTeam != null) {
-          final ServerResponse role = await TeamApi().setActiveTeam(teamId, SnackbarErrorHandler(context));
+          final ServerResponse role = await TeamApi().setActiveTeam(
+              teamId,
+              SnackbarErrorHandler(context, onErrorHandler: () {
+                throw "could not set team active";
+              }));
 
           await FirebaseAuth.instance.currentUser!.getIdToken(true);
 
-          channels = await ChannelApi().getChannelsForTeam(teamId, SnackbarErrorHandler(context));
+          channels = await ChannelApi().getChannelsForTeam(
+              teamId,
+              SnackbarErrorHandler(context, onErrorHandler: () {
+                throw "could not get channels";
+              }));
 
           Channel? currentChannel;
           channels.forEach((element) {
@@ -101,7 +117,7 @@ class NotificationHandler {
     } catch (error) {
       // await Navigator.of(context)
       //     .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
-      throw error;
+      Get.offAll(() => HomePage());
     }
   }
 

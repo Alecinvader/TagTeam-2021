@@ -120,6 +120,7 @@ class _TeamInfoState extends State<TeamInfo> {
                                         setState(() {
                                           nameChanged = false;
                                         });
+                                        Provider.of<TeamAuthNotifier>(context, listen: false).updateName(newTeamName);
                                         await TeamApi().updateTeamName(
                                             newTeamName,
                                             teamData.currentTeam!.teamId!,
@@ -128,8 +129,6 @@ class _TeamInfoState extends State<TeamInfo> {
                                                 nameChanged = true;
                                               });
                                             }));
-
-                                        Provider.of<TeamAuthNotifier>(context, listen: false).updateName(newTeamName);
                                       },
                                       child: Text(
                                         'SAVE',
