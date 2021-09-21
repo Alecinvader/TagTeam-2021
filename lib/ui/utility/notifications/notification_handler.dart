@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/channel.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
@@ -12,6 +13,8 @@ import 'package:tagteamprod/server/team/team_api.dart';
 import 'package:tagteamprod/ui/login/splash_page.dart';
 import 'package:tagteamprod/ui/primary/home_page.dart';
 import 'package:tagteamprod/ui/primary/in_team/messages/message_page.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_info.dart';
+import 'package:tagteamprod/ui/primary/in_team/team_message_list.dart';
 
 class NotificationHandler {
   BuildContext context;
@@ -31,47 +34,77 @@ class NotificationHandler {
       //     .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
 
       // Get all the channels and then get the one where it matches
-      channels = await ChannelApi().getChannelsForTeam(teamId, SnackbarErrorHandler(context));
-
-      Channel? currentChannel;
-      channels.forEach((element) {
-        if (element.firebaseId == firebaseId) {
-          currentChannel = element;
-        }
-      });
 
       // Do this if the current locally saved team is already active and check it against claims
-      if (currentTeam != null && (currentTeam.teamId == teamId) && currentChannel != null) {
+      if (currentTeam != null && (currentTeam.teamId == teamId)) {
+        Get.to(() => Scaffold(
+              body: SplashPage(),
+            ));
+
         IdTokenResult result = await FirebaseAuth.instance.currentUser!.getIdTokenResult();
 
+        channels = await ChannelApi().getChannelsForTeam(
+            teamId,
+            SnackbarErrorHandler(context, onErrorHandler: () {
+              throw "Could not get channles";
+            }));
+
+        Channel? currentChannel;
+        channels.forEach((element) {
+          if (element.firebaseId == firebaseId) {
+            currentChannel = element;
+          }
+        });
+
         if (result.claims!['team'] == currentTeam.teamId) {
-          await Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SendMesssagePage(channel: currentChannel!)));
+          await Get.offAll(() => SendMesssagePage(
+                channel: currentChannel!,
+                popToTeam: true,
+              ));
         }
         // Otherwise do the typical of getting all the teams and matching it up while refreshing the token to get new claims
       } else {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Scaffold(
-                      body: SplashPage(
-                        bottomWidget: Text("Changing teams..."),
-                      ),
-                    )));
+        Get.to(() => Scaffold(
+              body: SplashPage(
+                bottomWidget: Text("Changing teams..."),
+              ),
+            ));
 
-        teams = await TeamApi().getAllTeams(SnackbarErrorHandler(context));
+        teams = await TeamApi().getAllTeams(SnackbarErrorHandler(context, onErrorHandler: () {
+          throw "Could not get all teams";
+        }));
         if (teams.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Team does not exist")));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Team does not exist"),
+          ));
+          Navigator.pop(context);
         }
         teams.forEach((element) {
           if (element.teamId == teamId) {
             currentTeam = element;
           }
         });
-        if (currentTeam != null && currentChannel != null) {
-          final ServerResponse role = await TeamApi().setActiveTeam(teamId, SnackbarErrorHandler(context));
+        if (currentTeam != null) {
+          final ServerResponse role = await TeamApi().setActiveTeam(
+              teamId,
+              SnackbarErrorHandler(context, onErrorHandler: () {
+                throw "could not set team active";
+              }));
 
           await FirebaseAuth.instance.currentUser!.getIdToken(true);
+
+          channels = await ChannelApi().getChannelsForTeam(
+              teamId,
+              SnackbarErrorHandler(context, onErrorHandler: () {
+                throw "could not get channels";
+              }));
+
+          Channel? currentChannel;
+          channels.forEach((element) {
+            if (element.firebaseId == firebaseId) {
+              currentChannel = element;
+            }
+          });
 
           Provider.of<TeamAuthNotifier>(context, listen: false).setActiveTeam(currentTeam!, role.message!);
 
@@ -85,8 +118,51 @@ class NotificationHandler {
         }
       }
     } catch (error) {
-      await Navigator.of(context)
-          .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+      // await Navigator.of(context)
+      //     .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+      Get.offAll(() => HomePage());
+    }
+  }
+
+  Future<void> tryGoToTeamRequest(int teamId) async {
+    TeamAuthNotifier teamAuthNotifier = Provider.of<TeamAuthNotifier>(context, listen: false);
+
+    try {
+      Get.to(Scaffold(body: SplashPage()));
+
+      if (teamAuthNotifier.currentTeam?.teamId == teamId) {
+        Get.offAll(TeamMessageList(teamId: teamId));
+        Get.to(() => TeamInfo());
+      } else {
+        final ServerResponse role = await TeamApi().setActiveTeam(
+            teamId,
+            SnackbarErrorHandler(context, onErrorHandler: () {
+              throw "Could not set team as active";
+            }));
+
+        await FirebaseAuth.instance.currentUser!.getIdToken(true);
+
+        List<TagTeam> teams = await TeamApi().getAllTeams(SnackbarErrorHandler(context, onErrorHandler: () {
+          throw "Could not get teams for user";
+        }));
+
+        TagTeam? selectedTeam;
+        teams.forEach((element) {
+          if (element.teamId == teamId) {
+            selectedTeam = element;
+          }
+        });
+
+        if (selectedTeam == null) throw "Team does not exist or failed to fetch";
+
+        teamAuthNotifier.setActiveTeam(selectedTeam!, role.message!);
+
+        Get.offAll(TeamMessageList(teamId: teamId));
+        Get.to(() => TeamInfo());
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+      Get.to(() => HomePage());
     }
   }
 

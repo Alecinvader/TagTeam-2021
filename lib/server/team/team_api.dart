@@ -67,6 +67,10 @@ class TeamApi {
     });
   }
 
+  Future<String> createInviteLink(int teamId, ErrorHandler handler) async {
+    return await api.get('/team/createinvite/$teamId', {}, handler, (map) => map['link']);
+  }
+
   Future<ServerResponse> removeUserFromTeam(int teamId, String uid, ErrorHandler handler) async {
     return await api.delete('/team/removeuser/$teamId/$uid', {}, {}, handler, (map) => ServerResponse.fromJson(map));
   }
@@ -74,5 +78,14 @@ class TeamApi {
   Future<ServerResponse> updateImageLink(int teamId, String link, ErrorHandler handler) async {
     return await api.patch(
         '/team/updateimage/$teamId', {}, {"imageLink": link}, handler, (map) => ServerResponse.fromJson(map));
+  }
+
+  Future<ServerResponse> leaveTeam(int teamId, String uid, ErrorHandler handler) async {
+    return await api.delete('/team/leaveteam/$teamId/$uid', {}, {}, handler, (map) => ServerResponse.fromJson(map));
+  }
+
+  Future<ServerResponse> updateTeamName(String name, int teamId, ErrorHandler handler) async {
+    return await api.post(
+        '/team/changename/$teamId', {}, {"name": name}, handler, (map) => ServerResponse.fromJson(map));
   }
 }

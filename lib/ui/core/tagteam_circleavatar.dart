@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'tagteam_constants.dart';
 
@@ -33,9 +34,13 @@ class _TagTeamCircleAvatarState extends State<TagTeamCircleAvatar> {
                 File(widget.url),
                 fit: BoxFit.cover,
               )
-            : Image.network(
-                widget.url,
-                errorBuilder: (context, object, trace) {
+            : CachedNetworkImage(
+                maxWidthDiskCache: 400,
+                memCacheWidth: 400,
+                memCacheHeight: 400,
+                maxHeightDiskCache: 400,
+                imageUrl: widget.url,
+                errorWidget: (context, object, trace) {
                   return widget.onErrorReplacement != null
                       ? widget.onErrorReplacement!
                       : Icon(
@@ -43,13 +48,13 @@ class _TagTeamCircleAvatarState extends State<TagTeamCircleAvatar> {
                           color: Colors.white,
                         );
                 },
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
+                progressIndicatorBuilder: (context, child, progress) {
+                  
 
                   return Center(
                     child: CircularProgressIndicator(
-                      value: progress.expectedTotalBytes != null
-                          ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                      value: progress.progress != null
+                          ? progress.progress! / progress.totalSize!
                           : null,
                     ),
                   );

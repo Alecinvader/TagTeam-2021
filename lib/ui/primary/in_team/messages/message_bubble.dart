@@ -1,13 +1,16 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
@@ -205,7 +208,9 @@ class MessageBubble extends StatelessWidget {
 
                                 if (choice == true) {
                                   await ChannelApi().reportUserMessage(message, SnackbarErrorHandler(context));
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User reported')));
+
+                                  ScaffoldMessenger.of(Get.context!)
+                                      .showSnackBar(SnackBar(content: Text('User reported')));
                                 }
                               },
                               child: Padding(
@@ -310,7 +315,7 @@ class MessageBubble extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
                   children: [
-                    isMyMessage && showTime
+                    isMyMessage && showTime && !isInvite
                         ? Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: Text(
@@ -320,76 +325,8 @@ class MessageBubble extends StatelessWidget {
                           )
                         : SizedBox.shrink(),
                     !isMyMessage ? userAvatar : SizedBox.shrink(),
-                    message.deleted == true || !isImage
-                        ? Flexible(
-                            child: Container(
-                              padding: EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(color: messageColor, borderRadius: BorderRadius.circular(4.0)),
-                              child: Linkify(
-                                onOpen: (LinkableElement element) async {
-                                  await _onOpen(element, context);
-                                },
-                                text: message.message ?? 'Missing Message',
-                                linkStyle: TextStyle(
-                                  color: isMyMessage ? Colors.white : Colors.blue,
-                                ),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14.0,
-                                    fontStyle: message.deleted == true ? FontStyle.italic : FontStyle.normal),
-                              ),
-                            ),
-                          )
-                        : GestureDetector(
-                            onTap: () async {
-                              await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ImageViewer(
-                                            messageId: message.messageId!,
-                                            primaryImage: message.imagePath ?? '',
-                                          )));
-                            },
-                            child: Container(
-                              decoration:
-                                  BoxDecoration(borderRadius: BorderRadius.circular(8.0), color: kLightBackgroundColor),
-                              width: 200,
-                              height: 250,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Hero(
-                                  tag: 'messageimage${message.messageId}',
-                                  child: message.isFileImage == false || message.isFileImage == null
-                                      ? Image.network(
-                                          message.imagePath ?? '',
-                                          errorBuilder: (context, object, trace) {
-                                            return Center(child: Text('Failed to load image'));
-                                          },
-                                          loadingBuilder: (context, child, progress) {
-                                            if (progress == null) return child;
-
-                                            return Center(
-                                              child: CircularProgressIndicator(
-                                                value: progress.expectedTotalBytes != null
-                                                    ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                                                    : null,
-                                              ),
-                                            );
-                                          },
-                                          fit: BoxFit.cover,
-                                        )
-                                      : Image.file(
-                                          File(message.imagePath!),
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (context, object, trace) {
-                                            return Center(child: Text('Failed to load image'));
-                                          },
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                    !isMyMessage && showTime
+                    messageContent(context),
+                    !isMyMessage && showTime && !isInvite
                         ? Padding(
                             padding: const EdgeInsets.only(left: 8.0),
                             child: Text(
@@ -406,6 +343,134 @@ class MessageBubble extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget messageContent(BuildContext context) {
+    if (isImage && (message.deleted ?? false) == false) {
+      return GestureDetector(
+        onTap: () async {
+          await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ImageViewer(
+                        messageId: message.messageId!,
+                        primaryImage: message.imagePath ?? '',
+                      )));
+        },
+        child: Container(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8.0), color: kLightBackgroundColor),
+          width: 200,
+          height: 250,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Hero(
+              tag: 'messageimage${message.messageId}',
+              child: message.isFileImage == false || message.isFileImage == null
+                  ? CachedNetworkImage(
+                    memCacheHeight: 800,
+                    memCacheWidth: 800,
+                    maxWidthDiskCache: 800,
+                    maxHeightDiskCache: 800,
+                      imageUrl: message.imagePath ?? '',
+                      
+                      errorWidget: (context, object, trace) {
+                        return Center(child: Text('Failed to load image'));
+                      },
+                      fit: BoxFit.cover,
+                    )
+                  : Image.file(
+                      File(message.imagePath!),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, object, trace) {
+                        return Center(child: Text('Failed to load image'));
+                      },
+                    ),
+            ),
+          ),
+        ),
+      );
+    } else if (isInvite && (message.deleted ?? false) == false) {
+      int? teamId = int.tryParse(message.message!.split(" ").last);
+      var tempName = message.message!.split(" ");
+      tempName.removeLast();
+      String teamName = tempName.join(" ").toString();
+
+      return Container(
+        decoration: BoxDecoration(border: Border(), borderRadius: BorderRadius.circular(4.0)),
+        width: 248,
+        height: 168,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset(
+                'assets/images/TagTeamLogo.png',
+                width: 80,
+                height: 100,
+              ),
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                    color: kLightBackgroundColor,
+                    borderRadius:
+                        BorderRadius.only(bottomLeft: Radius.circular(4.0), bottomRight: Radius.circular(4.0))),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          teamName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              onSurface: Colors.white, side: BorderSide(color: Theme.of(context).accentColor)),
+                          onPressed: () async {
+                            if (teamId != null) {
+                              await TeamApi().requestToJoinTeam(teamId, SnackbarErrorHandler(context));
+                            }
+                          },
+                          child: Text(
+                            'JOIN',
+                            style: TextStyle(color: Theme.of(context).accentColor),
+                          )),
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
+      );
+    } else {
+      return Flexible(
+        child: Container(
+          padding: EdgeInsets.all(8.0),
+          decoration: BoxDecoration(color: messageColor, borderRadius: BorderRadius.circular(4.0)),
+          child: Linkify(
+            onOpen: (LinkableElement element) async {
+              await _onOpen(element, context);
+            },
+            text: message.message ?? 'Missing Message',
+            linkStyle: TextStyle(
+              color: isMyMessage ? Colors.white : Colors.blue,
+            ),
+            style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 14.0,
+                fontStyle: message.deleted == true ? FontStyle.italic : FontStyle.normal),
+          ),
+        ),
+      );
+    }
   }
 
   _save(BuildContext context) async {
@@ -426,6 +491,7 @@ class MessageBubble extends StatelessWidget {
   }
 
   bool get isImage => message.imagePath != null;
+  bool get isInvite => message.messageType == MessageType.invite;
 
   bool get isMyMessage => FirebaseAuth.instance.currentUser?.uid == message.senderId;
 
@@ -438,7 +504,7 @@ class MessageBubble extends StatelessWidget {
           padding: isMyMessage ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
           child: TagTeamCircleAvatar(
             url: message.senderPhoto ?? '',
-            radius: 18,
+            radius: 16,
           ),
         )
       : avatarSpacer;
@@ -457,11 +523,11 @@ class MessageBubble extends StatelessWidget {
     if (!isMyMessage && isFirstOfGroup) {
       return EdgeInsets.only(right: 48.0, left: 16.0, top: 6.0, bottom: 2.0);
     } else if (!isMyMessage && isLastOfGroup) {
-      return EdgeInsets.only(right: 48.0, left: 16.0, bottom: 6.0);
+      return EdgeInsets.only(right: 48.0, left: 20.0, bottom: 6.0);
     } else if (!isMyMessage && isInGroup) {
       return EdgeInsets.only(right: 48.0, left: 16.0, bottom: 2.0);
     } else if (!isMyMessage) {
-      return EdgeInsets.only(right: 48.0, left: 16.0, bottom: 6.0, top: 6.0);
+      return EdgeInsets.only(right: 48.0, left: 20.0, bottom: 6.0, top: 6.0);
     }
 
     return EdgeInsets.all(16.0);

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/team_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_circleavatar.dart';
+import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
 
 class TeamRequests extends StatefulWidget {
@@ -16,11 +19,13 @@ class TeamRequests extends StatefulWidget {
 
 class _TeamRequestsState extends State<TeamRequests> {
   late Future<List<User>> requestsFuture;
+  late TeamAuthNotifier notifier;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    notifier = Provider.of<TeamAuthNotifier>(context, listen: false);
     requestsFuture = TeamApi().allJoinRequests(widget.teamId, SnackbarErrorHandler(context));
   }
 
@@ -41,53 +46,83 @@ class _TeamRequestsState extends State<TeamRequests> {
                   itemBuilder: (context, index) {
                     User currentUser = data![index];
 
-                    return Container(
-                      // decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.white54, width: .5))),
-                      child: ListTile(
-                        leading: TagTeamCircleAvatar(
-                          radius: 20,
-                          url: currentUser.profilePicture ?? '',
-                        ),
-                        title: Row(
-                          children: [
-                            Flexible(child: Text(currentUser.displayName!)),
-                            TextButton(
-                                onPressed: () async {
-                                  User? tempUser;
-                                  setState(() {
-                                    tempUser = data.removeAt(index);
-                                  });
-                                  await TeamApi().acceptJoinRequest(
-                                      widget.teamId,
-                                      tempUser!.uid ?? '',
-                                      SnackbarErrorHandler(context, onErrorHandler: () {
-                                        setState(() {
-                                          data.insert(index, tempUser!);
-                                        });
-                                      }));
-                                },
-                                child: Text('Accept', style: TextStyle(color: Theme.of(context).accentColor))),
-                          ],
-                        ),
-                        trailing: SizedBox(
-                          width: 40,
-                          child: IconButton(
-                              color: Colors.white,
-                              onPressed: () async {
-                                User? tempUser;
-                                setState(() {
-                                  tempUser = data.removeAt(index);
-                                });
-                                await TeamApi().deleteJoinRequest(
-                                    widget.teamId,
-                                    tempUser!.uid ?? '',
-                                    SnackbarErrorHandler(context, onErrorHandler: () {
-                                      setState(() {
-                                        data.insert(index, tempUser!);
-                                      });
-                                    }));
-                              },
-                              icon: Icon(Icons.clear)),
+                    return Material(
+                      color: kLightBackgroundColor,
+                      child: InkWell(
+                        onLongPress: () {},
+                        child: ListTile(
+                          leading: TagTeamCircleAvatar(
+                            radius: 20,
+                            url: currentUser.profilePicture ?? '',
+                          ),
+                          title: Row(
+                            children: [
+                              Expanded(child: Text(currentUser.displayName!)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  SizedBox(
+                                    height: 30,
+                                    child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                            primary: Colors.white,
+                                            onSurface: Colors.white,
+                                            backgroundColor: Theme.of(context).accentColor),
+                                        onPressed: () async {
+                                          User? tempUser;
+                                          setState(() {
+                                            tempUser = data.removeAt(index);
+                                          });
+                                          notifier.updatePendingRequets(notifier.pendingRequests - 1);
+                                          await TeamApi().acceptJoinRequest(
+                                              widget.teamId,
+                                              tempUser!.uid ?? '',
+                                              SnackbarErrorHandler(context, onErrorHandler: () {
+                                                setState(() {
+                                                  data.insert(index, tempUser!);
+                                                });
+                                                notifier.updatePendingRequets(notifier.pendingRequests + 1);
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text('Could not accept request, try again.')));
+                                              }));
+                                        },
+                                        child: Text('Accept', style: TextStyle(color: Colors.white))),
+                                  ),
+                                  SizedBox(
+                                    width: 12.0,
+                                  ),
+                                  SizedBox(
+                                    height: 30,
+                                    child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          primary: Colors.white,
+                                          onSurface: Colors.white,
+                                          side: BorderSide(color: Colors.white),
+                                        ),
+                                        onPressed: () async {
+                                          User? tempUser;
+                                          setState(() {
+                                            tempUser = data.removeAt(index);
+                                          });
+                                          notifier.updatePendingRequets(notifier.pendingRequests - 1);
+                                          await TeamApi().deleteJoinRequest(
+                                              widget.teamId,
+                                              tempUser!.uid ?? '',
+                                              SnackbarErrorHandler(context, onErrorHandler: () {
+                                                setState(() {
+                                                  data.insert(index, tempUser!);
+                                                });
+                                                notifier.updatePendingRequets(notifier.pendingRequests + 1);
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text('Could not deny request, try again.')));
+                                              }));
+                                        },
+                                        child: Text('Deny', style: TextStyle(color: Colors.white))),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     );

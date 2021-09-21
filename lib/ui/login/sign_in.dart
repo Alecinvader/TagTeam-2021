@@ -2,6 +2,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tagteamprod/ui/login/forgot_password.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/login/login_api.dart';
 import 'sign_up.dart';
@@ -41,7 +42,7 @@ class _SignInState extends State<SignIn> {
     remoteConfig.setDefaults(<String, dynamic>{'minAppVersion': _packageInfo.version, 'appUpdateLink': ''});
     remoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: Duration(seconds: 10),
-      minimumFetchInterval: Duration(minutes: 30),
+      minimumFetchInterval: Duration(minutes: 1),
     ));
 
     SharedPreferences.getInstance().then((SharedPreferences value) async {
@@ -127,6 +128,7 @@ class _SignInState extends State<SignIn> {
                           height: 16.0,
                         ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             GestureDetector(
                                 onTap: () => !_loading
@@ -134,9 +136,17 @@ class _SignInState extends State<SignIn> {
                                         context, MaterialPageRoute(builder: (context) => SignUp(accountSetup: false)))
                                     : null,
                                 child: Text(
-                                  'New to TagTeam? Register here.',
+                                  'New? Sign up here.',
                                   style: TextStyle(color: Theme.of(context).accentColor),
-                                ))
+                                )),
+                            GestureDetector(
+                                onTap: () => !_loading
+                                    ? Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPassword()))
+                                    : null,
+                                child: Text(
+                                  'Forgot password?',
+                                  style: TextStyle(color: Theme.of(context).accentColor),
+                                )),
                           ],
                         ),
                       ],
@@ -155,16 +165,18 @@ class _SignInState extends State<SignIn> {
     });
   }
 
-  Future<void> tryGetRemoteConfig() async {
+  Future<String?> tryGetRemoteConfig() async {
     try {
       await remoteConfig.fetchAndActivate();
       await _initPackageInfo();
     } catch (error) {
+      print(error);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Could not fetch app version info")));
       setState(() {
         _loading = false;
         _showSplashPage = false;
       });
+      return "Could not fetch remote config";
     }
   }
 
@@ -173,16 +185,18 @@ class _SignInState extends State<SignIn> {
       _loading = true;
     });
 
-    await tryGetRemoteConfig();
-
-    if (remoteConfig.getString('minAppVersion') != _packageInfo.version) {
+    String? remoteConfigError = await tryGetRemoteConfig();
+    if (remoteConfigError != null) {
+      throw remoteConfigError;
+    }
+    String? appVersionError = await LoginServices().checkAppVersion(remoteConfig.getString('minAppVersion'),
+        _packageInfo.version, remoteConfig.getString('appUpdateLink'), context);
+    if (appVersionError != null) {
       setState(() {
         _loading = false;
         _showSplashPage = false;
       });
-      String appUpdateLink = remoteConfig.getString('appUpdateLink');
-      await LoginServices().showUpdateDialog(context, appUpdateLink);
-      return;
+      throw appVersionError;
     }
 
     try {

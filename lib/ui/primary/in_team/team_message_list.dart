@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
+import 'package:tagteamprod/models/user.dart';
+import 'package:tagteamprod/server/team/team_api.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/primary/channels/create_single_channel.dart';
 import 'package:tagteamprod/ui/utility/notifications/notification_handler.dart';
@@ -40,9 +42,15 @@ class _TeamMessageListState extends State<TeamMessageList> {
 
   SharedPreferences? _prefs;
 
+  late Future<void> pendingJoinRequests;
+
+  int _totalPendingRequests = 0;
+
   @override
   void initState() {
     super.initState();
+
+    pendingJoinRequests = getPendingJoinRequests(widget.teamId);
 
     SharedPreferences.getInstance().then((value) {
       setState(() {
@@ -245,5 +253,17 @@ class _TeamMessageListState extends State<TeamMessageList> {
     });
 
     return temp;
+  }
+
+  Future<void> getPendingJoinRequests(int teamId) async {
+    TeamAuthNotifier notifier = Provider.of<TeamAuthNotifier>(context, listen: false);
+    if (notifier.isAdmin) {
+      List<User> users = await TeamApi().allJoinRequests(teamId, SnackbarErrorHandler(context));
+      if (users.length > 0) {
+        notifier.updatePendingRequets(users.length);
+      }
+    } else {
+      return;
+    }
   }
 }

@@ -9,6 +9,8 @@ class TeamAuthNotifier extends ChangeNotifier {
   TagTeam? currentTeam;
   TeamAuthType? authType;
 
+  int pendingRequests = 0;
+
   String? activeChannelId;
   List<User> blockedUsers = [];
 
@@ -21,6 +23,18 @@ class TeamAuthNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateName(String newName) {
+    if (currentTeam != null) {
+      currentTeam!.name = newName;
+    }
+    notifyListeners();
+  }
+
+  void updatePendingRequets(int count) {
+    pendingRequests = count;
+    notifyListeners();
+  }
+
   void setActiveChannel(String id) {
     activeChannelId = id;
     notifyListeners();
@@ -29,6 +43,7 @@ class TeamAuthNotifier extends ChangeNotifier {
   void removeActiveTeam() {
     currentTeam = null;
     authType = null;
+    pendingRequests = 0;
     notifyListeners();
   }
 

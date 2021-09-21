@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
@@ -12,9 +14,12 @@ import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/server/team/team_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_circleavatar.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
+import 'package:tagteamprod/ui/primary/in_team/qr_code/generate_qr_code.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_active_users.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_requests.dart';
 import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
+
+import '../home_page.dart';
 
 class TeamInfo extends StatefulWidget {
   TeamInfo({Key? key}) : super(key: key);
@@ -31,6 +36,8 @@ class _TeamInfoState extends State<TeamInfo> {
   bool nameChanged = false;
 
   TextEditingController? _titleController;
+
+  String newTeamName = '';
 
   @override
   Widget build(BuildContext context) {
@@ -109,20 +116,52 @@ class _TeamInfoState extends State<TeamInfo> {
                           child: ListTile(
                               trailing: isAdmin && nameChanged == true
                                   ? TextButton(
-                                      onPressed: () {
+                                      onPressed: () async {
                                         setState(() {
                                           nameChanged = false;
                                         });
+                                        Provider.of<TeamAuthNotifier>(context, listen: false).updateName(newTeamName);
+                                        await TeamApi().updateTeamName(
+                                            newTeamName,
+                                            teamData.currentTeam!.teamId!,
+                                            SnackbarErrorHandler(context, onErrorHandler: () {
+                                              setState(() {
+                                                nameChanged = true;
+                                              });
+                                            }));
                                       },
                                       child: Text(
                                         'SAVE',
                                         style: TextStyle(color: Theme.of(context).accentColor),
                                       ))
                                   : null,
-                              title: Text(
-                                teamData.currentTeam?.name ?? 'Untitled Team',
-                                overflow: TextOverflow.ellipsis,
-                              )),
+                              title: !teamData.isAdmin
+                                  ? Text(
+                                      teamData.currentTeam?.name ?? 'Untitled Team',
+                                      overflow: TextOverflow.ellipsis,
+                                    )
+                                  : TextField(
+                                      controller: _titleController,
+                                      onChanged: (String value) {
+                                        if (value != teamData.currentTeam!.name) {
+                                          setState(() {
+                                            nameChanged = true;
+                                          });
+                                          newTeamName = value;
+                                        } else {
+                                          setState(() {
+                                            nameChanged = false;
+                                          });
+                                          newTeamName = value;
+                                        }
+                                      },
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                      ),
+                                    )),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -138,13 +177,42 @@ class _TeamInfoState extends State<TeamInfo> {
                             ),
                             trailing: TextButton(
                                 onPressed: () async {
-                                  String? string = await generateInvitLink(teamData.currentTeam!.inviteCode!);
+                                  String? string = await generateInvitLink(teamData.currentTeam!.teamId!);
                                   Share.share((string ?? 'Empty') + ' or code: ${teamData.currentTeam!.inviteCode!}');
                                 },
                                 child: Text(
                                   'SHARE',
                                   style: TextStyle(color: Theme.of(context).accentColor),
                                 )),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              border: Border(top: BorderSide(color: Colors.black38, width: .5))),
+                          child: ListTile(
+                            onTap: () async {
+                              String? deepLink = await generateInvitLink(teamData.currentTeam!.teamId!);
+                              if (deepLink != null) {
+                                await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => GenerateQRCode(
+                                              team: teamData.currentTeam!,
+                                              deepLink: deepLink,
+                                            )));
+                              }
+                            },
+                            title: Text(
+                              'QR Code',
+                              style: TextStyle(),
+                              overflow: TextOverflow.visible,
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.white,
+                              size: 15,
+                            ),
                           ),
                         ),
                         Padding(
@@ -215,7 +283,48 @@ class _TeamInfoState extends State<TeamInfo> {
                               size: 15,
                             ),
                           ),
-                        )
+                        ),
+                        SizedBox(
+                          height: 32.0,
+                        ),
+                        !teamData.isAdmin
+                            ? Container(
+                                decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                                child: ListTile(
+                                  onTap: () async {
+                                    Get.defaultDialog<bool>(
+                                        confirm: TextButton(
+                                          style: TextButton.styleFrom(primary: Theme.of(context).accentColor),
+                                          onPressed: () async {
+                                            Navigator.pop(context);
+
+                                            await TeamApi().leaveTeam(
+                                                teamData.currentTeam!.teamId!,
+                                                fb_auth.FirebaseAuth.instance.currentUser!.uid,
+                                                SnackbarErrorHandler(context));
+
+                                            Get.offAll(() => HomePage());
+                                          },
+                                          child: Text('Confirm'),
+                                        ),
+                                        titlePadding: EdgeInsets.all(16.0),
+                                        contentPadding: EdgeInsets.all(16.0),
+                                        backgroundColor: kLightBackgroundColor,
+                                        title: "Are you sure?",
+                                        content: Text(
+                                          "You will have to request to join again.",
+                                        ));
+                                  },
+                                  title: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('LEAVE TEAM',
+                                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500))
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : SizedBox(),
                       ],
                     ),
                   ),
@@ -244,24 +353,28 @@ class _TeamInfoState extends State<TeamInfo> {
     }
   }
 
-  Future<String?> generateInvitLink(String inviteCode) async {
-    final DynamicLinkParameters parameters = DynamicLinkParameters(
-      uriPrefix: 'https://tagteammobile.page.link',
-      link: Uri.parse('https://tagteammobile.page.link.com/?code=$inviteCode/'),
-      androidParameters: AndroidParameters(
-        packageName: 'com.eyro.tagteamprod',
-        minimumVersion: 1,
-      ),
-      iosParameters: IosParameters(bundleId: 'com.eyro.tagteammobile', appStoreId: '1581011730'),
-      socialMetaTagParameters: SocialMetaTagParameters(
-        title: 'Invite to join team',
-        description: 'An owner of a team on TagTeam has invited you to join',
-      ),
-    );
+  Future<String?> generateInvitLink(int teamId) async {
+    String? link = await TeamApi().createInviteLink(teamId, SnackbarErrorHandler(context));
 
-    final ShortDynamicLink shortDynamicLink = await parameters.buildShortLink();
-    final Uri shortUrl = shortDynamicLink.shortUrl;
+    return link;
 
-    return shortUrl.toString();
+    // final DynamicLinkParameters parameters = DynamicLinkParameters(
+    //   uriPrefix: 'https://tagteammobile.page.link',
+    //   link: Uri.parse('https://tagteammobile.page.link.com/?code=$inviteCode/'),
+    //   androidParameters: AndroidParameters(
+    //     packageName: 'com.eyro.tagteamprod',
+    //     minimumVersion: 1,
+    //   ),
+    //   iosParameters: IosParameters(bundleId: 'com.eyro.tagteammobile', appStoreId: '1581011730'),
+    //   socialMetaTagParameters: SocialMetaTagParameters(
+    //     title: 'Invite to join team',
+    //     description: 'An owner of a team on TagTeam has invited you to join',
+    //   ),
+    // );
+
+    // final ShortDynamicLink shortDynamicLink = await parameters.buildShortLink();
+    // final Uri shortUrl = shortDynamicLink.shortUrl;
+
+    // return shortUrl.toString();
   }
 }

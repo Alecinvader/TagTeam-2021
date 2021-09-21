@@ -22,6 +22,21 @@ class LoginServices {
     }
   }
 
+  Future<String?> checkAppVersion(
+      String configString, String installedString, String appUpdateLink, BuildContext context) async {
+    try {
+      int? configVersion = int.tryParse(configString.split('.').join(""));
+      int? installedVersion = int.tryParse(installedString.split('.').join(""));
+
+      if (installedVersion! < configVersion!) {
+        await LoginServices().showUpdateDialog(context, appUpdateLink);
+        return "App version is out of date";
+      }
+    } catch (error) {
+      return "Failed to check app version";
+    }
+  }
+
   Future showUpdateDialog(BuildContext context, String appUpdateLink) async {
     await showDialog(
         context: context,

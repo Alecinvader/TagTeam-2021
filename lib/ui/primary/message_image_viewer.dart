@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:http/http.dart' as http;
@@ -6,7 +7,9 @@ class ImageViewer extends StatefulWidget {
   final String primaryImage;
   final String messageId;
 
-  const ImageViewer({Key? key, required this.primaryImage, required this.messageId}) : super(key: key);
+  const ImageViewer(
+      {Key? key, required this.primaryImage, required this.messageId})
+      : super(key: key);
 
   @override
   _ImageViewerState createState() => _ImageViewerState();
@@ -51,22 +54,22 @@ class _ImageViewerState extends State<ImageViewer> {
             children: [
               Expanded(
                 child: InteractiveViewer(
-                  panEnabled: false, // Set it to false
+                  panEnabled: true, // Set it to false
                   boundaryMargin: EdgeInsets.all(50),
                   minScale: 0.5,
                   maxScale: 2,
                   child: Hero(
                     tag: 'messageimage${widget.messageId}',
-                    child: Image.network(
-                      widget.primaryImage,
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-
+                    child: CachedNetworkImage(
+                      memCacheHeight: 800,
+                      maxHeightDiskCache: 800,
+                      maxWidthDiskCache: 800,
+                      memCacheWidth: 800,
+                      imageUrl: widget.primaryImage,
+                      progressIndicatorBuilder: (context, url, progress) {
                         return Center(
                           child: CircularProgressIndicator(
-                            value: progress.expectedTotalBytes != null
-                                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                                : null,
+                            value: progress.progress,
                           ),
                         );
                       },
@@ -87,7 +90,8 @@ class _ImageViewerState extends State<ImageViewer> {
       var response = await http.readBytes(Uri.parse(widget.primaryImage));
       final result = await ImageGallerySaver.saveImage(response, quality: 80);
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to save image')));
       setState(() {
         imageSaved = false;
       });

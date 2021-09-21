@@ -5,22 +5,22 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:tagteamprod/models/channel.dart';
 import 'package:tagteamprod/models/chat_notification.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/tagteam_circleavatar.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/core/tagteam_drawer.dart';
-import 'package:tagteamprod/ui/primary/in_team/messages/message_page.dart';
 import 'package:tagteamprod/ui/primary/search_team.dart';
 import 'package:tagteamprod/ui/utility/notifications/notification_handler.dart';
+
 import '../../models/tagteam.dart';
 import '../../server/errors/snackbar_error_handler.dart';
 import '../../server/team/team_api.dart';
-import 'home_widgets/home_team_tile.dart';
 import '../utility/core/better_future_builder.dart';
+import 'home_widgets/home_team_tile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -32,17 +32,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<List<TagTeam>> future;
 
-  late FToast fToast;
-
   @override
   void initState() {
     super.initState();
     future = TeamApi().getAllTeams(SnackbarErrorHandler(context));
-    fToast = FToast();
-    fToast.init(context);
     setupMessaging(context);
     initDynamicLinks();
-    FirebaseAuth.instance.authStateChanges().listen((firebaseUser) {});
   }
 
   @override
@@ -95,11 +90,14 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: ListView.builder(
                     itemBuilder: (context, index) {
-                      return MiniDashboardTile(team: data![index]);
+                      return Padding(
+                        padding: index == (data!.length - 1) ? EdgeInsets.only(bottom: 16.0) : EdgeInsets.all(0),
+                        child: MiniDashboardTile(team: data[index]),
+                      );
                     },
                     itemCount: data?.length ?? 0,
                   ),
-                ))
+                )),
               ],
             ),
           );
@@ -152,117 +150,84 @@ class _HomePageState extends State<HomePage> {
     }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      print('got message');
-
       ChatNotification? chatNotification;
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
-        if (Provider.of<TeamAuthNotifier>(context, listen: false).activeChannelId != chatNotification.firebaseId) {
-          showToast(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
+        if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
+            chatNotification.firebaseId) {
+          showMessageNotif(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
               chatNotification.teamId!);
+        }
+      } else if (message.data['type'] == "request") {
+        int? teamId = int.tryParse(message.data['teamID']);
+
+        if (teamId != null) {
+          showRequestNotif(message.notification!.title!, message.notification!.body!, teamId);
         }
       }
     });
 
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    // RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage().then((value) {
+    //   if (value != null) {
+    //     ChatNotification? chatNotification;
+    //     if (value.data['type'] == "chat") {
+    //       chatNotification = ChatNotification.fromJson(value.data);
+    //       if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
+    //           chatNotification.firebaseId) {
+    //         NotificationHandler(context).tryNavigateToMessage(chatNotification.teamId!, chatNotification.firebaseId!);
+    //       }
+    //     } else if (value.data['type'] == "request") {
+    //       int? teamId = int.tryParse(value.data['teamID']);
 
-    inspect(initialMessage);
-    // await NotificationHandler(context, initialMessage).handleIncomingMessage();
-    // print(initialMessage);
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
-    // s
+    //       if (teamId != null) {
+    //         NotificationHandler(context).tryGoToTeamRequest(teamId);
+    //       }
+    //     }
+    //   }
+    // });
 
-    // Also handle any interaction when the app is in the background via a
-    // Stream listener
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       ChatNotification? chatNotification;
-
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
-        if (Provider.of<TeamAuthNotifier>(context, listen: false).activeChannelId != chatNotification.firebaseId) {
-          await NotificationHandler(context)
-              .tryNavigateToMessage(chatNotification.teamId ?? 0, chatNotification.firebaseId ?? '');
+        if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
+            chatNotification.firebaseId) {
+          NotificationHandler(context).tryNavigateToMessage(chatNotification.teamId!, chatNotification.firebaseId!);
+        }
+      } else if (message.data['type'] == "request") {
+        int? teamId = int.tryParse(message.data['teamID']);
+
+        if (teamId != null) {
+          NotificationHandler(context).tryGoToTeamRequest(teamId);
         }
       }
     });
   }
 
-  void showToast(String title, String body, String firebaseId, int teamId) {
-    Widget toast = GestureDetector(
-      onVerticalDragEnd: (DragEndDetails details) {
-        if (details.primaryVelocity!.abs() > 100) {
-          fToast.removeQueuedCustomToasts();
-        }
-      },
-      onTap: () async {
-        fToast.removeQueuedCustomToasts();
+  void showMessageNotif(String title, String body, String firebaseId, int teamId) {
+    BuildContext context = Get.context ?? this.context;
 
-        NotificationHandler(context).tryNavigateToMessage(teamId, firebaseId);
-      },
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Material(
-              borderRadius: BorderRadius.circular(8.0),
-              elevation: 8.0,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: Color(0xFF293C4D),
-                ),
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '$title',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        Wrap(
-                          children: [
-                            Text(
-                              "$body",
-                              maxLines: 2,
-                              style: TextStyle(color: Colors.white70),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              )),
-          Align(
-            alignment: Alignment.topRight,
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context).accentColor,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    Get.snackbar(title, body,
+        backgroundColor: Color(0xFF293C4D),
+        messageText: Text(
+          body,
+          maxLines: 2,
+        ), onTap: (object) {
+      NotificationHandler(context).tryNavigateToMessage(teamId, firebaseId);
+    });
+  }
 
-    fToast.showToast(
-        child: toast,
-        toastDuration: Duration(seconds: 2),
-        positionedToastBuilder: (context, child) {
-          return Positioned(
-            child: child,
-            top: 36.0,
-            left: 16.0,
-            right: 16.0,
-          );
-        });
-    // Custom Toast Position
+  void showRequestNotif(String title, String body, int teamId) {
+    BuildContext context = Get.context ?? this.context;
+
+    Get.snackbar(title, body,
+        backgroundColor: Color(0xFF293C4D),
+        messageText: Text(
+          body,
+          maxLines: 2,
+        ), onTap: (object) {
+      NotificationHandler(context).tryGoToTeamRequest(teamId);
+    });
   }
 
   Future<void> showJoinDialog(String inviteCode) async {
@@ -270,7 +235,7 @@ class _HomePageState extends State<HomePage> {
         .searchByInviteCode(inviteCode, SnackbarErrorHandler(context, overrideErrorMessage: 'Team no longer exists'));
 
     await showDialog(
-        context: context,
+        context: Get.context ?? context,
         builder: (context2) {
           return SimpleDialog(
             backgroundColor: kLightBackgroundColor,
