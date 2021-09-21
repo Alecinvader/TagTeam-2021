@@ -76,6 +76,10 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
           child: Stack(
             children: [
               CachedNetworkImage(
+                memCacheHeight: 800,
+                maxHeightDiskCache: 800,
+                maxWidthDiskCache: 800,
+                memCacheWidth: 800,
                 filterQuality: FilterQuality.medium,
                 width: double.infinity,
                 fit: BoxFit.cover,

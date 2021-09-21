@@ -35,6 +35,10 @@ class _TagTeamCircleAvatarState extends State<TagTeamCircleAvatar> {
                 fit: BoxFit.cover,
               )
             : CachedNetworkImage(
+                maxWidthDiskCache: 400,
+                memCacheWidth: 400,
+                memCacheHeight: 400,
+                maxHeightDiskCache: 400,
                 imageUrl: widget.url,
                 errorWidget: (context, object, trace) {
                   return widget.onErrorReplacement != null

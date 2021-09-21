@@ -7,7 +7,9 @@ class ImageViewer extends StatefulWidget {
   final String primaryImage;
   final String messageId;
 
-  const ImageViewer({Key? key, required this.primaryImage, required this.messageId}) : super(key: key);
+  const ImageViewer(
+      {Key? key, required this.primaryImage, required this.messageId})
+      : super(key: key);
 
   @override
   _ImageViewerState createState() => _ImageViewerState();
@@ -59,6 +61,10 @@ class _ImageViewerState extends State<ImageViewer> {
                   child: Hero(
                     tag: 'messageimage${widget.messageId}',
                     child: CachedNetworkImage(
+                      memCacheHeight: 800,
+                      maxHeightDiskCache: 800,
+                      maxWidthDiskCache: 800,
+                      memCacheWidth: 800,
                       imageUrl: widget.primaryImage,
                       progressIndicatorBuilder: (context, url, progress) {
                         return Center(
@@ -84,7 +90,8 @@ class _ImageViewerState extends State<ImageViewer> {
       var response = await http.readBytes(Uri.parse(widget.primaryImage));
       final result = await ImageGallerySaver.saveImage(response, quality: 80);
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save image')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to save image')));
       setState(() {
         imageSaved = false;
       });

@@ -367,7 +367,12 @@ class MessageBubble extends StatelessWidget {
               tag: 'messageimage${message.messageId}',
               child: message.isFileImage == false || message.isFileImage == null
                   ? CachedNetworkImage(
+                    memCacheHeight: 800,
+                    memCacheWidth: 800,
+                    maxWidthDiskCache: 800,
+                    maxHeightDiskCache: 800,
                       imageUrl: message.imagePath ?? '',
+                      
                       errorWidget: (context, object, trace) {
                         return Center(child: Text('Failed to load image'));
                       },
