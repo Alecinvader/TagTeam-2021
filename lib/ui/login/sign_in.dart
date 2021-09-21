@@ -187,7 +187,7 @@ class _SignInState extends State<SignIn> {
 
     String? remoteConfigError = await tryGetRemoteConfig();
     if (remoteConfigError != null) {
-      return remoteConfigError;
+      throw remoteConfigError;
     }
     String? appVersionError = await LoginServices().checkAppVersion(remoteConfig.getString('minAppVersion'),
         _packageInfo.version, remoteConfig.getString('appUpdateLink'), context);
@@ -196,7 +196,7 @@ class _SignInState extends State<SignIn> {
         _loading = false;
         _showSplashPage = false;
       });
-      return appVersionError;
+      throw appVersionError;
     }
 
     try {

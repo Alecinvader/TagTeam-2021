@@ -205,14 +205,14 @@ class _SignUpState extends State<SignUp> {
     });
 
     String? remoteConfigError = await tryGetRemoteConfig();
-    if (remoteConfigError != null) return remoteConfigError;
+    if (remoteConfigError != null) throw remoteConfigError;
     String? appVersionError = await LoginServices().checkAppVersion(remoteConfig.getString('minAppVersion'),
         _packageInfo.version, remoteConfig.getString('appUpdateLink'), context);
     if (appVersionError != null) {
       setState(() {
         _loading = false;
       });
-      return appVersionError;
+      throw appVersionError;
     }
 
     try {

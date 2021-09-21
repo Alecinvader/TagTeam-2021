@@ -57,7 +57,10 @@ class NotificationHandler {
         });
 
         if (result.claims!['team'] == currentTeam.teamId) {
-          await Get.to(() => SendMesssagePage(channel: currentChannel!));
+          await Get.offAll(() => SendMesssagePage(
+                channel: currentChannel!,
+                popToTeam: true,
+              ));
         }
         // Otherwise do the typical of getting all the teams and matching it up while refreshing the token to get new claims
       } else {

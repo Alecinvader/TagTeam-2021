@@ -167,7 +167,24 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    // RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage().then((value) {
+    //   if (value != null) {
+    //     ChatNotification? chatNotification;
+    //     if (value.data['type'] == "chat") {
+    //       chatNotification = ChatNotification.fromJson(value.data);
+    //       if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
+    //           chatNotification.firebaseId) {
+    //         NotificationHandler(context).tryNavigateToMessage(chatNotification.teamId!, chatNotification.firebaseId!);
+    //       }
+    //     } else if (value.data['type'] == "request") {
+    //       int? teamId = int.tryParse(value.data['teamID']);
+
+    //       if (teamId != null) {
+    //         NotificationHandler(context).tryGoToTeamRequest(teamId);
+    //       }
+    //     }
+    //   }
+    // });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       ChatNotification? chatNotification;
@@ -175,14 +192,13 @@ class _HomePageState extends State<HomePage> {
         chatNotification = ChatNotification.fromJson(message.data);
         if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
             chatNotification.firebaseId) {
-          showMessageNotif(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
-              chatNotification.teamId!);
+          NotificationHandler(context).tryNavigateToMessage(chatNotification.teamId!, chatNotification.firebaseId!);
         }
       } else if (message.data['type'] == "request") {
         int? teamId = int.tryParse(message.data['teamID']);
 
         if (teamId != null) {
-          showRequestNotif(message.notification!.title!, message.notification!.body!, teamId);
+          NotificationHandler(context).tryGoToTeamRequest(teamId);
         }
       }
     });
