@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tagteamprod/models/channel.dart';
@@ -25,6 +26,8 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
 
   bool notifSettings = false;
   late bool allowImageSending;
+
+  bool deviceEnabledNotifications = true;
 
   late Channel updatedChannel;
 
@@ -62,6 +65,19 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
               ),
               SimpleFutureBuilder<void>(
                 builder: (BuildContext context, data) {
+                  if (deviceEnabledNotifications == false) {
+                    return Container(
+                      decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                      child: ListTile(
+                        title: Text('Notifications are disabled on your device'),
+                        trailing: Switch.adaptive(
+                          onChanged: (bool? value) async {},
+                          value: false,
+                        ),
+                      ),
+                    );
+                  }
+
                   return Container(
                     decoration: BoxDecoration(color: Theme.of(context).primaryColor),
                     child: ListTile(
@@ -222,9 +238,19 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
     bool notifications =
         await ChannelApi().checkNotificationSettings(updatedChannel.id!, SnackbarErrorHandler(context));
 
-    setState(() {
-      notifSettings = notifications;
-    });
+    var settings = await FirebaseMessaging.instance.requestPermission();
+
+    if (settings.authorizationStatus == AuthorizationStatus.denied ||
+        settings.authorizationStatus == AuthorizationStatus.notDetermined) {
+      setState(() {
+        deviceEnabledNotifications = false;
+      });
+    } else {
+      setState(() {
+        notifSettings = notifications;
+        deviceEnabledNotifications = true;
+      });
+    }
   }
 }
 

@@ -10,6 +10,7 @@ import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/storage/storage_utility.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
+import 'package:tagteamprod/ui/core/adaptive_back_icon.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/channels/channel_settings_page.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_message_list.dart';
@@ -107,7 +108,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           leading: IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: AdapativeBackIcon(),
               onPressed: () {
                 Navigator.maybePop(context);
               }),
@@ -150,9 +151,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                 child: Column(
                   children: [
                     Expanded(
-                      child: CustomScrollView(reverse: true, controller: _scrollController,slivers: [
+                      child: CustomScrollView(reverse: true, controller: _scrollController, slivers: [
                         SliverList(
-                          
                             delegate: SliverChildBuilderDelegate((context, index) {
                           return MessageBubble(
                               key: Key('$index'),
@@ -185,9 +185,11 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                             children: [
                               Expanded(
                                 child: TextField(
+                                  textCapitalization: TextCapitalization.sentences,
                                   onTap: () {
-                                    _scrollController.animateTo(_scrollController.position.minScrollExtent, duration: Duration(milliseconds: 200), curve: Curves.easeIn);
-                                  }, 
+                                    _scrollController.animateTo(_scrollController.position.minScrollExtent,
+                                        duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+                                  },
                                   minLines: 1,
                                   maxLines: 6,
                                   controller: _textFieldController,

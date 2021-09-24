@@ -17,13 +17,11 @@ import 'package:tagteamprod/ui/primary/in_team/team_info.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_message_list.dart';
 
 class NotificationHandler {
-  BuildContext context;
-
-  NotificationHandler(this.context);
+  NotificationHandler();
 
   Future<void> tryNavigateToMessage(int teamId, String firebaseId) async {
     try {
-      TagTeam? currentTeam = Provider.of<TeamAuthNotifier>(context, listen: false).currentTeam;
+      TagTeam? currentTeam = Provider.of<TeamAuthNotifier>(Get.context!, listen: false).currentTeam;
       List<TagTeam> teams = [];
 
       List<Channel> channels = [];
@@ -45,7 +43,7 @@ class NotificationHandler {
 
         channels = await ChannelApi().getChannelsForTeam(
             teamId,
-            SnackbarErrorHandler(context, onErrorHandler: () {
+            SnackbarErrorHandler(Get.context!, onErrorHandler: () {
               throw "Could not get channles";
             }));
 
@@ -70,14 +68,14 @@ class NotificationHandler {
               ),
             ));
 
-        teams = await TeamApi().getAllTeams(SnackbarErrorHandler(context, onErrorHandler: () {
+        teams = await TeamApi().getAllTeams(SnackbarErrorHandler(Get.context!, onErrorHandler: () {
           throw "Could not get all teams";
         }));
         if (teams.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
             content: Text("Team does not exist"),
           ));
-          Navigator.pop(context);
+          Navigator.pop(Get.context!);
         }
         teams.forEach((element) {
           if (element.teamId == teamId) {
@@ -87,7 +85,7 @@ class NotificationHandler {
         if (currentTeam != null) {
           final ServerResponse role = await TeamApi().setActiveTeam(
               teamId,
-              SnackbarErrorHandler(context, onErrorHandler: () {
+              SnackbarErrorHandler(Get.context!, onErrorHandler: () {
                 throw "could not set team active";
               }));
 
@@ -95,7 +93,7 @@ class NotificationHandler {
 
           channels = await ChannelApi().getChannelsForTeam(
               teamId,
-              SnackbarErrorHandler(context, onErrorHandler: () {
+              SnackbarErrorHandler(Get.context!, onErrorHandler: () {
                 throw "could not get channels";
               }));
 
@@ -106,26 +104,25 @@ class NotificationHandler {
             }
           });
 
-          Provider.of<TeamAuthNotifier>(context, listen: false).setActiveTeam(currentTeam!, role.message!);
+          Provider.of<TeamAuthNotifier>(Get.context!, listen: false).setActiveTeam(currentTeam!, role.message!);
 
-          await Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                  builder: (context) => SendMesssagePage(
-                        popToTeam: true,
-                        channel: currentChannel!,
-                      )),
-              (Route<dynamic> route) => false);
+          Get.offAll(() => SendMesssagePage(
+                popToTeam: true,
+                channel: currentChannel!,
+              ));
         }
       }
     } catch (error) {
       // await Navigator.of(context)
       //     .pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+      ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(content: Text(error.toString())));
       Get.offAll(() => HomePage());
+      throw error;
     }
   }
 
   Future<void> tryGoToTeamRequest(int teamId) async {
-    TeamAuthNotifier teamAuthNotifier = Provider.of<TeamAuthNotifier>(context, listen: false);
+    TeamAuthNotifier teamAuthNotifier = Provider.of<TeamAuthNotifier>(Get.context!, listen: false);
 
     try {
       Get.to(Scaffold(body: SplashPage()));
@@ -136,13 +133,13 @@ class NotificationHandler {
       } else {
         final ServerResponse role = await TeamApi().setActiveTeam(
             teamId,
-            SnackbarErrorHandler(context, onErrorHandler: () {
+            SnackbarErrorHandler(Get.context!, onErrorHandler: () {
               throw "Could not set team as active";
             }));
 
         await FirebaseAuth.instance.currentUser!.getIdToken(true);
 
-        List<TagTeam> teams = await TeamApi().getAllTeams(SnackbarErrorHandler(context, onErrorHandler: () {
+        List<TagTeam> teams = await TeamApi().getAllTeams(SnackbarErrorHandler(Get.context!, onErrorHandler: () {
           throw "Could not get teams for user";
         }));
 
@@ -161,7 +158,7 @@ class NotificationHandler {
         Get.to(() => TeamInfo());
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+      ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(content: Text(error.toString())));
       Get.to(() => HomePage());
     }
   }

@@ -18,6 +18,7 @@ import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
 import 'package:tagteamprod/server/team/team_api.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
+import 'package:tagteamprod/ui/core/success_snackbar.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/message_image_viewer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -367,12 +368,11 @@ class MessageBubble extends StatelessWidget {
               tag: 'messageimage${message.messageId}',
               child: message.isFileImage == false || message.isFileImage == null
                   ? CachedNetworkImage(
-                    memCacheHeight: 800,
-                    memCacheWidth: 800,
-                    maxWidthDiskCache: 800,
-                    maxHeightDiskCache: 800,
+                      memCacheHeight: 800,
+                      memCacheWidth: 800,
+                      maxWidthDiskCache: 800,
+                      maxHeightDiskCache: 800,
                       imageUrl: message.imagePath ?? '',
-                      
                       errorWidget: (context, object, trace) {
                         return Center(child: Text('Failed to load image'));
                       },
@@ -436,6 +436,7 @@ class MessageBubble extends StatelessWidget {
                           onPressed: () async {
                             if (teamId != null) {
                               await TeamApi().requestToJoinTeam(teamId, SnackbarErrorHandler(context));
+                              SuccessSnackBar(context, widget: Text('Request has been sent')).showSnackbar(context);
                             }
                           },
                           child: Text(

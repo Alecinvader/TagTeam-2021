@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/models/chat_notification.dart';
 import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
@@ -149,7 +150,10 @@ class _HomePageState extends State<HomePage> {
       await UserApi().updateFCMToken(token, FirebaseAuth.instance.currentUser!.uid, SnackbarErrorHandler(context));
     }
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      await prefs.setString(message.messageId!, '1');
       ChatNotification? chatNotification;
       if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
@@ -167,38 +171,46 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
-    // RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage().then((value) {
-    //   if (value != null) {
-    //     ChatNotification? chatNotification;
-    //     if (value.data['type'] == "chat") {
-    //       chatNotification = ChatNotification.fromJson(value.data);
-    //       if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
-    //           chatNotification.firebaseId) {
-    //         NotificationHandler(context).tryNavigateToMessage(chatNotification.teamId!, chatNotification.firebaseId!);
-    //       }
-    //     } else if (value.data['type'] == "request") {
-    //       int? teamId = int.tryParse(value.data['teamID']);
-
-    //       if (teamId != null) {
-    //         NotificationHandler(context).tryGoToTeamRequest(teamId);
-    //       }
-    //     }
-    //   }
-    // });
-
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      ChatNotification? chatNotification;
-      if (message.data['type'] == "chat") {
-        chatNotification = ChatNotification.fromJson(message.data);
-        if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
-            chatNotification.firebaseId) {
-          NotificationHandler(context).tryNavigateToMessage(chatNotification.teamId!, chatNotification.firebaseId!);
-        }
-      } else if (message.data['type'] == "request") {
-        int? teamId = int.tryParse(message.data['teamID']);
+      if (!prefs.containsKey(message.messageId!)) {
+        await prefs.setString(message.messageId!, '1');
+        ChatNotification? chatNotification;
+        if (message.data['type'] == "chat") {
+          chatNotification = ChatNotification.fromJson(message.data);
+          if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
+              chatNotification.firebaseId) {
+            NotificationHandler().tryNavigateToMessage(chatNotification.teamId!, chatNotification.firebaseId!);
+          }
+        } else if (message.data['type'] == "request") {
+          int? teamId = int.tryParse(message.data['teamID']);
 
-        if (teamId != null) {
-          NotificationHandler(context).tryGoToTeamRequest(teamId);
+          if (teamId != null) {
+            NotificationHandler().tryGoToTeamRequest(teamId);
+          }
+        }
+      }
+    });
+
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage().then((value) async {
+      if (value != null) {
+        if (value.messageId != null) {
+          if (!prefs.containsKey(value.messageId!)) {
+            await prefs.setString(value.messageId!, '1');
+            ChatNotification? chatNotification;
+            if (value.data['type'] == "chat") {
+              chatNotification = ChatNotification.fromJson(value.data);
+              if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
+                  chatNotification.firebaseId) {
+                NotificationHandler().tryNavigateToMessage(chatNotification.teamId!, chatNotification.firebaseId!);
+              }
+            } else if (value.data['type'] == "request") {
+              int? teamId = int.tryParse(value.data['teamID']);
+
+              if (teamId != null) {
+                NotificationHandler().tryGoToTeamRequest(teamId);
+              }
+            }
+          }
         }
       }
     });
@@ -213,7 +225,7 @@ class _HomePageState extends State<HomePage> {
           body,
           maxLines: 2,
         ), onTap: (object) {
-      NotificationHandler(context).tryNavigateToMessage(teamId, firebaseId);
+      NotificationHandler().tryNavigateToMessage(teamId, firebaseId);
     });
   }
 
@@ -226,7 +238,7 @@ class _HomePageState extends State<HomePage> {
           body,
           maxLines: 2,
         ), onTap: (object) {
-      NotificationHandler(context).tryGoToTeamRequest(teamId);
+      NotificationHandler().tryGoToTeamRequest(teamId);
     });
   }
 
