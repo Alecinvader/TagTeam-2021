@@ -115,10 +115,13 @@ class _MiniDashboardTileState extends State<MiniDashboardTile> {
                     const SizedBox(
                       width: 8.0,
                     ),
-                    Text(
-                      team.name ?? 'Team Name',
-                      style:
-                          TextStyle(color: Theme.of(context).accentColor, fontSize: 18.0, fontWeight: FontWeight.w600),
+                    Flexible(
+                      child: Text(
+                        team.name ?? 'Team Name',
+                        maxLines: 1,
+                        style: TextStyle(
+                            color: Theme.of(context).accentColor, fontSize: 18.0, fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ],
                 ),

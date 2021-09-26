@@ -13,6 +13,7 @@ import 'package:tagteamprod/server/user/user_api.dart';
 import 'package:tagteamprod/ui/core/adaptive_back_icon.dart';
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/primary/channels/channel_settings_page.dart';
+import 'package:tagteamprod/ui/primary/in_team/messages/scroll_down_button.dart';
 import 'package:tagteamprod/ui/primary/in_team/team_message_list.dart';
 import '../../../../models/channel.dart';
 import '../../../../models/message.dart';
@@ -45,7 +46,10 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   // Messages
   List<Message> messages = [];
   String? _pendingMessage;
-  ScrollController _scrollController = new ScrollController();
+  late final ScrollController _scrollController = new ScrollController();
+
+  bool scrollAboveThreshold = false;
+  int updatedMessageCount = 0;
 
   // Local Storage
   SharedPreferences? _preferences;
@@ -53,6 +57,18 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   @override
   void initState() {
     super.initState();
+
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 100 && !scrollAboveThreshold) {
+        setState(() {
+          scrollAboveThreshold = true;
+        });
+      } else if (scrollAboveThreshold == true && _scrollController.offset <= 100) {
+        setState(() {
+          scrollAboveThreshold = false;
+        });
+      }
+    });
 
     // Get blocked users
     UserApi().getBlockedUsers(SnackbarErrorHandler(context)).then((value) {
@@ -148,87 +164,100 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
               }
 
               return SafeArea(
-                child: Column(
+                child: Stack(
                   children: [
-                    Expanded(
-                      child: CustomScrollView(reverse: true, controller: _scrollController, slivers: [
-                        SliverList(
-                            delegate: SliverChildBuilderDelegate((context, index) {
-                          return MessageBubble(
-                              key: Key('$index'),
-                              channelId: widget.channel.firebaseId!,
-                              isInGroup: getIsInGroup(index),
-                              showTime: getIsWithinTimeFrame(index),
-                              showsMessageDate: getIsMessageFirstOfDay(index),
-                              isFirstOfGroup: getIsMessageFirstInGroup(index),
-                              isLastOfGroup: getIsMessageLastInGroup(index),
-                              message: messages[index]);
-                        }, childCount: messages.length)),
-                      ]),
-                    ),
-                    Consumer<TeamAuthNotifier>(builder: (context, data, _) {
-                      if (!data.isAdmin && channel.type == ChannelType.announcment) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
-                          child: SizedBox(),
-                        );
-                      }
-
-                      return Padding(
-                        padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: kLightBackgroundColor,
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  textCapitalization: TextCapitalization.sentences,
-                                  onTap: () {
-                                    _scrollController.animateTo(_scrollController.position.minScrollExtent,
-                                        duration: Duration(milliseconds: 200), curve: Curves.easeIn);
-                                  },
-                                  minLines: 1,
-                                  maxLines: 6,
-                                  controller: _textFieldController,
-                                  onChanged: (String value) {
-                                    _pendingMessage = value;
-                                  },
-                                  decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0, bottom: 6.0),
-                                      focusedBorder: InputBorder.none,
-                                      enabledBorder: InputBorder.none),
-                                ),
-                              ),
-                              channel.allowImageSending == true
-                                  ? IconButton(
-                                      onPressed: () async {
-                                        await sendMessage(true);
-                                      },
-                                      icon: Icon(Icons.image_outlined))
-                                  : SizedBox(),
-                              TextButton(
-                                  onPressed: () async {
-                                    if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
-                                      _textFieldController.clear();
-                                      await sendMessage(false);
-
-                                      setState(() {
-                                        _pendingMessage = '';
-                                      });
-                                    }
-                                  },
-                                  child: Text(
-                                    'Send',
-                                    style: TextStyle(color: Theme.of(context).accentColor),
-                                  ))
-                            ],
-                          ),
+                    Column(
+                      children: [
+                        Expanded(
+                          child: CustomScrollView(reverse: true, controller: _scrollController, slivers: [
+                            SliverList(
+                                delegate: SliverChildBuilderDelegate((context, index) {
+                              return MessageBubble(
+                                  key: Key('$index'),
+                                  channelId: widget.channel.firebaseId!,
+                                  isInGroup: getIsInGroup(index),
+                                  showTime: getIsWithinTimeFrame(index),
+                                  showsMessageDate: getIsMessageFirstOfDay(index),
+                                  isFirstOfGroup: getIsMessageFirstInGroup(index),
+                                  isLastOfGroup: getIsMessageLastInGroup(index),
+                                  message: messages[index]);
+                            }, childCount: messages.length)),
+                          ]),
                         ),
-                      );
-                    }),
+                        Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+                          if (!data.isAdmin && channel.type == ChannelType.announcment) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 16.0),
+                              child: SizedBox(),
+                            );
+                          }
+
+                          return Padding(
+                            padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: kLightBackgroundColor,
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      textCapitalization: TextCapitalization.sentences,
+                                      onTap: () {
+                                        _scrollController.animateTo(_scrollController.position.minScrollExtent,
+                                            duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+                                      },
+                                      minLines: 1,
+                                      maxLines: 6,
+                                      controller: _textFieldController,
+                                      onChanged: (String value) {
+                                        _pendingMessage = value;
+                                      },
+                                      decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0, bottom: 6.0),
+                                          focusedBorder: InputBorder.none,
+                                          enabledBorder: InputBorder.none),
+                                    ),
+                                  ),
+                                  channel.allowImageSending == true
+                                      ? IconButton(
+                                          onPressed: () async {
+                                            await sendMessage(true);
+                                          },
+                                          icon: Icon(Icons.image_outlined))
+                                      : SizedBox(),
+                                  TextButton(
+                                      onPressed: () async {
+                                        if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
+                                          _textFieldController.clear();
+                                          await sendMessage(false);
+
+                                          setState(() {
+                                            _pendingMessage = '';
+                                          });
+                                        }
+                                      },
+                                      child: Text(
+                                        'Send',
+                                        style: TextStyle(color: Theme.of(context).accentColor),
+                                      ))
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                    checkIfNewMessagesCameIn()
+                        ? Align(
+                            alignment: Alignment.bottomCenter - Alignment(0.0, .20),
+                            child: ScrollDownMessageButton(onPressed: () {
+                              _scrollController.animateTo(_scrollController.position.minScrollExtent,
+                                  duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+                            }),
+                          )
+                        : SizedBox(),
                   ],
                 ),
               );
@@ -365,6 +394,16 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   //   }
   // }
 
+  bool checkIfNewMessagesCameIn() {
+    if (messages.length > updatedMessageCount && scrollAboveThreshold) {
+      return true;
+    } else if (!scrollAboveThreshold) {
+      return false;
+    }
+
+    return false;
+  }
+
   void convertSnapshotsIntoMessages(List<QueryDocumentSnapshot> list) {
     List<Message> tempMessages = [];
 
@@ -381,6 +420,10 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
 
       return choice;
     });
+
+    if (!scrollAboveThreshold || updatedMessageCount == 0) {
+      updatedMessageCount = messages.length;
+    }
 
     messages = tempMessages;
   }
@@ -411,6 +454,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
       return true;
     } else if (index == 0) {
       return false;
+    } else if (getIsMessageFirstOfDay(index)) {
+      return true;
     } else if (messages[index].senderId == messages[index + 1].senderId &&
         messages[index].senderId != messages[index - 1].senderId) {
       return false;
@@ -444,6 +489,8 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     if (getIsInGroup(index) == false) {
       return false;
     } else if (index == 0) {
+      return true;
+    } else if (getIsMessageFirstOfDay(index - 1)) {
       return true;
     } else if (messages[index - 1].senderId != messages[index].senderId) {
       return true;
