@@ -390,6 +390,12 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
       return true;
     } else if (messages.length == 1) {
       return true;
+    } else if (index == 0) {
+      if (!messages[index + 1].createdAt!.isSameDate(messages[index].createdAt!)) {
+        return true;
+      } else {
+        return false;
+      }
     } else if (index < messages.length - 2) {
       if (index > 0 && !messages[index + 1].createdAt!.isSameDate(messages[index].createdAt!)) {
         return true;

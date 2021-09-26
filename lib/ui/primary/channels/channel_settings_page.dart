@@ -8,6 +8,7 @@ import 'package:tagteamprod/models/provider/team_auth_notifier.dart';
 import 'package:tagteamprod/models/user.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/team/channels/channel_api.dart';
+import 'package:tagteamprod/ui/core/success_snackbar.dart';
 
 import 'package:tagteamprod/ui/core/tagteam_constants.dart';
 import 'package:tagteamprod/ui/utility/core/better_future_builder.dart';
@@ -202,9 +203,12 @@ class _ChannelSettingsPageState extends State<ChannelSettingsPage> {
 
                               if (selection == true) {
                                 var count = 0;
+                                SuccessSnackBar(context, widget: Text('Channel will be deleted shortly'))
+                                    .showSnackbar(context);
                                 Navigator.popUntil(context, (route) {
                                   return count++ == 2;
                                 });
+
                                 await ChannelApi().removeChannel(updatedChannel.id!, SnackbarErrorHandler(context));
                               }
                             },

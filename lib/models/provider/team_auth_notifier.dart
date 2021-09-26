@@ -19,6 +19,7 @@ class TeamAuthNotifier extends ChangeNotifier {
   void setActiveTeam(TagTeam team, String role) {
     currentTeam = team;
     authType = parseAuthType(role);
+    pendingRequests = 0;
 
     notifyListeners();
   }

@@ -79,7 +79,7 @@ class _CustomAppbarState extends State<TagTeamAppBar> {
                                   url: data.currentTeam!.imageLink ?? '',
                                 ),
                               ),
-                              if (data.pendingRequests > 0)
+                              if (data.pendingRequests > 0 && data.isAdmin)
                                 Positioned(
                                   left: 20.0,
                                   bottom: 20.0,
