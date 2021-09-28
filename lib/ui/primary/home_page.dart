@@ -141,18 +141,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  
-
   Future<void> setupMessaging(BuildContext context) async {
     final NotificationSettings hasPermission = await FirebaseMessaging.instance.requestPermission();
 
     TeamAuthNotifier notifier = Provider.of<TeamAuthNotifier>(context, listen: false);
 
     if (notifier.notificationsSetup == true) return;
-    Provider.of<TeamAuthNotifier>(context, listen: false).notificationsSetup = true;
-
-
-    
 
     String? token = await FirebaseMessaging.instance.getToken();
 
@@ -160,32 +154,30 @@ class _HomePageState extends State<HomePage> {
       await UserApi().updateFCMToken(token, FirebaseAuth.instance.currentUser!.uid, SnackbarErrorHandler(context));
     }
 
+    Provider.of<TeamAuthNotifier>(context, listen: false).notificationsSetup = true;
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      
       ChatNotification? chatNotification;
-
-      
 
       if (!prefs.containsKey(message.messageId!)) {
         await prefs.setString(message.messageId!, '1');
         if (message.data['type'] == "chat") {
-        chatNotification = ChatNotification.fromJson(message.data);
-        if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
-            chatNotification.firebaseId) {
-          showMessageNotif(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
-              chatNotification.teamId!);
-        }
-      } else if (message.data['type'] == "request") {
-        int? teamId = int.tryParse(message.data['teamID']);
+          chatNotification = ChatNotification.fromJson(message.data);
+          if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
+              chatNotification.firebaseId) {
+            showMessageNotif(message.notification!.title!, message.notification!.body!, chatNotification.firebaseId!,
+                chatNotification.teamId!);
+          }
+        } else if (message.data['type'] == "request") {
+          int? teamId = int.tryParse(message.data['teamID']);
 
-        if (teamId != null) {
-          showRequestNotif(message.notification!.title!, message.notification!.body!, teamId);
+          if (teamId != null) {
+            showRequestNotif(message.notification!.title!, message.notification!.body!, teamId);
+          }
         }
       }
-      }
-      
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
@@ -236,18 +228,13 @@ class _HomePageState extends State<HomePage> {
   void showMessageNotif(String title, String body, String firebaseId, int teamId) {
     BuildContext context = Get.context ?? this.context;
 
-    
-
     Get.snackbar(title, body,
         backgroundColor: Color(0xFF293C4D),
         messageText: Text(
           body,
           maxLines: 2,
-        ), boxShadows: [
-          BoxShadow(color: Colors.black12, offset: Offset(1, 2), blurRadius: 1)
-        ],
-        
-        onTap: (object) {
+        ),
+        boxShadows: [BoxShadow(color: Colors.black12, offset: Offset(1, 2), blurRadius: 1)], onTap: (object) {
       NotificationHandler().tryNavigateToMessage(teamId, firebaseId);
     });
   }
