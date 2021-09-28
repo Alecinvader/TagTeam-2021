@@ -58,7 +58,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   void initState() {
     super.initState();
 
-    _scrollController.addListener(() {
+    _scrollController.addListener(() async {
       if (_scrollController.offset > 100 && !scrollAboveThreshold) {
         setState(() {
           scrollAboveThreshold = true;
@@ -153,8 +153,108 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
             stream: messageStream,
             builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.hasData) {
-                if (!(snapshot.data!.docs.length < messages.length))
+                if (!(snapshot.data!.docs.length < messages.length)) {
                   convertSnapshotsIntoMessages(snapshot.data?.docs ?? []);
+                  return SafeArea(
+                    child: Stack(
+                      children: [
+                        Column(
+                          children: [
+                            Expanded(
+                              child: CustomScrollView(reverse: true, controller: _scrollController, slivers: [
+                                SliverList(
+                                    delegate: SliverChildBuilderDelegate((context, index) {
+                                  return MessageBubble(
+                                      key: Key('$index'),
+                                      channelId: widget.channel.firebaseId!,
+                                      isInGroup: getIsInGroup(index),
+                                      showTime: getIsWithinTimeFrame(index),
+                                      showsMessageDate: getIsMessageFirstOfDay(index),
+                                      isFirstOfGroup: getIsMessageFirstInGroup(index),
+                                      isLastOfGroup: getIsMessageLastInGroup(index),
+                                      message: messages[index]);
+                                }, childCount: messages.length)),
+                              ]),
+                            ),
+                            Consumer<TeamAuthNotifier>(builder: (context, data, _) {
+                              if (!data.isAdmin && channel.type == ChannelType.announcment) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 16.0),
+                                  child: SizedBox(),
+                                );
+                              }
+
+                              return Padding(
+                                padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: kLightBackgroundColor,
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          textCapitalization: TextCapitalization.sentences,
+                                          onTap: () {
+                                            _scrollController.animateTo(_scrollController.position.minScrollExtent,
+                                                duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+                                          },
+                                          minLines: 1,
+                                          maxLines: 6,
+                                          controller: _textFieldController,
+                                          onChanged: (String value) {
+                                            _pendingMessage = value;
+                                          },
+                                          decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0, bottom: 6.0),
+                                              focusedBorder: InputBorder.none,
+                                              enabledBorder: InputBorder.none),
+                                        ),
+                                      ),
+                                      channel.allowImageSending == true
+                                          ? IconButton(
+                                              onPressed: () async {
+                                                await sendMessage(true);
+                                              },
+                                              icon: Icon(Icons.image_outlined))
+                                          : SizedBox(),
+                                      TextButton(
+                                          onPressed: () async {
+                                            if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
+                                              _textFieldController.clear();
+                                              await sendMessage(false);
+
+                                              setState(() {
+                                                _pendingMessage = '';
+                                              });
+                                            }
+                                          },
+                                          child: Text(
+                                            'Send',
+                                            style: TextStyle(color: Theme.of(context).accentColor),
+                                          ))
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                        // checkIfNewMessagesCameIn()
+                        //     ? Align(
+                        //         alignment: getBottomAlignment(),
+                        //         child: ScrollDownMessageButton(onPressed: () {
+                        //           _scrollController.animateTo(_scrollController.position.minScrollExtent,
+                        //               duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+                        //         }),
+                        //       )
+                        //     : SizedBox(),
+                      ],
+                    ),
+                  );
+                }
               }
 
               if (snapshot.hasError) {
@@ -163,104 +263,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                 );
               }
 
-              return SafeArea(
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        Expanded(
-                          child: CustomScrollView(reverse: true, controller: _scrollController, slivers: [
-                            SliverList(
-                                delegate: SliverChildBuilderDelegate((context, index) {
-                              return MessageBubble(
-                                  key: Key('$index'),
-                                  channelId: widget.channel.firebaseId!,
-                                  isInGroup: getIsInGroup(index),
-                                  showTime: getIsWithinTimeFrame(index),
-                                  showsMessageDate: getIsMessageFirstOfDay(index),
-                                  isFirstOfGroup: getIsMessageFirstInGroup(index),
-                                  isLastOfGroup: getIsMessageLastInGroup(index),
-                                  message: messages[index]);
-                            }, childCount: messages.length)),
-                          ]),
-                        ),
-                        Consumer<TeamAuthNotifier>(builder: (context, data, _) {
-                          if (!data.isAdmin && channel.type == ChannelType.announcment) {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 16.0),
-                              child: SizedBox(),
-                            );
-                          }
-
-                          return Padding(
-                            padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: kLightBackgroundColor,
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-                                      textCapitalization: TextCapitalization.sentences,
-                                      onTap: () {
-                                        _scrollController.animateTo(_scrollController.position.minScrollExtent,
-                                            duration: Duration(milliseconds: 200), curve: Curves.easeIn);
-                                      },
-                                      minLines: 1,
-                                      maxLines: 6,
-                                      controller: _textFieldController,
-                                      onChanged: (String value) {
-                                        _pendingMessage = value;
-                                      },
-                                      decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.only(left: 8.0, right: 8.0, top: 6.0, bottom: 6.0),
-                                          focusedBorder: InputBorder.none,
-                                          enabledBorder: InputBorder.none),
-                                    ),
-                                  ),
-                                  channel.allowImageSending == true
-                                      ? IconButton(
-                                          onPressed: () async {
-                                            await sendMessage(true);
-                                          },
-                                          icon: Icon(Icons.image_outlined))
-                                      : SizedBox(),
-                                  TextButton(
-                                      onPressed: () async {
-                                        if (_pendingMessage != null && _pendingMessage!.isNotEmpty) {
-                                          _textFieldController.clear();
-                                          await sendMessage(false);
-
-                                          setState(() {
-                                            _pendingMessage = '';
-                                          });
-                                        }
-                                      },
-                                      child: Text(
-                                        'Send',
-                                        style: TextStyle(color: Theme.of(context).accentColor),
-                                      ))
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                    checkIfNewMessagesCameIn()
-                        ? Align(
-                            alignment: Alignment.bottomCenter - Alignment(0.0, .20),
-                            child: ScrollDownMessageButton(onPressed: () {
-                              _scrollController.animateTo(_scrollController.position.minScrollExtent,
-                                  duration: Duration(milliseconds: 200), curve: Curves.easeIn);
-                            }),
-                          )
-                        : SizedBox(),
-                  ],
-                ),
-              );
+              return SizedBox();
             },
           ),
         ),
@@ -268,8 +271,18 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
     );
   }
 
+  Alignment getBottomAlignment() {
+    if (MediaQuery.of(context).viewInsets.bottom > 0) {
+      return Alignment.bottomCenter - Alignment(0.0, .30);
+    } else {
+      return Alignment.bottomCenter - Alignment(0.0, .20);
+    }
+  }
+
   Future<void> sendMessage(bool isImage) async {
     if (isImage) {
+      FocusScope.of(context).unfocus();
+
       final String imagePath = await StorageUtility().getImagePath(
           SnackbarErrorHandler(context, overrideErrorMessage: 'Access denied, please grant access in your settings.'));
 
@@ -395,7 +408,7 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
   // }
 
   bool checkIfNewMessagesCameIn() {
-    if (messages.length > updatedMessageCount && scrollAboveThreshold) {
+    if (messages.length > updatedMessageCount && scrollAboveThreshold && updatedMessageCount != 0) {
       return true;
     } else if (!scrollAboveThreshold) {
       return false;

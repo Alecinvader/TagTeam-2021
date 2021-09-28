@@ -88,4 +88,9 @@ class TeamApi {
     return await api.post(
         '/team/changename/$teamId', {}, {"name": name}, handler, (map) => ServerResponse.fromJson(map));
   }
+
+  Future<ServerResponse> changeRequestNotfications(bool enabled, int teamId, String uid, ErrorHandler handler) async {
+    return await api.post('/team/requestnotifications/$teamId/$uid', {}, {"option": enabled == true ? 1 : 0}, handler,
+        (map) => ServerResponse.fromJson(map));
+  }
 }

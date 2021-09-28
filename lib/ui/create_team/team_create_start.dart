@@ -73,6 +73,8 @@ class _TeamBasicDetailsState extends State<TeamBasicDetails> {
   Future<void> createTeam() async {
     Channel? channel = await Navigator.push(context, MaterialPageRoute(builder: (context) => CreateSingleChannel()));
 
+    if (channel == null) return;
+
     team.name = teamName;
 
     setState(() {

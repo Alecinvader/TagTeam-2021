@@ -33,6 +33,7 @@ class _TeamRequestsState extends State<TeamRequests> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [IconButton(onPressed: () async {}, icon: Icon(Icons.settings))],
         title: Text('Join Requests'),
         centerTitle: true,
         elevation: 0,
