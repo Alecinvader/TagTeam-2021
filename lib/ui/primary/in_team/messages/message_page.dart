@@ -155,7 +155,17 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
               if (snapshot.hasData) {
                 if (!(snapshot.data!.docs.length < messages.length)) {
                   convertSnapshotsIntoMessages(snapshot.data?.docs ?? []);
-                  return SafeArea(
+                  
+                }
+              }
+
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Could not subscribe to messages'),
+                );
+              }
+
+              return SafeArea(
                     child: Stack(
                       children: [
                         Column(
@@ -254,16 +264,6 @@ class _SendMesssagePageState extends State<SendMesssagePage> {
                       ],
                     ),
                   );
-                }
-              }
-
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text('Could not subscribe to messages'),
-                );
-              }
-
-              return SizedBox();
             },
           ),
         ),

@@ -70,6 +70,7 @@ class _AppState extends State<App> {
                     labelStyle: TextStyle(color: Colors.white)),
                 primaryColor: primary,
                 scaffoldBackgroundColor: primary,
+                appBarTheme: AppBarTheme(backgroundColor: primary),
                 accentColor: accent,
               ),
               home: SignIn(),

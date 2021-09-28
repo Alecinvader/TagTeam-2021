@@ -11,6 +11,8 @@ class TeamAuthNotifier extends ChangeNotifier {
 
   int pendingRequests = 0;
 
+  bool notificationsSetup = false;
+
   String? activeChannelId;
   List<User> blockedUsers = [];
 

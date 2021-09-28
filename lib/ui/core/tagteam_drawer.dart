@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tagteamprod/server/errors/snackbar_error_handler.dart';
 import 'package:tagteamprod/server/user/user_api.dart';
@@ -51,8 +52,10 @@ class MenuDrawer extends StatelessWidget {
                       ),
                       ListTile(
                         onTap: () async {
-                          await Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+                          // await Navigator.of(context).pushAndRemoveUntil(
+                          //     MaterialPageRoute(builder: (context) => HomePage()), (Route<dynamic> route) => false);
+
+                          await Get.offAll(() => HomePage());
                         },
                         leading: Icon(
                           Icons.dashboard,

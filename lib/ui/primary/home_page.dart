@@ -141,8 +141,18 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  
+
   Future<void> setupMessaging(BuildContext context) async {
     final NotificationSettings hasPermission = await FirebaseMessaging.instance.requestPermission();
+
+    TeamAuthNotifier notifier = Provider.of<TeamAuthNotifier>(context, listen: false);
+
+    if (notifier.notificationsSetup == true) return;
+    Provider.of<TeamAuthNotifier>(context, listen: false).notificationsSetup = true;
+
+
+    
 
     String? token = await FirebaseMessaging.instance.getToken();
 
@@ -153,9 +163,14 @@ class _HomePageState extends State<HomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      await prefs.setString(message.messageId!, '1');
+      
       ChatNotification? chatNotification;
-      if (message.data['type'] == "chat") {
+
+      
+
+      if (!prefs.containsKey(message.messageId!)) {
+        await prefs.setString(message.messageId!, '1');
+        if (message.data['type'] == "chat") {
         chatNotification = ChatNotification.fromJson(message.data);
         if (Provider.of<TeamAuthNotifier>(Get.context ?? this.context, listen: false).activeChannelId !=
             chatNotification.firebaseId) {
@@ -169,6 +184,8 @@ class _HomePageState extends State<HomePage> {
           showRequestNotif(message.notification!.title!, message.notification!.body!, teamId);
         }
       }
+      }
+      
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
@@ -219,12 +236,18 @@ class _HomePageState extends State<HomePage> {
   void showMessageNotif(String title, String body, String firebaseId, int teamId) {
     BuildContext context = Get.context ?? this.context;
 
+    
+
     Get.snackbar(title, body,
         backgroundColor: Color(0xFF293C4D),
         messageText: Text(
           body,
           maxLines: 2,
-        ), onTap: (object) {
+        ), boxShadows: [
+          BoxShadow(color: Colors.black12, offset: Offset(1, 2), blurRadius: 1)
+        ],
+        
+        onTap: (object) {
       NotificationHandler().tryNavigateToMessage(teamId, firebaseId);
     });
   }
